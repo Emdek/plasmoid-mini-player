@@ -18,4 +18,73 @@
 *
 ***********************************************************************************/
 
+#ifndef MINIPLAYERPLYER_HEADER
+#define MINIPLAYERPLYER_HEADER
 
+#include <QtCore/QObject>
+#include <QtGui/QAction>
+#include <QtMultimediaKit/QMediaPlayer>
+#include <QtMultimediaKit/QMediaPlaylist>
+
+namespace MiniPlayer
+{
+
+enum PlayerAction { OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, MuteAction, VolumeAction, IncreaseVolumeAction, DecreaseVolumeAction, PlayNextAction, PlayPreviousAction, JumpBackAction, JumpForwardAction, JumpToAction };
+enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
+
+class Player : public QObject
+{
+    Q_OBJECT
+
+    public:
+        Player(QObject *parent = 0);
+
+        QString errorString() const;
+        QString title() const;
+        QMediaPlaylist* playlist() const;
+        QAction* action(PlayerAction action) const;
+        qint64 duration() const;
+        qint64 position() const;
+        PlayerState state() const;
+        int volume() const;
+        bool isAudioMuted() const;
+        bool isAudioAvailable() const;
+        bool isVideoAvailable() const;
+        bool isSeekable() const;
+
+    public slots:
+        void play();
+        void playPause();
+        void pause();
+        void stop();
+        void setPlaylist(QMediaPlaylist *playlist);
+        void setPosition(qint64 position);
+        void setVolume(int volume);
+        void setAudioMuted(bool muted);
+
+    protected:
+        PlayerState translateState(QMediaPlayer::State state) const;
+
+    protected slots:
+        void stateChanged(QMediaPlayer::State state);
+        void errorOccured(QMediaPlayer::Error error);
+
+    private:
+        QMediaPlayer *m_mediaPlayer;
+        QHash<PlayerAction, QAction*> m_actions;
+
+    signals:
+        void metaDataChanged();
+        void durationChanged(qint64 duration);
+        void volumeChanged(int volume);
+        void audioMutedChanged(bool muted);
+        void audioAvailableChanged(bool available);
+        void videoAvailableChanged(bool available);
+        void seekableChanged(bool seekable);
+        void stateChanged(PlayerState state);
+        void errorOccured(QString error);
+};
+
+}
+
+#endif
