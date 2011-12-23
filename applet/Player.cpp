@@ -20,12 +20,39 @@
 
 #include "Player.h"
 
+#include <KIcon>
+#include <KMenu>
+#include <KLocale>
+
 namespace MiniPlayer
 {
 
 Player::Player(QObject *parent) : QObject(parent),
     m_mediaPlayer(new QMediaPlayer(this))
 {
+    m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
+    m_actions[OpenMenuAction]->setMenu(new KMenu());
+    m_actions[OpenFileAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("document-open"), i18n("Open File"), this, SLOT(openFiles()), QKeySequence(Qt::Key_O));
+    m_actions[OpenUrlAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("uri-mms"), i18n("Open URL"), this, SLOT(openUrl()), QKeySequence(Qt::Key_U));
+    m_actions[PlayPauseAction] = new QAction(KIcon("media-playback-start"), i18n("Play"), this);
+    m_actions[PlayPauseAction]->setEnabled(false);
+    m_actions[PlayPauseAction]->setShortcut(QKeySequence(Qt::Key_Space));
+    m_actions[StopAction] = new QAction(KIcon("media-playback-stop"), i18n("Stop"), this);
+    m_actions[StopAction]->setEnabled(false);
+    m_actions[StopAction]->setShortcut(QKeySequence(Qt::Key_S));
+    m_actions[VolumeAction] = new QAction(KIcon("player-volume"), i18n("Volume"), this);
+    m_actions[VolumeAction]->setShortcut(QKeySequence(Qt::Key_V));
+    m_actions[AudioMenuAction] = new QAction(i18n("Audio"), this);
+    m_actions[AudioMenuAction]->setMenu(new KMenu());
+    m_actions[IncreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-high"), i18n("Increase Volume"), this, SLOT(increaseVolume()), QKeySequence(Qt::Key_Plus));
+    m_actions[DecreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-low"), i18n("Decrease Volume"), this, SLOT(decreaseVolume()), QKeySequence(Qt::Key_Minus));
+    m_actions[AudioMenuAction]->menu()->addSeparator();
+    m_actions[MuteAction]->menu()->addAction(KIcon("audio-volume-medium"), i18n("Mute Volume"));
+    m_actions[MuteAction]->setCheckable(true);
+    m_actions[MuteAction]->setShortcut(QKeySequence(Qt::Key_M));
+
+
+    connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setMuted(bool)));
     connect(m_mediaPlayer, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(stateChanged(QMediaPlayer::State)));
     connect(m_mediaPlayer, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(errorOccured(QMediaPlayer::Error)));
     connect(m_mediaPlayer, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
@@ -48,6 +75,26 @@ void Player::errorOccured(QMediaPlayer::Error error)
     {
         emit errorOccured(m_mediaPlayer->errorString());
     }
+}
+
+void Player::seekBackward()
+{
+    setPosition(position() - (duration() / 30));
+}
+
+void Player::seekForward()
+{
+    setPosition(position() + (duration() / 30));
+}
+
+void Player::increaseVolume()
+{
+    setVolume(qMin(1, (volume() + 10)));
+}
+
+void Player::decreaseVolume()
+{
+    setVolume(qMax(0, (volume() - 10)));
 }
 
 void Player::play()

@@ -29,7 +29,7 @@
 namespace MiniPlayer
 {
 
-enum PlayerAction { OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, MuteAction, VolumeAction, IncreaseVolumeAction, DecreaseVolumeAction, PlayNextAction, PlayPreviousAction, JumpBackAction, JumpForwardAction, JumpToAction };
+enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, VolumeAction, AudioMenuAction, MuteAction, IncreaseVolumeAction, DecreaseVolumeAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, JumpBackAction, JumpForwardAction, JumpToAction, VideoMenuAction };
 enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
 
 class Player : public QObject
@@ -53,6 +53,10 @@ class Player : public QObject
         bool isSeekable() const;
 
     public slots:
+        void seekBackward();
+        void seekForward();
+        void increaseVolume();
+        void decreaseVolume();
         void play();
         void playPause();
         void pause();
