@@ -1,0 +1,458 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: emdeck@gmail.com\n"
+"POT-Creation-Date: 2011-12-05 19:17+0100\n"
+"PO-Revision-Date: 2011-12-05 19:18+0100\n"
+"Last-Translator: Michał D. aka Emdek <emdeck@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. i18n: file: ui/general.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, general)
+#: locale/rc.cpp:3
+#: MiniPlayerApplet.cpp:598
+#: rc.cpp:3
+msgid "General"
+msgstr "Ogólne"
+
+#. i18n: file: ui/general.ui:33
+#. i18n: ectx: property (text), widget (QCheckBox, playOnStartup)
+#: locale/rc.cpp:6
+#: rc.cpp:6
+msgid "Start playing on startup"
+msgstr "Rozpocznij odtwarzanie na starcie"
+
+#. i18n: file: ui/general.ui:40
+#. i18n: ectx: property (text), widget (QLabel, showToolTipOnTrackChangeLabel)
+#: locale/rc.cpp:9
+#: rc.cpp:9
+msgid "Show tooltip when changing track for:"
+msgstr "Pokazuj dymek narzędziowy przy zmianie ścieżki przez:"
+
+#. i18n: file: ui/general.ui:47
+#. i18n: ectx: property (suffix), widget (QSpinBox, showToolTipOnTrackChange)
+#: locale/rc.cpp:12
+#: rc.cpp:12
+msgid " s"
+msgstr " s"
+
+#. i18n: file: ui/general.ui:54
+#. i18n: ectx: property (text), widget (QCheckBox, enableDBUS)
+#: locale/rc.cpp:15
+#: rc.cpp:15
+msgid "Enable D-Bus interface to control player"
+msgstr "Włącz interfejs D-Bus do kontrolowania odtwarzacza"
+
+#. i18n: file: ui/jumpToPosition.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, jumpToPosition)
+#: locale/rc.cpp:18
+#: MiniPlayerApplet.cpp:167
+#: MiniPlayerApplet.cpp:1598
+#: rc.cpp:18
+msgid "Jump to Position"
+msgstr "Skocz do pozycji"
+
+#. i18n: file: ui/jumpToPosition.ui:20
+#. i18n: ectx: property (text), widget (QLabel, positionLabel)
+#: locale/rc.cpp:21
+#: rc.cpp:21
+msgid "Jump to:"
+msgstr "Skocz do:"
+
+#. i18n: file: ui/jumpToPosition.ui:36
+#. i18n: ectx: property (displayFormat), widget (QTimeEdit, position)
+#: locale/rc.cpp:24
+#: rc.cpp:24
+msgid "HH:mm:ss"
+msgstr "HH:mm:ss"
+
+#. i18n: file: ui/playList.ui:20
+#. i18n: ectx: property (windowTitle), widget (QWidget, playList)
+#: locale/rc.cpp:27
+#: MiniPlayerApplet.cpp:262
+#: MiniPlayerApplet.cpp:344
+#: rc.cpp:27
+msgid "Playlist"
+msgstr "Lista odtwarzania"
+
+#. i18n: file: ui/playList.ui:55
+#. i18n: ectx: property (toolTip), widget (QToolButton, closeButton)
+#: locale/rc.cpp:30
+#: rc.cpp:30
+msgid "Close"
+msgstr "Zamknij"
+
+#. i18n: file: ui/playList.ui:289
+#. i18n: ectx: property (clickMessage), widget (KLineEdit, playListViewFilter)
+#: locale/rc.cpp:33
+#: rc.cpp:33
+msgid "Search..."
+msgstr "Szukaj..."
+
+#. i18n: file: ui/playList.ui:309
+#. i18n: ectx: property (toolTip), widget (QToolButton, addButton)
+#: locale/rc.cpp:36
+#: rc.cpp:36
+msgid "Add"
+msgstr "Dodaj"
+
+#. i18n: file: ui/playList.ui:319
+#. i18n: ectx: property (toolTip), widget (QToolButton, removeButton)
+#: locale/rc.cpp:39
+#: MiniPlayerApplet.cpp:2687
+#: rc.cpp:39
+msgid "Remove"
+msgstr "Usuń"
+
+#. i18n: file: ui/playList.ui:329
+#. i18n: ectx: property (toolTip), widget (QToolButton, editButton)
+#: locale/rc.cpp:42
+#: MiniPlayerApplet.cpp:2664
+#: rc.cpp:42
+msgid "Edit title"
+msgstr "Edytuj tytuł"
+
+#. i18n: file: ui/playList.ui:346
+#. i18n: ectx: property (toolTip), widget (QToolButton, moveUpButton)
+#: locale/rc.cpp:45
+#: rc.cpp:45
+msgid "Move down"
+msgstr "Przesuń w dół"
+
+#. i18n: file: ui/playList.ui:359
+#. i18n: ectx: property (toolTip), widget (QToolButton, moveDownButton)
+#: locale/rc.cpp:48
+#: rc.cpp:48
+msgid "Move up"
+msgstr "Przesuń do góry"
+
+#. i18n: file: ui/playList.ui:379
+#. i18n: ectx: property (toolTip), widget (QToolButton, newButton)
+#: locale/rc.cpp:51
+#: rc.cpp:51
+msgid "New"
+msgstr "Nowa"
+
+#. i18n: file: ui/playList.ui:389
+#. i18n: ectx: property (toolTip), widget (QToolButton, exportButton)
+#: locale/rc.cpp:54
+#: rc.cpp:54
+msgid "Export"
+msgstr "Eksportuj"
+
+#. i18n: file: ui/playList.ui:399
+#. i18n: ectx: property (toolTip), widget (QToolButton, clearButton)
+#: locale/rc.cpp:57
+#: rc.cpp:57
+msgid "Clear"
+msgstr "Wyczyść"
+
+#. i18n: file: ui/playList.ui:416
+#. i18n: ectx: property (toolTip), widget (QToolButton, randomButton)
+#: locale/rc.cpp:60
+#: rc.cpp:60
+msgid "Random"
+msgstr "Losowo"
+
+#. i18n: file: ui/playList.ui:436
+#. i18n: ectx: property (toolTip), widget (QToolButton, repeatButton)
+#: locale/rc.cpp:63
+#: rc.cpp:63
+msgid "Repeat"
+msgstr "Powtarzaj"
+
+#. i18n: file: ui/video.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, video)
+#: locale/rc.cpp:66
+#: MiniPlayerApplet.cpp:599
+#: rc.cpp:66
+msgid "Video Settings"
+msgstr "Ustawienia wideo"
+
+#. i18n: file: ui/video.ui:20
+#. i18n: ectx: property (text), widget (QLabel, brightnessLabel)
+#: locale/rc.cpp:69
+#: rc.cpp:69
+msgid "Brightness:"
+msgstr "Jasność:"
+
+#. i18n: file: ui/video.ui:55
+#. i18n: ectx: property (text), widget (QLabel, contrastLabel)
+#: locale/rc.cpp:72
+#: rc.cpp:72
+msgid "Contrast:"
+msgstr "Kontrast:"
+
+#. i18n: file: ui/video.ui:84
+#. i18n: ectx: property (text), widget (QLabel, hueLabel)
+#: locale/rc.cpp:75
+#: rc.cpp:75
+msgid "Hue:"
+msgstr "Barwa:"
+
+#. i18n: file: ui/video.ui:113
+#. i18n: ectx: property (text), widget (QLabel, saturationLabel)
+#: locale/rc.cpp:78
+#: rc.cpp:78
+msgid "Saturation:"
+msgstr "Nasycenie:"
+
+#. i18n: file: ui/volume.ui:6
+#. i18n: ectx: property (windowTitle), widget (QWidget, volume)
+#: locale/rc.cpp:81
+#: MiniPlayerApplet.cpp:125
+#: rc.cpp:81
+msgid "Volume"
+msgstr "Głośność"
+
+#: locale/rc.cpp:82
+#: rc.cpp:82
+msgctxt "NAME OF TRANSLATORS"
+msgid "Your names"
+msgstr "Michał Dutkiewicz"
+
+#: locale/rc.cpp:83
+#: rc.cpp:83
+msgctxt "EMAIL OF TRANSLATORS"
+msgid "Your emails"
+msgstr "emdeck@gmail.com"
+
+#: MiniPlayerApplet.cpp:130
+msgid "Open File"
+msgstr "Otwórz plik"
+
+#: MiniPlayerApplet.cpp:133
+#: MiniPlayerApplet.cpp:1157
+msgid "Open URL"
+msgstr "Otwórz URL"
+
+#: MiniPlayerApplet.cpp:138
+msgid "Open"
+msgstr "Otwórz"
+
+#: MiniPlayerApplet.cpp:141
+#: MiniPlayerApplet.cpp:1776
+#: MiniPlayerApplet.cpp:2680
+msgid "Play"
+msgstr "Odtwarzaj"
+
+#: MiniPlayerApplet.cpp:145
+msgid "Stop"
+msgstr "Stop"
+
+#: MiniPlayerApplet.cpp:151
+msgid "Previous"
+msgstr "Poprzedni"
+
+#: MiniPlayerApplet.cpp:154
+msgid "Next"
+msgstr "Następny"
+
+#: MiniPlayerApplet.cpp:159
+msgid "Seek Backward"
+msgstr "Skocz wstecz"
+
+#: MiniPlayerApplet.cpp:162
+msgid "Seek Forward"
+msgstr "Skocz do przodu"
+
+#: MiniPlayerApplet.cpp:170
+msgid "Navigation"
+msgstr "Nawigacja"
+
+#: MiniPlayerApplet.cpp:175
+msgid "Audio Channel"
+msgstr "Kanał audio"
+
+#: MiniPlayerApplet.cpp:182
+msgid "Increase Volume"
+msgstr "Zwiększ głośność"
+
+#: MiniPlayerApplet.cpp:185
+msgid "Decrease Volume"
+msgstr "Zmniejsz głośność"
+
+#: MiniPlayerApplet.cpp:190
+#: MiniPlayerApplet.cpp:928
+msgid "Mute Volume"
+msgstr "Wycisz"
+
+#: MiniPlayerApplet.cpp:195
+msgid "Audio"
+msgstr "Audio"
+
+#: MiniPlayerApplet.cpp:201
+msgid "Aspect Ratio"
+msgstr "Współczynnik kształtu"
+
+#: MiniPlayerApplet.cpp:205
+msgid "Automatic"
+msgstr "Automatycznie"
+
+#: MiniPlayerApplet.cpp:211
+msgid "4:3"
+msgstr "4:3"
+
+#: MiniPlayerApplet.cpp:217
+msgid "16:9"
+msgstr "16:9"
+
+#: MiniPlayerApplet.cpp:223
+msgid "Fit to Window"
+msgstr "Dopasuj do okna"
+
+#: MiniPlayerApplet.cpp:233
+msgid "Subtitles"
+msgstr "Napisy"
+
+#: MiniPlayerApplet.cpp:239
+msgid "Chapter"
+msgstr "Rozdział"
+
+#: MiniPlayerApplet.cpp:245
+msgid "Angle"
+msgstr "Kąt"
+
+#: MiniPlayerApplet.cpp:251
+#: MiniPlayerApplet.cpp:1718
+msgid "Full Screen Mode"
+msgstr "Tryb pełnoekranowy"
+
+#: MiniPlayerApplet.cpp:256
+msgid "Video"
+msgstr "Wideo"
+
+#: MiniPlayerApplet.cpp:259
+#: MiniPlayerApplet.cpp:1767
+msgid "Hide Controls"
+msgstr "Ukryj pasek sterowania"
+
+#: MiniPlayerApplet.cpp:352
+msgid "No Repeat"
+msgstr "Bez powtarzania"
+
+#: MiniPlayerApplet.cpp:356
+msgid "Repeat Track"
+msgstr "Powtarzaj ścieżkę"
+
+#: MiniPlayerApplet.cpp:360
+msgid "Repeat Playlist"
+msgstr "Powtarzaj listę odtwarzania"
+
+#: MiniPlayerApplet.cpp:420
+#: MiniPlayerApplet.cpp:499
+#: MiniPlayerApplet.cpp:501
+msgid "Default"
+msgstr "Domyślna"
+
+#: MiniPlayerApplet.cpp:920
+msgid "Unmute Volume"
+msgstr "Wyłącz wyciszenie"
+
+#: MiniPlayerApplet.cpp:922
+#: VolumeSlider.cpp:108
+msgid "Muted"
+msgstr "Wyciszone"
+
+#: MiniPlayerApplet.cpp:930
+#: VolumeSlider.cpp:108
+msgid "Volume: %1%"
+msgstr "Głośność: %1%"
+
+#: MiniPlayerApplet.cpp:1157
+msgid "Enter a URL:"
+msgstr "Wprowadź URL:"
+
+#: MiniPlayerApplet.cpp:1211
+msgid "Track %1"
+msgstr "Ścieżka %1"
+
+#: MiniPlayerApplet.cpp:1331
+msgid "Chapter %1"
+msgstr "Rozdział %1"
+
+#: MiniPlayerApplet.cpp:1350
+msgid "Angle %1"
+msgstr "Kąt %1"
+
+#: MiniPlayerApplet.cpp:1484
+msgid "Rename playlist"
+msgstr "Zmień nazwę listy odtwarzania"
+
+#: MiniPlayerApplet.cpp:1484
+#: MiniPlayerApplet.cpp:1968
+msgid "Enter name:"
+msgstr "Wprowadź nazwę:"
+
+#: MiniPlayerApplet.cpp:1735
+msgid "Exit Full Screen Mode"
+msgstr "Opuść tryb pełnoekranowy"
+
+#: MiniPlayerApplet.cpp:1760
+msgid "Show Controls"
+msgstr "Pokaż pasek sterowania"
+
+#: MiniPlayerApplet.cpp:1776
+msgid "Pause"
+msgstr "Pauza"
+
+#: MiniPlayerApplet.cpp:1958
+msgid "File saved successfully."
+msgstr "Plik zapisany pomyślnie."
+
+#: MiniPlayerApplet.cpp:1962
+msgid "Cannot open file for writing."
+msgstr "Nie można otworzyć pliku do zapisu."
+
+#: MiniPlayerApplet.cpp:1968
+msgid "New playlist"
+msgstr "Nowa lista odtwarzania"
+
+#: MiniPlayerApplet.cpp:2132
+msgid "Position: %1 / %2"
+msgstr "Pozycja: %1 / %2"
+
+#: MiniPlayerApplet.cpp:2211
+msgid "Disc %1"
+msgstr "Dysk %1"
+
+#: MiniPlayerApplet.cpp:2216
+msgid "Open DVD: %1"
+msgstr "Otwórz DVD: %1"
+
+#: MiniPlayerApplet.cpp:2222
+msgid "Open VCD: %1"
+msgstr "Otwórz VCD: %1"
+
+#: MiniPlayerApplet.cpp:2228
+msgid "Open Audio CD: %1"
+msgstr "Otwórz Audio CD: %1"
+
+#: MiniPlayerApplet.cpp:2575
+msgid "Settings"
+msgstr "Ustawienia"
+
+#: MiniPlayerApplet.cpp:2665
+msgid "Copy URL"
+msgstr "Kopiuj URL"
+
+#: MiniPlayerPlayListImporter.cpp:187
+msgid "Cannot open file for reading."
+msgstr "Nie można otworzyć pliku do odczytu."
+
+#: MiniPlayerPlayListModel.cpp:205
+msgid "Title"
+msgstr "Tytuł"
+
+#: MiniPlayerPlayListModel.cpp:207
+msgid "Length"
+msgstr "Długość"

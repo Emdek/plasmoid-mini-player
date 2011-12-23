@@ -1,0 +1,29 @@
+Advanced media player for Plasma.
+
+Requirements:
+KDE4 >= 4.4
+
+Features:
+- basic player controls;
+- basic video settings;
+- multiple playlists support;
+- import support for PLS, M3U, XSPF and ASX playlist formats;
+- export support for PLS and M3U playlist formats;
+- D-BUS interface;
+- drag and drop support;
+- streams support;
+- optical discs support;
+- possibility to start playback of last used playlist on startup;
+- keyboard shortcuts:
+ - pausing and playing (Space);
+ - stopping playback (S);
+ - play next and previous track (Page Up and Page Down);
+ - seeking video (left and right arrow);
+ - changing volume (+ and -) and (un)mute (M);
+ - toggling full screen (F);
+ - toggling controls visibility (C);
+ - toggling playlist visibility (P);
+ - accessing volume slider (V);
+ - accessing file open dialog (O);
+ - accessing URL open dialog (U);
+ - accessing jump to position dialog (G).
