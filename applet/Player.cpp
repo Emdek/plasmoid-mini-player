@@ -50,6 +50,17 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[MuteAction]->menu()->addAction(KIcon("audio-volume-medium"), i18n("Mute Volume"));
     m_actions[MuteAction]->setCheckable(true);
     m_actions[MuteAction]->setShortcut(QKeySequence(Qt::Key_M));
+    m_actions[NavigationMenuAction] = new QAction(i18n("Navigation"), this);
+    m_actions[NavigationMenuAction]->setMenu(new KMenu());
+    m_actions[NavigationMenuAction]->setEnabled(false);
+    m_actions[PlayNextAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-skip-backward"), i18n("Previous"), this, SLOT(playPrevious()), QKeySequence(Qt::Key_PageDown));
+    m_actions[PlayPreviousAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-skip-forward"), i18n("Next"), this, SLOT(playNext()), QKeySequence(Qt::Key_PageUp));
+    m_actions[NavigationMenuAction]->menu()->addSeparator();
+    m_actions[SeekBackwardAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-seek-backward"), i18n("Seek Backward"), this, SLOT(seekBackward()), QKeySequence(Qt::Key_Left));
+    m_actions[SeekForwardAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-seek-forward"), i18n("Seek Forward"), this, SLOT(seekForward()), QKeySequence(Qt::Key_Right));
+    m_actions[NavigationMenuAction]->menu()->addSeparator();
+    m_actions[SeekToAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("go-jump"), i18n("Jump to Position"), this, SLOT(toggleJumpToPosition()), QKeySequence(Qt::Key_G));
+
 
 
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setMuted(bool)));

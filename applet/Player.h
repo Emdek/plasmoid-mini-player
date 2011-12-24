@@ -29,7 +29,7 @@
 namespace MiniPlayer
 {
 
-enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, VolumeAction, AudioMenuAction, MuteAction, IncreaseVolumeAction, DecreaseVolumeAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, JumpBackAction, JumpForwardAction, JumpToAction, VideoMenuAction };
+enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, VolumeAction, AudioMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VideoMenuAction };
 enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
 
 class Player : public QObject
