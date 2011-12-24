@@ -20,6 +20,8 @@
 
 #include "Player.h"
 
+#include <QtGui/QActionGroup>
+
 #include <KIcon>
 #include <KMenu>
 #include <KLocale>
@@ -34,22 +36,14 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[OpenMenuAction]->setMenu(new KMenu());
     m_actions[OpenFileAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("document-open"), i18n("Open File"), this, SLOT(openFiles()), QKeySequence(Qt::Key_O));
     m_actions[OpenUrlAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("uri-mms"), i18n("Open URL"), this, SLOT(openUrl()), QKeySequence(Qt::Key_U));
+
     m_actions[PlayPauseAction] = new QAction(KIcon("media-playback-start"), i18n("Play"), this);
     m_actions[PlayPauseAction]->setEnabled(false);
     m_actions[PlayPauseAction]->setShortcut(QKeySequence(Qt::Key_Space));
     m_actions[StopAction] = new QAction(KIcon("media-playback-stop"), i18n("Stop"), this);
     m_actions[StopAction]->setEnabled(false);
     m_actions[StopAction]->setShortcut(QKeySequence(Qt::Key_S));
-    m_actions[VolumeAction] = new QAction(KIcon("player-volume"), i18n("Volume"), this);
-    m_actions[VolumeAction]->setShortcut(QKeySequence(Qt::Key_V));
-    m_actions[AudioMenuAction] = new QAction(i18n("Audio"), this);
-    m_actions[AudioMenuAction]->setMenu(new KMenu());
-    m_actions[IncreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-high"), i18n("Increase Volume"), this, SLOT(increaseVolume()), QKeySequence(Qt::Key_Plus));
-    m_actions[DecreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-low"), i18n("Decrease Volume"), this, SLOT(decreaseVolume()), QKeySequence(Qt::Key_Minus));
-    m_actions[AudioMenuAction]->menu()->addSeparator();
-    m_actions[MuteAction]->menu()->addAction(KIcon("audio-volume-medium"), i18n("Mute Volume"));
-    m_actions[MuteAction]->setCheckable(true);
-    m_actions[MuteAction]->setShortcut(QKeySequence(Qt::Key_M));
+
     m_actions[NavigationMenuAction] = new QAction(i18n("Navigation"), this);
     m_actions[NavigationMenuAction]->setMenu(new KMenu());
     m_actions[NavigationMenuAction]->setEnabled(false);
@@ -61,8 +55,48 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[NavigationMenuAction]->menu()->addSeparator();
     m_actions[SeekToAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("go-jump"), i18n("Jump to Position"), this, SLOT(toggleJumpToPosition()), QKeySequence(Qt::Key_G));
 
+    m_actions[VolumeAction] = new QAction(KIcon("player-volume"), i18n("Volume"), this);
+    m_actions[VolumeAction]->setShortcut(QKeySequence(Qt::Key_V));
+    m_actions[AudioMenuAction] = new QAction(i18n("Audio"), this);
+    m_actions[AudioMenuAction]->setMenu(new KMenu());
+    m_actions[IncreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-high"), i18n("Increase Volume"), this, SLOT(increaseVolume()), QKeySequence(Qt::Key_Plus));
+    m_actions[DecreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-low"), i18n("Decrease Volume"), this, SLOT(decreaseVolume()), QKeySequence(Qt::Key_Minus));
+    m_actions[AudioMenuAction]->menu()->addSeparator();
+    m_actions[MuteAction]->menu()->addAction(KIcon("audio-volume-medium"), i18n("Mute Volume"));
+    m_actions[MuteAction]->setCheckable(true);
+    m_actions[MuteAction]->setShortcut(QKeySequence(Qt::Key_M));
 
+    m_actions[VideoMenuAction] = new QAction(i18n("Video"), this);
+    m_actions[VideoMenuAction]->setMenu(new KMenu());
 
+    QMenu *aspectRatioMenu = m_actions[VideoMenuAction]->menu()->addMenu(i18n("Aspect Ratio"));
+
+    QAction *aspectRatioAutomatic = aspectRatioMenu->addAction(i18n("Automatic"));
+    aspectRatioAutomatic->setCheckable(true);
+    aspectRatioAutomatic->setData(AutomaticRatio);
+
+    QAction *aspectRatio4_3 = aspectRatioMenu->addAction(i18n("4:3"));
+    aspectRatio4_3->setCheckable(true);
+    aspectRatio4_3->setData(Ratio4_3);
+
+    QAction *aspectRatio16_9 = aspectRatioMenu->addAction(i18n("16:9"));
+    aspectRatio16_9->setCheckable(true);
+    aspectRatio16_9->setData(Ratio16_9);
+
+    QAction *aspectRatioFitToWindow = aspectRatioMenu->addAction(i18n("Fit to Window"));
+    aspectRatioFitToWindow->setCheckable(true);
+    aspectRatioFitToWindow->setData(FitToWindowRatio);
+
+    QActionGroup *aspectRatioActionGroup = new QActionGroup(aspectRatioMenu);
+    aspectRatioActionGroup->addAction(aspectRatioAutomatic);
+    aspectRatioActionGroup->addAction(aspectRatio4_3);
+    aspectRatioActionGroup->addAction(aspectRatio16_9);
+    aspectRatioActionGroup->addAction(aspectRatioFitToWindow);
+
+    m_actions[VideoMenuAction]->menu()->addSeparator();
+    m_actions[FullScreenAction] = m_actions[VideoMenuAction]->menu()->addAction(KIcon("view-fullscreen"), i18n("Full Screen Mode"), this, SLOT(toggleFullScreen()), QKeySequence(Qt::Key_F));
+
+    connect(aspectRatioMenu, SIGNAL(triggered(QAction*)), this, SLOT(changeAspectRatio(QAction*)));
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setMuted(bool)));
     connect(m_mediaPlayer, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(stateChanged(QMediaPlayer::State)));
     connect(m_mediaPlayer, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(errorOccured(QMediaPlayer::Error)));

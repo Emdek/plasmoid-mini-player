@@ -29,8 +29,9 @@
 namespace MiniPlayer
 {
 
-enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, VolumeAction, AudioMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VideoMenuAction };
+enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VolumeAction, AudioMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, AspectRatioMenuAction, FullScreenAction };
 enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
+enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToWindowRatio };
 
 class Player : public QObject
 {
