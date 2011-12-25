@@ -140,9 +140,9 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     navigationMenu->addSeparator();
     navigationMenu->addAction(KIcon("go-jump"), i18n("Jump to Position"), this, SLOT(toggleJumpToPosition()), QKeySequence(Qt::Key_G));
 
-    m_navigationAction = new QAction(i18n("Navigation"), this);
-    m_navigationAction->setMenu(navigationMenu);
-    m_navigationAction->setEnabled(false);
+    QAction *navigationAction = new QAction(i18n("Navigation"), this);
+    navigationAction->setMenu(navigationMenu);
+    navigationAction->setEnabled(false);
 
     KMenu *audioMenu = new KMenu;
     audioMenu->addAction(KIcon("audio-volume-high"), i18n("Increase Volume"), this, SLOT(increaseVolume()), QKeySequence(Qt::Key_Plus));
@@ -190,8 +190,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_videoAction = new QAction(i18n("Video"), this);
     m_videoAction->setMenu(videoMenu);
 
-    m_playlistAction = new QAction(KIcon("view-media-playlist"), i18n("Playlist"), this);
-    m_playlistAction->setShortcut(QKeySequence(Qt::Key_P));
+    QAction *playlistAction = new QAction(KIcon("view-media-playlist"), i18n("Playlist"), this);
+    playlistAction->setShortcut(QKeySequence(Qt::Key_P));
 
     QAction *separator1 = new QAction(this);
     separator1->setSeparator(true);
@@ -216,13 +216,13 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_actions.append(m_playPauseAction);
     m_actions.append(m_stopAction);
     m_actions.append(separator2);
-    m_actions.append(m_navigationAction);
+    m_actions.append(navigationAction);
     m_actions.append(separator3);
     m_actions.append(m_audioAction);
     m_actions.append(separator4);
     m_actions.append(m_videoAction);
     m_actions.append(separator5);
-    m_actions.append(m_playlistAction);
+    m_actions.append(playlistAction);
     m_actions.append(separator6);
 
     SeekSlider *seekSlider = new SeekSlider();
@@ -244,7 +244,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     volumeButton->setAction(m_volumeAction);
 
     Plasma::ToolButton *playlistButton = new Plasma::ToolButton(m_controlsWidget);
-    playlistButton->setAction(m_playlistAction);
+    playlistButton->setAction(playlistAction);
 
     Plasma::ToolButton *fullScreenButton = new Plasma::ToolButton(m_controlsWidget);
     fullScreenButton->setAction(m_fullScreenAction);
@@ -382,7 +382,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_playlistUi.playlistView, SIGNAL(activated(QModelIndex)), this, SLOT(playTrack(QModelIndex)));
     connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
     connect(m_fullScreenAction, SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
-    connect(m_playlistAction, SIGNAL(triggered()), this, SLOT(togglePlaylistDialog()));
+    connect(playlistAction, SIGNAL(triggered()), this, SLOT(togglePlaylistDialog()));
     connect(m_playPauseAction, SIGNAL(triggered()), this, SLOT(playPause()));
     connect(m_stopAction, SIGNAL(triggered()), this, SLOT(stop()));
     connect(m_volumeAction, SIGNAL(triggered()), this, SLOT(toggleVolumeDialog()));
@@ -1446,8 +1446,6 @@ void Applet::updateControls(QMediaPlayer::State state)
     m_playPauseAction->setEnabled(playingOrPaused || m_playlists[m_visiblePlaylist]->playlist()->mediaCount());
 
     m_stopAction->setEnabled(playingOrPaused);
-
-    m_navigationAction->setEnabled(playingOrPaused);
 
     trackPressed();
 }

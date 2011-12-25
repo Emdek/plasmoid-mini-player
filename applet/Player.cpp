@@ -30,7 +30,8 @@ namespace MiniPlayer
 {
 
 Player::Player(QObject *parent) : QObject(parent),
-    m_mediaPlayer(new QMediaPlayer(this))
+    m_mediaPlayer(new QMediaPlayer(this)),
+    m_aspectRatio(AutomaticRatio)
 {
     m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
     m_actions[OpenMenuAction]->setMenu(new KMenu());
@@ -83,16 +84,18 @@ Player::Player(QObject *parent) : QObject(parent),
     aspectRatio16_9->setCheckable(true);
     aspectRatio16_9->setData(Ratio16_9);
 
-    QAction *aspectRatioFitToWindow = aspectRatioMenu->addAction(i18n("Fit to Window"));
-    aspectRatioFitToWindow->setCheckable(true);
-    aspectRatioFitToWindow->setData(FitToWindowRatio);
+    QAction *aspectRatioFitTo = aspectRatioMenu->addAction(i18n("Fit to Window"));
+    aspectRatioFitTo->setCheckable(true);
+    aspectRatioFitTo->setData(FitToRatio);
 
     QActionGroup *aspectRatioActionGroup = new QActionGroup(aspectRatioMenu);
     aspectRatioActionGroup->addAction(aspectRatioAutomatic);
     aspectRatioActionGroup->addAction(aspectRatio4_3);
     aspectRatioActionGroup->addAction(aspectRatio16_9);
-    aspectRatioActionGroup->addAction(aspectRatioFitToWindow);
+    aspectRatioActionGroup->addAction(aspectRatioFitTo);
 
+    m_actions[AspectRatioMenuAction] = m_actions[VideoMenuAction]->menu()->addAction(i18n("Aspect Ratio"));
+    m_actions[AspectRatioMenuAction]->setMenu(aspectRatioMenu);
     m_actions[VideoMenuAction]->menu()->addSeparator();
     m_actions[FullScreenAction] = m_actions[VideoMenuAction]->menu()->addAction(KIcon("view-fullscreen"), i18n("Full Screen Mode"), this, SLOT(toggleFullScreen()), QKeySequence(Qt::Key_F));
 
@@ -103,10 +106,58 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_mediaPlayer, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
     connect(m_mediaPlayer, SIGNAL(durationChanged(qint64)), this, SIGNAL(durationChanged(qint64)));
     connect(m_mediaPlayer, SIGNAL(volumeChanged(int)), this, SIGNAL(volumeChanged(int)));
+    connect(m_mediaPlayer, SIGNAL(volumeChanged(int)), this, SLOT(volumeChanged()));
     connect(m_mediaPlayer, SIGNAL(mutedChanged(bool)), this, SIGNAL(audioMutedChanged(bool)));
+    connect(m_mediaPlayer, SIGNAL(mutedChanged(bool)), this, SLOT(volumeChanged()));
     connect(m_mediaPlayer, SIGNAL(audioAvailableChanged(bool)), this, SIGNAL(audioAvailableChanged(bool)));
+    connect(m_mediaPlayer, SIGNAL(audioAvailableChanged(bool)), this, SLOT(volumeChanged()));
     connect(m_mediaPlayer, SIGNAL(videoAvailableChanged(bool)), this, SIGNAL(videoAvailableChanged(bool)));
+    connect(m_mediaPlayer, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
     connect(m_mediaPlayer, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+}
+
+void Player::volumeChanged()
+{
+    KIcon icon;
+
+    if (isAudioMuted())
+    {
+        m_actions[MuteAction]->setText(i18n("Unmute Volume"));
+        m_actions[VolumeAction]->setText(i18n("Muted"));
+
+        icon = KIcon("audio-volume-muted");
+    }
+    else
+    {
+        m_actions[MuteAction]->setText(i18n("Mute Volume"));
+        m_actions[VolumeAction]->setText(i18n("Volume: %1%", volume()));
+
+        if (volume() > 65)
+        {
+            icon = KIcon("audio-volume-high");
+        }
+        else if (volume() < 35)
+        {
+            icon = KIcon("audio-volume-low");
+        }
+        else
+        {
+            icon = KIcon("audio-volume-medium");
+        }
+    }
+
+    m_actions[MuteAction]->setIcon(icon);
+    m_actions[MuteAction]->setEnabled(isAudioAvailable());
+    m_actions[VolumeAction]->setIcon(icon);
+    m_actions[VolumeAction]->setEnabled(isAudioAvailable());
+    m_actions[AudioMenuAction]->setEnabled(isAudioAvailable());
+
+    emit configNeedsSaving();
+}
+
+void Player::changeAspectRatio(QAction *action)
+{
+    setAspectRatio(static_cast<AspectRatio>(action->data().toInt()));
 }
 
 void Player::stateChanged(QMediaPlayer::State state)
@@ -187,6 +238,29 @@ void Player::setVolume(int volume)
 void Player::setAudioMuted(bool muted)
 {
     m_mediaPlayer->setMuted(muted);
+}
+
+void Player::setAspectRatio(AspectRatio ratio)
+{
+    switch (ratio)
+    {
+        case Ratio4_3:
+//         m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio4_3);
+        break;
+        case Ratio16_9:
+//         m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
+        case FitToRatio:
+//         m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioWidget);
+        break;
+        default:
+//         m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
+
+            ratio = AutomaticRatio;
+    }
+
+    m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(ratio))->setChecked(true);
+
+    emit configNeedsSaving();
 }
 
 QString Player::errorString() const

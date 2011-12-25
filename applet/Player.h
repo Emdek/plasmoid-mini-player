@@ -31,7 +31,7 @@ namespace MiniPlayer
 
 enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VolumeAction, AudioMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, AspectRatioMenuAction, FullScreenAction };
 enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
-enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToWindowRatio };
+enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio = 3 };
 
 class Player : public QObject
 {
@@ -66,19 +66,24 @@ class Player : public QObject
         void setPosition(qint64 position);
         void setVolume(int volume);
         void setAudioMuted(bool muted);
+        void setAspectRatio(AspectRatio ratio);
 
     protected:
         PlayerState translateState(QMediaPlayer::State state) const;
 
     protected slots:
+        void volumeChanged();
+        void changeAspectRatio(QAction *action);
         void stateChanged(QMediaPlayer::State state);
         void errorOccured(QMediaPlayer::Error error);
 
     private:
         QMediaPlayer *m_mediaPlayer;
         QHash<PlayerAction, QAction*> m_actions;
+        AspectRatio m_aspectRatio;
 
     signals:
+        void configNeedsSaving();
         void metaDataChanged();
         void durationChanged(qint64 duration);
         void volumeChanged(int volume);

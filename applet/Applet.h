@@ -165,9 +165,7 @@ class Applet : public Plasma::Applet
         QAction *m_volumeAction;
         QAction *m_playPauseAction;
         QAction *m_stopAction;
-        QAction *m_navigationAction;
         QAction *m_fullScreenAction;
-        QAction *m_playlistAction;
         QAction *m_muteAction;
         QAction *m_videoAction;
         QMenu *m_openMenu;
