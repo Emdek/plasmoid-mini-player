@@ -76,6 +76,7 @@ Player::Player(QObject *parent) : QObject(parent),
 
     m_actions[VideoMenuAction] = new QAction(i18n("Video"), this);
     m_actions[VideoMenuAction]->setMenu(new KMenu());
+    m_actions[VideoMenuAction]->setEnabled(false);
     m_actions[AspectRatioMenuAction] = m_actions[VideoMenuAction]->menu()->addAction(i18n("Aspect Ratio"));
     m_actions[AspectRatioMenuAction]->setMenu(new KMenu());
 

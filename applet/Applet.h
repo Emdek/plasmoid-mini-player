@@ -67,6 +67,7 @@ class Applet : public Plasma::Applet
 
     public slots:
         void configAccepted();
+        void configSave();
         void configReset();
         void stateChanged(PlayerState state);
         void videoAvailableChanged(bool videoAvailable);

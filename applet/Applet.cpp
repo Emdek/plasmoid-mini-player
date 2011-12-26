@@ -249,6 +249,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(videoAvailableChanged(bool)));
     connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(metaDataChanged()));
     connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(metaDataChanged()));
+    connect(m_player, SIGNAL(configNeedsSaving()), this, SLOT(configSave()));
     connect(m_player->metaDataManager(), SIGNAL(urlChanged(KUrl)), this, SIGNAL(resetModel()));
     connect(m_playlistDialog, SIGNAL(dialogResized()), this, SLOT(savePlaylistSettings()));
     connect(m_playlistUi.splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(savePlaylistSettings(int, int)));
@@ -464,6 +465,17 @@ void Applet::configAccepted()
     configReset();
 }
 
+void Applet::configSave()
+{
+    KConfigGroup configuration = config();
+    configuration.writeEntry("playbackMode", static_cast<int>(m_player->playbackMode()));
+    configuration.writeEntry("apectRatio", static_cast<int>(m_player->aspectRatio()));
+    configuration.writeEntry("mute", m_player->isAudioMuted());
+    configuration.writeEntry("volume", m_player->volume());
+
+    emit configNeedsSaving();
+}
+
 void Applet::configReset()
 {
     KConfigGroup configuration = config();
@@ -493,10 +505,9 @@ void Applet::configReset()
     updateVideoWidgets();
 
     m_player->setPlaybackMode(static_cast<PlaybackMode>(configuration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
-    m_player->setAspectRatio(static_cast<AspectRatio>(configuration.readEntry("ratio", static_cast<int>(AutomaticRatio))));
+    m_player->setAspectRatio(static_cast<AspectRatio>(configuration.readEntry("apectRatio", static_cast<int>(AutomaticRatio))));
     m_player->setAudioMuted(configuration.readEntry("mute", false));
     m_player->setVolume(configuration.readEntry("volume", 50));
-
 
     if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
     {
