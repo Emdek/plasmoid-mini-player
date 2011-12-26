@@ -19,7 +19,6 @@
 ***********************************************************************************/
 
 #include "PlaylistReader.h"
-#include "Applet.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -35,13 +34,12 @@
 namespace MiniPlayer
 {
 
-PlaylistReader::PlaylistReader(const QString &playlist, const KUrl::List &urls, bool play, int index, Applet *parent) : QObject(parent),
-    m_playlist(playlist),
+PlaylistReader::PlaylistReader(const KUrl::List &urls, int index, bool play, QObject *parent) : QObject(parent),
     m_imports(0),
     m_index(index),
     m_play(play)
 {
-    connect(this, SIGNAL(processedTracks(QString,KUrl::List,QHash<KUrl,QPair<QString,qint64> >,bool,int)), parent, SLOT(importPlaylist(QString,KUrl::List,QHash<KUrl,QPair<QString,qint64> >,bool,int)));
+    connect(this, SIGNAL(processedTracks(KUrl::List,QHash<KUrl,QPair<QString,qint64> >,int,bool)), parent, SLOT(addTracks(KUrl::List,QHash<KUrl,QPair<QString,qint64> >,int,bool)));
 
     addUrls(urls);
 }
@@ -137,7 +135,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 
     if (!m_imports)
     {
-        emit processedTracks(m_playlist, m_tracks, m_metaData, m_play, m_index);
+        emit processedTracks(m_tracks, m_metaData, m_index, m_play);
 
         deleteLater();
     }

@@ -18,3 +18,14 @@
 *
 ***********************************************************************************/
 
+#ifndef MINIPLAYERPLAYLISTMANAGER_HEADER
+#define MINIPLAYERPLAYLISTMANAGER_HEADER
+
+namespace MiniPlayer
+{
+
+enum PlaylistType { None = 0, PLS, M3U, XSPF, ASX };
+
+}
+
+#endif

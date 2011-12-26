@@ -60,7 +60,6 @@ class Applet : public Plasma::Applet
         ~Applet();
 
         void init();
-        void addToPlaylist(const KUrl::List &items, bool play, int index = -1);
         void createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List());
         QList<QAction*> contextualActions();
         Player* player();
@@ -80,7 +79,7 @@ class Applet : public Plasma::Applet
         void editTrackTitle();
         void copyTrackUrl();
         void removeTrack();
-        void openFiles(bool playFirst = true);
+        void openFiles();
         void openUrl();
         void play(int index);
         void play(KUrl url);
@@ -96,7 +95,6 @@ class Applet : public Plasma::Applet
         void removePlaylist(int position);
         void visiblePlaylistChanged(int position);
         void savePlaylist();
-        void addToPlaylist();
         void exportPlaylist();
         void newPlaylist();
         void clearPlaylist();
@@ -107,7 +105,6 @@ class Applet : public Plasma::Applet
         void toolTipAboutToShow();
         void toolTipHidden();
         void savePlaylistSettings(int position = 0, int index = 0);
-        void importPlaylist(const QString &playlist, const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, bool play, int index);
         void updateTheme();
 
     protected:
@@ -120,12 +117,11 @@ class Applet : public Plasma::Applet
         void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
         void keyPressEvent(QKeyEvent *event);
         void timerEvent(QTimerEvent *event);
-        void updateControls(PlayerState state);
         void updateVideoWidgets();
 
     private:
         QHash<QString, PlaylistModel*> m_playlists;
-        Player *m_mediaPlayer;
+        Player *m_player;
         VideoWidget *m_videoWidget;
         Plasma::Dialog *m_volumeDialog;
         Plasma::Dialog *m_playlistDialog;

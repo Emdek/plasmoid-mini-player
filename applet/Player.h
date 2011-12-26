@@ -18,8 +18,8 @@
 *
 ***********************************************************************************/
 
-#ifndef MINIPLAYERPLYER_HEADER
-#define MINIPLAYERPLYER_HEADER
+#ifndef MINIPLAYERPLAYER_HEADER
+#define MINIPLAYERPLAYER_HEADER
 
 #include <QtCore/QObject>
 #include <QtGui/QAction>

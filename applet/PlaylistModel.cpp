@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "PlaylistModel.h"
+#include "PlaylistReader.h"
 #include "Player.h"
 #include "MetaDataManager.h"
 
@@ -42,9 +43,13 @@ PlaylistModel::PlaylistModel(Player *parent) : QAbstractTableModel(parent),
     connect(m_playlist, SIGNAL(currentIndexChanged(int)), this, SIGNAL(layoutChanged()));
 }
 
-void PlaylistModel::addTracks(const KUrl::List &tracks, int index)
+void PlaylistModel::addTracks(const KUrl::List &tracks, int index, bool play)
 {
-///FIXME remove? check validity in reader (moved into playlistmanager?)?
+    new PlaylistReader(tracks, index, play, this);
+}
+
+void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int index, bool play)
+{
     QList<QMediaContent> items;
 
     if (index == -1)
@@ -63,6 +68,17 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, int index)
     }
 
     m_playlist->insertMedia(index, items);
+
+    m_player->metaDataManager()->addTracks(tracks);
+
+    if (play && tracks.count())
+    {
+        m_playlist->setCurrentIndex(index);
+
+        m_player->play();
+    }
+
+    m_player->metaDataManager()->setMetaData(metaData);
 
     emit needsSaving();
 }
@@ -307,8 +323,7 @@ bool PlaylistModel::dropMimeData(const QMimeData *mimeData, Qt::DropAction actio
 
     KUrl::List urls = KUrl::List::fromMimeData(mimeData);
 
-///FIXME move here or to PlaylistManager
-//     m_player->addToPlaylist(urls, false, position);
+    addTracks(urls, position, false);
 
     emit needsSaving();
 

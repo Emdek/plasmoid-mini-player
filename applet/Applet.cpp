@@ -65,7 +65,7 @@ namespace MiniPlayer
 {
 
 Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(parent, args),
-    m_mediaPlayer(new Player(this)),
+    m_player(new Player(this)),
     m_videoWidget(new VideoWidget(this)),
     m_volumeDialog(NULL),
     m_playlistDialog(NULL),
@@ -129,43 +129,43 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     QAction *separator6 = new QAction(this);
     separator6->setSeparator(true);
 
-    m_actions.append(m_mediaPlayer->action(OpenMenuAction));
+    m_actions.append(m_player->action(OpenMenuAction));
     m_actions.append(separator1);
-    m_actions.append(m_mediaPlayer->action(PlayPauseAction));
-    m_actions.append(m_mediaPlayer->action(StopAction));
+    m_actions.append(m_player->action(PlayPauseAction));
+    m_actions.append(m_player->action(StopAction));
     m_actions.append(separator2);
-    m_actions.append(m_mediaPlayer->action(NavigationMenuAction));
+    m_actions.append(m_player->action(NavigationMenuAction));
     m_actions.append(separator3);
-    m_actions.append(m_mediaPlayer->action(AudioMenuAction));
+    m_actions.append(m_player->action(AudioMenuAction));
     m_actions.append(separator4);
-    m_actions.append(m_mediaPlayer->action(VideoMenuAction));
+    m_actions.append(m_player->action(VideoMenuAction));
     m_actions.append(separator5);
     m_actions.append(playlistAction);
     m_actions.append(separator6);
 
     SeekSlider *seekSlider = new SeekSlider();
-    seekSlider->setPlayer(m_mediaPlayer);
+    seekSlider->setPlayer(m_player);
 
     Plasma::Slider *positionSlider = new Plasma::Slider(m_controlsWidget);
     positionSlider->setWidget(seekSlider);
 
     Plasma::ToolButton *openButton = new Plasma::ToolButton(m_controlsWidget);
-    openButton->setAction(m_mediaPlayer->action(OpenFileAction));
+    openButton->setAction(m_player->action(OpenFileAction));
 
     Plasma::ToolButton *playPauseButton = new Plasma::ToolButton(m_controlsWidget);
-    playPauseButton->setAction(m_mediaPlayer->action(PlayPauseAction));
+    playPauseButton->setAction(m_player->action(PlayPauseAction));
 
     Plasma::ToolButton *stopButton = new Plasma::ToolButton(m_controlsWidget);
-    stopButton->setAction(m_mediaPlayer->action(StopAction));
+    stopButton->setAction(m_player->action(StopAction));
 
     Plasma::ToolButton *volumeButton = new Plasma::ToolButton(m_controlsWidget);
-    volumeButton->setAction(m_mediaPlayer->action(VolumeAction));
+    volumeButton->setAction(m_player->action(VolumeAction));
 
     Plasma::ToolButton *playlistButton = new Plasma::ToolButton(m_controlsWidget);
     playlistButton->setAction(playlistAction);
 
     Plasma::ToolButton *fullScreenButton = new Plasma::ToolButton(m_controlsWidget);
-    fullScreenButton->setAction(m_mediaPlayer->action(FullScreenAction));
+    fullScreenButton->setAction(m_player->action(FullScreenAction));
 
     m_controls["open"] = openButton;
     m_controls["open"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
@@ -220,13 +220,13 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_playlistUi.exportButton->setIcon(KIcon("document-export"));
     m_playlistUi.clearButton->setIcon(KIcon("edit-clear"));
     m_playlistUi.shuffleButton->setIcon(KIcon("roll"));
-    m_playlistUi.playbackModeButton->setDefaultAction(m_mediaPlayer->action(PlaybackModeMenuAction));
-    m_playlistUi.playPauseButton->setDefaultAction(m_mediaPlayer->action(PlayPauseAction));
-    m_playlistUi.stopButton->setDefaultAction(m_mediaPlayer->action(StopAction));
-    m_playlistUi.fullScreenButton->setDefaultAction(m_mediaPlayer->action(FullScreenAction));
-    m_playlistUi.seekSlider->setPlayer(m_mediaPlayer);
-    m_playlistUi.muteButton->setDefaultAction(m_mediaPlayer->action(MuteAction));
-    m_playlistUi.volumeSlider->setPlayer(m_mediaPlayer);
+    m_playlistUi.playbackModeButton->setDefaultAction(m_player->action(PlaybackModeMenuAction));
+    m_playlistUi.playPauseButton->setDefaultAction(m_player->action(PlayPauseAction));
+    m_playlistUi.stopButton->setDefaultAction(m_player->action(StopAction));
+    m_playlistUi.fullScreenButton->setDefaultAction(m_player->action(FullScreenAction));
+    m_playlistUi.seekSlider->setPlayer(m_player);
+    m_playlistUi.muteButton->setDefaultAction(m_player->action(MuteAction));
+    m_playlistUi.volumeSlider->setPlayer(m_player);
 
     if (args.count())
     {
@@ -245,11 +245,11 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 
     connect(this, SIGNAL(activate()), this, SLOT(togglePlaylistDialog()));
     connect(this, SIGNAL(destroyed()), m_playlistDialog, SLOT(deleteLater()));
-    connect(m_mediaPlayer, SIGNAL(stateChanged(PlayerState)), this, SLOT(stateChanged(PlayerState)));
-    connect(m_mediaPlayer, SIGNAL(videoAvailableChanged(bool)), this, SLOT(videoAvailableChanged(bool)));
-    connect(m_mediaPlayer, SIGNAL(metaDataChanged()), this, SLOT(metaDataChanged()));
-    connect(m_mediaPlayer, SIGNAL(durationChanged(qint64)), this, SLOT(metaDataChanged()));
-    connect(m_mediaPlayer->metaDataManager(), SIGNAL(urlChanged(KUrl)), this, SIGNAL(resetModel()));
+    connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(stateChanged(PlayerState)));
+    connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(videoAvailableChanged(bool)));
+    connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(metaDataChanged()));
+    connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(metaDataChanged()));
+    connect(m_player->metaDataManager(), SIGNAL(urlChanged(KUrl)), this, SIGNAL(resetModel()));
     connect(m_playlistDialog, SIGNAL(dialogResized()), this, SLOT(savePlaylistSettings()));
     connect(m_playlistUi.splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(savePlaylistSettings(int, int)));
     connect(m_playlistUi.tabBar, SIGNAL(newTabRequest()), this, SLOT(newPlaylist()));
@@ -258,7 +258,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_playlistUi.tabBar, SIGNAL(currentChanged(int)), this, SLOT(visiblePlaylistChanged(int)));
     connect(m_playlistUi.tabBar, SIGNAL(tabMoved(int, int)), this, SLOT(movePlaylist(int, int)));
     connect(m_playlistUi.closeButton, SIGNAL(clicked()), m_playlistDialog, SLOT(close()));
-    connect(m_playlistUi.addButton, SIGNAL(clicked()), this, SLOT(addToPlaylist()));
+    connect(m_playlistUi.addButton, SIGNAL(clicked()), this, SLOT(openFiles()));
     connect(m_playlistUi.removeButton, SIGNAL(clicked()), this, SLOT(removeTrack()));
     connect(m_playlistUi.editButton, SIGNAL(clicked()), this, SLOT(editTrackTitle()));
     connect(m_playlistUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveUpTrack()));
@@ -270,11 +270,11 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_playlistUi.playlistView, SIGNAL(pressed(QModelIndex)), this, SLOT(trackPressed()));
     connect(m_playlistUi.playlistView, SIGNAL(activated(QModelIndex)), this, SLOT(playTrack(QModelIndex)));
     connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
-    connect(m_mediaPlayer->action(OpenFileAction), SIGNAL(triggered()), this, SLOT(openFiles()));
-    connect(m_mediaPlayer->action(OpenUrlAction), SIGNAL(triggered()), this, SLOT(openUrl()));
-    connect(m_mediaPlayer->action(SeekToAction), SIGNAL(triggered()), this, SLOT(toggleJumpToPosition()));
-    connect(m_mediaPlayer->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
-    connect(m_mediaPlayer->action(VolumeAction), SIGNAL(triggered()), this, SLOT(toggleVolumeDialog()));
+    connect(m_player->action(OpenFileAction), SIGNAL(triggered()), this, SLOT(openFiles()));
+    connect(m_player->action(OpenUrlAction), SIGNAL(triggered()), this, SLOT(openUrl()));
+    connect(m_player->action(SeekToAction), SIGNAL(triggered()), this, SLOT(toggleJumpToPosition()));
+    connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
+    connect(m_player->action(VolumeAction), SIGNAL(triggered()), this, SLOT(toggleVolumeDialog()));
     connect(playlistAction, SIGNAL(triggered()), this, SLOT(togglePlaylistDialog()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
@@ -328,7 +328,7 @@ void Applet::init()
                 continue;
             }
 
-            m_mediaPlayer->metaDataManager()->setMetaData(tracks.at(j), titles.value(j, QString()), duration);
+            m_player->metaDataManager()->setMetaData(tracks.at(j), titles.value(j, QString()), duration);
         }
 
         createPlaylist(playlists.at(i), tracks);
@@ -353,9 +353,9 @@ void Applet::init()
         playMedia = false;
     }
 
-//     m_mediaPlayer->setVideoOutput(m_videoWidget->videoItem());
-    m_mediaPlayer->setVolume(configuration.readEntry("volume", 50));
-    m_mediaPlayer->setAudioMuted(configuration.readEntry("muted", false));
+//     m_player->setVideoOutput(m_videoWidget->videoItem());
+    m_player->setVolume(configuration.readEntry("volume", 50));
+    m_player->setAudioMuted(configuration.readEntry("muted", false));
 
     if (m_playlists[m_visiblePlaylist]->playlist()->mediaCount())
     {
@@ -492,10 +492,10 @@ void Applet::configReset()
 
     updateVideoWidgets();
 
-    m_mediaPlayer->setPlaybackMode(static_cast<PlaybackMode>(configuration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
-    m_mediaPlayer->setAspectRatio(static_cast<AspectRatio>(configuration.readEntry("ratio", static_cast<int>(AutomaticRatio))));
-    m_mediaPlayer->setAudioMuted(configuration.readEntry("mute", false));
-    m_mediaPlayer->setVolume(configuration.readEntry("volume", 50));
+    m_player->setPlaybackMode(static_cast<PlaybackMode>(configuration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
+    m_player->setAspectRatio(static_cast<AspectRatio>(configuration.readEntry("ratio", static_cast<int>(AutomaticRatio))));
+    m_player->setAudioMuted(configuration.readEntry("mute", false));
+    m_player->setVolume(configuration.readEntry("volume", 50));
 
 
     if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
@@ -516,11 +516,11 @@ void Applet::configReset()
     {
         QDBusConnection dbus = QDBusConnection::sessionBus();
         dbus.registerService("org.mpris.PlasmaApplet");
-        dbus.registerObject("/PlasmaApplet", m_mediaPlayer);
+        dbus.registerObject("/PlasmaApplet", m_player);
 
-        m_playerDBUSHandler = new PlayerDBusHandler(m_mediaPlayer);
-        m_trackListDBusHandler = new TrackListDBusHandler(m_mediaPlayer);
-        m_rootDBUSHandler = new RootDBusHandler(m_mediaPlayer);
+        m_playerDBUSHandler = new PlayerDBusHandler(m_player);
+        m_trackListDBusHandler = new TrackListDBusHandler(m_player);
+        m_rootDBUSHandler = new RootDBusHandler(m_player);
     }
 }
 
@@ -567,7 +567,7 @@ void Applet::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
     killTimer(m_showPlaylist);
 
-    addToPlaylist(KUrl::List::fromMimeData(event->mimeData()), true);
+    m_playlists[m_visiblePlaylist]->addTracks(KUrl::List::fromMimeData(event->mimeData()), -1, true);
 }
 
 void Applet::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
@@ -585,25 +585,25 @@ void Applet::keyPressEvent(QKeyEvent *event)
     switch (event->key())
     {
         case Qt::Key_PageDown:
-            m_mediaPlayer->playPrevious();
+            m_player->playPrevious();
         break;
         case Qt::Key_PageUp:
-            m_mediaPlayer->playNext();
+            m_player->playNext();
         break;
         case Qt::Key_Left:
-            m_mediaPlayer->seekBackward();
+            m_player->seekBackward();
         break;
         case Qt::Key_Right:
-            m_mediaPlayer->seekForward();
+            m_player->seekForward();
         break;
         case Qt::Key_Plus:
-            m_mediaPlayer->increaseVolume();
+            m_player->increaseVolume();
         break;
         case Qt::Key_Minus:
-            m_mediaPlayer->decreaseVolume();
+            m_player->decreaseVolume();
         break;
         case Qt::Key_Space:
-            m_mediaPlayer->playPause();
+            m_player->playPause();
         break;
         case Qt::Key_Escape:
             if (m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
@@ -622,7 +622,7 @@ void Applet::keyPressEvent(QKeyEvent *event)
             toggleJumpToPosition();
         break;
         case Qt::Key_M:
-            m_mediaPlayer->setAudioMuted(!m_mediaPlayer->isAudioMuted());
+            m_player->setAudioMuted(!m_player->isAudioMuted());
         break;
         case Qt::Key_O:
             openFiles();
@@ -631,7 +631,7 @@ void Applet::keyPressEvent(QKeyEvent *event)
             togglePlaylistDialog();
         break;
         case Qt::Key_S:
-            m_mediaPlayer->stop();
+            m_player->stop();
         break;
         case Qt::Key_U:
             openUrl();
@@ -672,7 +672,7 @@ void Applet::timerEvent(QTimerEvent *event)
 
 void Applet::stateChanged(PlayerState state)
 {
-    if (m_mediaPlayer->isVideoAvailable() && state == PlayingState)
+    if (m_player->isVideoAvailable() && state == PlayingState)
     {
         m_stopSleepCookie = Solid::PowerManagement::beginSuppressingSleep("Plasma MiniPlayerApplet: playing video");
 
@@ -725,16 +725,16 @@ void Applet::videoAvailableChanged(bool videoAvailable)
 
 void Applet::metaDataChanged()
 {
-    QString title = m_mediaPlayer->title();
-    KUrl url = m_mediaPlayer->url();
+    QString title = m_player->title();
+    KUrl url = m_player->url();
 
     if (!title.isEmpty())
     {
         m_title = title;
 
-        if (!m_mediaPlayer->metaDataManager()->available(url))
+        if (!m_player->metaDataManager()->available(url))
         {
-            m_mediaPlayer->metaDataManager()->setMetaData(url, m_title, m_mediaPlayer->duration());
+            m_player->metaDataManager()->setMetaData(url, m_title, m_player->duration());
 
             emit resetModel();
 
@@ -743,7 +743,7 @@ void Applet::metaDataChanged()
     }
     else
     {
-        m_title = m_mediaPlayer->metaDataManager()->title(url);
+        m_title = m_player->metaDataManager()->title(url);
     }
 
     m_playlistUi.titleLabel->setText(m_title);
@@ -753,7 +753,7 @@ void Applet::metaDataChanged()
         m_fullScreenUi.titleLabel->setText(m_title);
     }
 
-    if (m_mediaPlayer->position() < 3 && m_hideToolTip == 0)
+    if (m_player->position() < 3 && m_hideToolTip == 0)
     {
         updateToolTip();
 
@@ -854,10 +854,10 @@ void Applet::removeTrack()
 
 void Applet::openUrl()
 {
-    addToPlaylist(KUrl::List(KInputDialog::getText(i18n("Open URL"), i18n("Enter a URL:"))), true);
+    m_playlists[m_visiblePlaylist]->addTracks(KUrl::List(KInputDialog::getText(i18n("Open URL"), i18n("Enter a URL:"))), -1, true);
 }
 
-void Applet::openFiles(bool playFirst)
+void Applet::openFiles()
 {
     KConfigGroup configuration = config();
 
@@ -877,16 +877,16 @@ void Applet::openFiles(bool playFirst)
 
     configuration.writeEntry("directory", QFileInfo(urls.at(0).toLocalFile()).absolutePath());
 
-    emit configNeedsSaving();
+    m_playlists[m_visiblePlaylist]->addTracks(urls, -1, (sender() == m_player->action(OpenFileAction)));
 
-    addToPlaylist(urls, playFirst);
+    emit configNeedsSaving();
 }
 
 void Applet::play(int index)
 {
     m_playlists[m_visiblePlaylist]->playlist()->setCurrentIndex(index);
 
-    m_mediaPlayer->play();
+    m_player->play();
 
     QTimer::singleShot(500, this, SLOT(showToolTip()));
 }
@@ -900,7 +900,7 @@ void Applet::play(KUrl url)
 
     int index = -1;
 
-///FIXME use m_mediaPlayer->playlist()?
+///FIXME use m_player->playlist()?
     for (int i = 0; i < m_playlists[m_currentPlaylist]->playlist()->mediaCount(); ++i)
     {
         if (url == KUrl(m_playlists[m_currentPlaylist]->playlist()->media(i).canonicalUrl()))
@@ -917,7 +917,7 @@ void Applet::play(KUrl url)
 
     if (index < 0)
     {
-        addToPlaylist(KUrl::List(url), true);
+        m_playlists[m_visiblePlaylist]->addTracks(KUrl::List(url), -1, true);
 
         return;
     }
@@ -1015,7 +1015,7 @@ void Applet::visiblePlaylistChanged(int position)
 
     filterPlaylist(m_playlistUi.playlistViewFilter->text());
 
-    if (m_mediaPlayer->state() != PlayingState && m_mediaPlayer->state() != PausedState)
+    if (m_player->state() != PlayingState && m_player->state() != PausedState)
     {
         setCurrentPlaylist(KGlobal::locale()->removeAcceleratorMarker(m_playlistUi.tabBar->tabText(position)));
     }
@@ -1035,9 +1035,9 @@ void Applet::visiblePlaylistChanged(int position)
 
 void Applet::jumpToPosition()
 {
-    if (m_mediaPlayer->isSeekable())
+    if (m_player->isSeekable())
     {
-        m_mediaPlayer->setPosition(-m_jumpToPositionUi.position->time().msecsTo(QTime()));
+        m_player->setPosition(-m_jumpToPositionUi.position->time().msecsTo(QTime()));
     }
 }
 
@@ -1060,12 +1060,12 @@ void Applet::toggleJumpToPosition()
         connect(m_jumpToPositionDialog, SIGNAL(okClicked()), this, SLOT(jumpToPosition()));
     }
 
-    if ((m_mediaPlayer->state() == PlayingState || m_mediaPlayer->state() == PausedState) && !m_jumpToPositionDialog->isVisible())
+    if ((m_player->state() == PlayingState || m_player->state() == PausedState) && !m_jumpToPositionDialog->isVisible())
     {
         QTime tmpTime(0, 0);
 
-        m_jumpToPositionUi.position->setMaximumTime(tmpTime.addMSecs(m_mediaPlayer->duration()));
-        m_jumpToPositionUi.position->setTime(tmpTime.addMSecs(m_mediaPlayer->position()));
+        m_jumpToPositionUi.position->setMaximumTime(tmpTime.addMSecs(m_player->duration()));
+        m_jumpToPositionUi.position->setTime(tmpTime.addMSecs(m_player->position()));
 
         m_jumpToPositionDialog->show();
     }
@@ -1085,8 +1085,8 @@ void Applet::toggleVolumeDialog()
         m_volumeUi.setupUi(m_volumeDialog);
 
         m_volumeUi.volumeSlider->setOrientation(Qt::Vertical);
-        m_volumeUi.volumeSlider->setPlayer(m_mediaPlayer);
-        m_volumeUi.muteButton->setDefaultAction(m_mediaPlayer->action(MuteAction));
+        m_volumeUi.volumeSlider->setPlayer(m_player);
+        m_volumeUi.muteButton->setDefaultAction(m_player->action(MuteAction));
 
         m_volumeDialog->adjustSize();
 
@@ -1127,26 +1127,26 @@ void Applet::toggleFullScreen()
         m_fullScreenWidget = new QWidget;
 
         m_fullScreenUi.setupUi(m_fullScreenWidget);
-        m_fullScreenUi.playPauseButton->setDefaultAction(m_mediaPlayer->action(PlayPauseAction));
-        m_fullScreenUi.stopButton->setDefaultAction(m_mediaPlayer->action(StopAction));
-        m_fullScreenUi.seekSlider->setPlayer(m_mediaPlayer);
-        m_fullScreenUi.muteButton->setDefaultAction(m_mediaPlayer->action(MuteAction));
-        m_fullScreenUi.volumeSlider->setPlayer(m_mediaPlayer);
-        m_fullScreenUi.fullScreenButton->setDefaultAction(m_mediaPlayer->action(FullScreenAction));
+        m_fullScreenUi.playPauseButton->setDefaultAction(m_player->action(PlayPauseAction));
+        m_fullScreenUi.stopButton->setDefaultAction(m_player->action(StopAction));
+        m_fullScreenUi.seekSlider->setPlayer(m_player);
+        m_fullScreenUi.muteButton->setDefaultAction(m_player->action(MuteAction));
+        m_fullScreenUi.volumeSlider->setPlayer(m_player);
+        m_fullScreenUi.fullScreenButton->setDefaultAction(m_player->action(FullScreenAction));
         m_fullScreenUi.videoOutputWidget->installEventFilter(this);
 
         connect(this, SIGNAL(destroyed()), m_fullScreenWidget, SLOT(deleteLater()));
     }
 
-    if (m_fullScreenWidget->isFullScreen() || !m_mediaPlayer->isVideoAvailable())
+    if (m_fullScreenWidget->isFullScreen() || !m_player->isVideoAvailable())
     {
         killTimer(m_hideFullScreenControls);
 
         m_fullScreenWidget->showNormal();
         m_fullScreenWidget->hide();
 
-        m_mediaPlayer->action(FullScreenAction)->setIcon(KIcon("view-fullscreen"));
-        m_mediaPlayer->action(FullScreenAction)->setText(i18n("Full Screen Mode"));
+        m_player->action(FullScreenAction)->setIcon(KIcon("view-fullscreen"));
+        m_player->action(FullScreenAction)->setText(i18n("Full Screen Mode"));
 
         m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
 
@@ -1156,7 +1156,7 @@ void Applet::toggleFullScreen()
     {
         Plasma::ToolTipManager::self()->hide(this);
 
-//        m_mediaPlayer->setVideoOutput(m_fullScreenUi.videoWidget);
+//        m_player->setVideoOutput(m_fullScreenUi.videoWidget);
 
         m_fullScreenWidget->showFullScreen();
         m_fullScreenWidget->setWindowTitle(m_title);
@@ -1165,8 +1165,8 @@ void Applet::toggleFullScreen()
         m_fullScreenUi.titleLabel->hide();
         m_fullScreenUi.controlsWidget->hide();
 
-        m_mediaPlayer->action(FullScreenAction)->setIcon(KIcon("view-restore"));
-        m_mediaPlayer->action(FullScreenAction)->setText(i18n("Exit Full Screen Mode"));
+        m_player->action(FullScreenAction)->setIcon(KIcon("view-restore"));
+        m_player->action(FullScreenAction)->setText(i18n("Exit Full Screen Mode"));
 
         m_hideFullScreenControls = startTimer(2000);
     }
@@ -1186,13 +1186,13 @@ void Applet::updateVideoWidgets()
 
     if (m_videoMode)
     {
-//        m_mediaPlayer->setVideoOutput(m_videoWidget->videoItem());
+//        m_player->setVideoOutput(m_videoWidget->videoItem());
 
         m_playlistUi.blankLabel->show();
     }
     else
     {
-//        m_mediaPlayer->setVideoOutput(m_playlistUi.videoWidget);
+//        m_player->setVideoOutput(m_playlistUi.videoWidget);
 
         m_playlistUi.videoWidget->show();
     }
@@ -1233,10 +1233,10 @@ void Applet::savePlaylist()
     {
         KUrl url(m_playlists[m_visiblePlaylist]->playlist()->media(i).canonicalUrl());
 
-        if (m_mediaPlayer->metaDataManager()->available(url))
+        if (m_player->metaDataManager()->available(url))
         {
-            titles.append(m_mediaPlayer->metaDataManager()->title(url));
-            durations.append(QString::number(m_mediaPlayer->metaDataManager()->duration(url)));
+            titles.append(m_player->metaDataManager()->title(url));
+            durations.append(QString::number(m_player->metaDataManager()->duration(url)));
         }
         else
         {
@@ -1261,13 +1261,13 @@ void Applet::createPlaylist(const QString &playlist, const KUrl::List &tracks)
         return;
     }
 
-    m_playlists[playlist] = new PlaylistModel(m_mediaPlayer);
+    m_playlists[playlist] = new PlaylistModel(m_player);
 
     if (!tracks.isEmpty())
     {
         m_playlists[playlist]->addTracks(tracks);
 
-        m_mediaPlayer->metaDataManager()->addTracks(tracks);
+        m_player->metaDataManager()->addTracks(tracks);
     }
 
     m_playlistUi.tabBar->show();
@@ -1289,16 +1289,6 @@ void Applet::createPlaylist(const QString &playlist, const KUrl::List &tracks)
 
     connect(m_playlists[playlist], SIGNAL(needsSaving()), this, SLOT(savePlaylist()));
     connect(m_playlists[playlist], SIGNAL(itemChanged(QModelIndex)), this, SLOT(trackChanged()));
-}
-
-void Applet::addToPlaylist()
-{
-    openFiles(false);
-}
-
-void Applet::addToPlaylist(const KUrl::List &items, bool play, int index)
-{
-    new PlaylistReader(m_visiblePlaylist, items, play, index, this);
 }
 
 void Applet::exportPlaylist()
@@ -1340,10 +1330,10 @@ void Applet::exportPlaylist()
 
         for (int i = 0; i < m_playlists[m_visiblePlaylist]->playlist()->mediaCount(); ++i)
         {
-            available = m_mediaPlayer->metaDataManager()->available(url);
+            available = m_player->metaDataManager()->available(url);
             url = KUrl(m_playlists[m_visiblePlaylist]->playlist()->media(i).canonicalUrl());
-            title = (available?m_mediaPlayer->metaDataManager()->title(url):QString());
-            duration = (available?QString::number(m_mediaPlayer->metaDataManager()->duration(url) / 1000):QString("-1"));
+            title = (available?m_player->metaDataManager()->title(url):QString());
+            duration = (available?QString::number(m_player->metaDataManager()->duration(url) / 1000):QString("-1"));
 
             if (type == PLS)
             {
@@ -1406,7 +1396,7 @@ void Applet::setCurrentPlaylist(const QString &playlist)
         m_playlistUi.tabBar->setTabIcon(i, ((playlist == name)?KIcon("media-playback-start"):KIcon("view-media-playlist")));
     }
 
-    m_mediaPlayer->setPlaylist(m_playlists[m_currentPlaylist]->playlist());
+    m_player->setPlaylist(m_playlists[m_currentPlaylist]->playlist());
 
     config().writeEntry("currentPlaylist", playlist);
 
@@ -1436,11 +1426,11 @@ void Applet::updateToolTip()
 
     Plasma::ToolTipContent data;
 
-    if (m_mediaPlayer->state() == PlayingState || m_mediaPlayer->state() == PausedState)
+    if (m_player->state() == PlayingState || m_player->state() == PausedState)
     {
         data.setMainText(m_title);
-        data.setSubText((m_mediaPlayer->duration() > 0)?i18n("Position: %1 / %2", MetaDataManager::timeToString(m_mediaPlayer->position()), MetaDataManager::timeToString(m_mediaPlayer->duration())):"");
-        data.setImage(m_mediaPlayer->metaDataManager()->icon(m_mediaPlayer->url()).pixmap(IconSize(KIconLoader::Desktop)));
+        data.setSubText((m_player->duration() > 0)?i18n("Position: %1 / %2", MetaDataManager::timeToString(m_player->position()), MetaDataManager::timeToString(m_player->duration())):"");
+        data.setImage(m_player->metaDataManager()->icon(m_player->url()).pixmap(IconSize(KIconLoader::Desktop)));
         data.setAutohide(true);
     }
 
@@ -1459,32 +1449,6 @@ void Applet::toolTipAboutToShow()
 void Applet::toolTipHidden()
 {
     Plasma::ToolTipManager::self()->clearContent(this);
-}
-
-void Applet::importPlaylist(const QString &playlist, const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, bool playFirst, int position)
-{
-    if (m_playlists.contains(playlist))
-    {
-        m_playlists[playlist]->addTracks(tracks, position);
-
-        m_mediaPlayer->metaDataManager()->addTracks(tracks);
-
-        if (playFirst && tracks.count())
-        {
-            setCurrentPlaylist(playlist);
-
-            play(0);
-        }
-
-        if (playlist == m_visiblePlaylist)
-        {
-            m_playlistUi.playlistView->setCurrentIndex(m_playlists[m_visiblePlaylist]->index((position - 1), 0));
-
-            trackPressed();
-        }
-    }
-
-    m_mediaPlayer->metaDataManager()->setMetaData(metaData);
 }
 
 void Applet::savePlaylistSettings(int position, int index)
@@ -1519,7 +1483,7 @@ QList<QAction*> Applet::contextualActions()
 
 Player* Applet::player()
 {
-    return m_mediaPlayer;
+    return m_player;
 }
 
 bool Applet::eventFilter(QObject *object, QEvent *event)
@@ -1568,7 +1532,7 @@ bool Applet::eventFilter(QObject *object, QEvent *event)
         }
         else if (event->type() == QEvent::Drop)
         {
-            addToPlaylist(KUrl::List::fromMimeData(static_cast<QDropEvent*>(event)->mimeData()), true);
+            m_playlists[m_visiblePlaylist]->addTracks(KUrl::List::fromMimeData(static_cast<QDropEvent*>(event)->mimeData()), -1, true);
 
             return true;
         }
@@ -1609,10 +1573,10 @@ bool Applet::eventFilter(QObject *object, QEvent *event)
             menu.addSeparator();
 
 ///FIXME use index
-            if (url == m_mediaPlayer->url())
+            if (url == m_player->url())
             {
-                menu.addAction(m_mediaPlayer->action(PlayPauseAction));
-                menu.addAction(m_mediaPlayer->action(StopAction));
+                menu.addAction(m_player->action(PlayPauseAction));
+                menu.addAction(m_player->action(StopAction));
             }
             else
             {

@@ -41,7 +41,7 @@ class PlaylistModel : public QAbstractTableModel
     public:
         PlaylistModel(Player *parent);
 
-        void addTracks(const KUrl::List &tracks, int index = -1);
+        void addTracks(const KUrl::List &tracks, int index = -1, bool play = false);
         void sort(int column, Qt::SortOrder order);
         QStringList mimeTypes() const;
         QVariant data(const QModelIndex &index, int role) const;
@@ -56,6 +56,9 @@ class PlaylistModel : public QAbstractTableModel
         bool dropMimeData(const QMimeData *mimeData, Qt::DropAction action, int row, int column, const QModelIndex &index);
         bool insertRows(int row, int count, const QModelIndex &index = QModelIndex());
         bool removeRows(int row, int count, const QModelIndex &index = QModelIndex());
+
+    protected slots:
+        void addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int index, bool play);
 
     private:
         Player *m_player;

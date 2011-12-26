@@ -27,19 +27,17 @@
 #include <KIO/Job>
 #include <KIO/NetAccess>
 
+#include "PlaylistManager.h"
+
 namespace MiniPlayer
 {
-
-enum PlaylistType { None = 0, PLS, M3U, XSPF, ASX };
-
-class Applet;
 
 class PlaylistReader : public QObject
 {
     Q_OBJECT
 
     public:
-        PlaylistReader(const QString &playlist, const KUrl::List &urls, bool play, int index, Applet *parent);
+        PlaylistReader(const KUrl::List &urls, int index, bool play, QObject *parent);
 
     public slots:
         void importData(KIO::Job *job, const QByteArray &data);
@@ -59,13 +57,12 @@ class PlaylistReader : public QObject
         QHash<KJob*, PlaylistType> m_remotePlaylistsType;
         QHash<KUrl, QPair<QString, qint64> > m_metaData;
         KUrl::List m_tracks;
-        QString m_playlist;
         int m_imports;
         int m_index;
         bool m_play;
 
     signals:
-        void processedTracks(QString playlist, KUrl::List tracks, QHash<KUrl, QPair<QString, qint64> > metaData, bool play, int index);
+        void processedTracks(KUrl::List tracks, QHash<KUrl, QPair<QString, qint64> > metaData, int index, bool play);
 };
 
 }
