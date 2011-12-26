@@ -42,6 +42,7 @@ namespace MiniPlayer
 PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_player(parent),
     m_dialog(NULL),
+    m_currentPlaylist(0),
     m_editorActive(false)
 {
 }
@@ -198,12 +199,15 @@ void PlaylistManager::removePlaylist(int position)
 
 void PlaylistManager::visiblePlaylistChanged(int position)
 {
-    if (!m_playlists.count() < position)
+    if (position > m_playlists.count())
     {
         return;
     }
 
-    filterPlaylist(m_playlistUi.playlistViewFilter->text());
+    if (!m_playlistUi.playlistViewFilter->text().isEmpty())
+    {
+        filterPlaylist(m_playlistUi.playlistViewFilter->text());
+    }
 
     if (m_player->state() != PlayingState && m_player->state() != PausedState)
     {
@@ -260,9 +264,16 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.splitter->setStretchFactor(4, 1);
         m_playlistUi.splitter->setStretchFactor(5, 1);
 
+        for (int i = 0; i < m_playlists.count(); ++i)
+        {
+            m_playlistUi.tabBar->addTab(KIcon((m_currentPlaylist == i)?"media-playback-start":"view-media-playlist"), m_playlists.at(i)->title());
+        }
+
+        m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
+
         updateTheme();
         trackPressed();
-        setCurrentPlaylist(m_currentPlaylist);
+        visiblePlaylistChanged(m_currentPlaylist);
 
         connect(m_dialog, SIGNAL(dialogResized()), this, SIGNAL(configNeedsSaving()));
         connect(m_playlistUi.splitter, SIGNAL(splitterMoved(int,int)), this, SIGNAL(configNeedsSaving()));
@@ -320,7 +331,7 @@ void PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tra
     }
 
     PlaylistModel *playlist = new PlaylistModel(m_player, title);
-    int position = visiblePlaylist();
+    int position = (visiblePlaylist() + 1);
 
     m_playlists.insert(position, playlist);
 
@@ -521,7 +532,9 @@ int PlaylistManager::currentPlaylist() const
 
 int PlaylistManager::visiblePlaylist() const
 {
-    return (m_dialog?m_playlistUi.tabBar->currentIndex():m_currentPlaylist);
+    int index = (m_dialog?m_playlistUi.tabBar->currentIndex():m_currentPlaylist);
+
+    return ((index > m_playlists.count() || index < 0)?0:index);
 }
 
 bool PlaylistManager::isDialogVisible() const

@@ -753,9 +753,7 @@ void Applet::openUrl()
 
 void Applet::openFiles()
 {
-    KConfigGroup configuration = config();
-
-    KFileDialog dialog(KUrl(configuration.readEntry("directory", "~")), "", NULL);
+    KFileDialog dialog(KUrl(config().readEntry("directory", "~")), "", NULL);
     dialog.setFilter("video/ogg video/x-theora+ogg video/x-ogm+ogg video/x-ms-wmv video/x-msvideo video/x-ms-asf video/x-matroska video/mpeg video/avi video/quicktime video/vnd.rn-realvideo video/x-flic video/mp4 video/x-flv video/3gpp application/ogg audio/x-vorbis+ogg audio/mpeg audio/x-flac audio/x-flac+ogg audio/x-musepack audio/x-scpls audio/x-mpegurl application/xspf+xml audio/x-ms-asx");
     dialog.setWindowModality(Qt::NonModal);
     dialog.setMode(KFile::Files | KFile::Directory);
@@ -769,7 +767,7 @@ void Applet::openFiles()
         return;
     }
 
-    configuration.writeEntry("directory", QFileInfo(urls.at(0).toLocalFile()).absolutePath());
+    config().writeEntry("directory", QFileInfo(urls.at(0).toLocalFile()).absolutePath());
 
     m_playlistManager->addTracks(urls, -1, (sender() == m_player->action(OpenFileAction)));
 
