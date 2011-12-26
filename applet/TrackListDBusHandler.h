@@ -27,7 +27,7 @@
 namespace MiniPlayer
 {
 
-class Applet;
+class Player;
 
 }
 
@@ -36,7 +36,7 @@ class TrackListDBusHandler : public QObject
     Q_OBJECT
 
     public:
-        TrackListDBusHandler(MiniPlayer::Applet *parent);
+        TrackListDBusHandler(MiniPlayer::Player *parent);
 
     public Q_SLOTS:
         void SetLoop(bool enable);
@@ -51,7 +51,7 @@ class TrackListDBusHandler : public QObject
         void TrackListChange(int count);
 
     private:
-        MiniPlayer::Applet *m_player;
+        MiniPlayer::Player *m_player;
 };
 
 #endif

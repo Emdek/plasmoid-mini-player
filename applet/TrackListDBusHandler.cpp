@@ -24,12 +24,11 @@
 #include "MetaDataManager.h"
 
 #include <QtCore/QList>
-#include <QtMultimediaKit/QMediaPlayer>
 #include <QtMultimediaKit/QMediaPlaylist>
 
 #include <KUrl>
 
-TrackListDBusHandler::TrackListDBusHandler(MiniPlayer::Applet *parent) : QObject(parent)
+TrackListDBusHandler::TrackListDBusHandler(MiniPlayer::Player *parent) : QObject(parent)
 {
     m_player = parent;
 
@@ -44,7 +43,8 @@ int TrackListDBusHandler::AddTrack(const QString &url, bool playImmediately)
 {
     if (KUrl(url).isValid())
     {
-        m_player->addToPlaylist(KUrl::List(KUrl(url)), playImmediately);
+///FIXME
+//         m_player->addToPlaylist(KUrl::List(KUrl(url)), playImmediately);
 
         emit TrackListChange(m_player->playlist()->mediaCount());
 
@@ -83,22 +83,15 @@ QVariantMap TrackListDBusHandler::GetMetadata(int position)
         return QVariantMap();
     }
 
-    QMediaPlayer *mediaPlayer = new QMediaPlayer(this);
-    mediaPlayer->setMedia(m_player->playlist()->media(position));
-
-    QVariantMap metaData = m_player->metaDataManager()->metaData(mediaPlayer);
-
-    mediaPlayer->deleteLater();
-
-    return metaData;
+    return m_player->metaDataManager()->metaData(m_player->playlist()->media(position).canonicalUrl());
 }
 
 void TrackListDBusHandler::SetLoop(bool enable)
 {
-    m_player->setPlaybackMode(enable?QMediaPlaylist::Loop:QMediaPlaylist::Sequential);
+    m_player->setPlaybackMode(enable?MiniPlayer::LoopPlaylistMode:MiniPlayer::SequentialMode);
 }
 
 void TrackListDBusHandler::SetRandom(bool enable)
 {
-    m_player->setPlaybackMode(enable?QMediaPlaylist::Random:m_player->playbackMode());
+    m_player->setPlaybackMode(enable?MiniPlayer::RandomMode:m_player->playbackMode());
 }

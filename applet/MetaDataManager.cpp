@@ -138,8 +138,11 @@ void MetaDataManager::setMetaData(const QHash<KUrl, QPair<QString, qint64> > &me
     }
 }
 
-QVariantMap MetaDataManager::metaData(QMediaPlayer *mediaPlayer)
+QVariantMap MetaDataManager::metaData(const KUrl &url)
 {
+    QMediaPlayer *mediaPlayer = new QMediaPlayer(this);
+    mediaPlayer->setMedia(QMediaContent(url));
+
     QVariantMap metaData;
     QStringList keys = mediaPlayer->availableExtendedMetaData();
 
@@ -159,7 +162,9 @@ QVariantMap MetaDataManager::metaData(QMediaPlayer *mediaPlayer)
     }
 
     metaData["time"] = ((mediaPlayer->duration() > 0)?(mediaPlayer->duration() / 1000):-1);
-    metaData["location"] = mediaPlayer->media().canonicalUrl().toString();
+    metaData["location"] = url.pathOrUrl();
+
+    mediaPlayer->deleteLater();
 
     return metaData;
 }

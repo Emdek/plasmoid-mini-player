@@ -24,7 +24,6 @@
 #include <QtCore/QTimerEvent>
 #include <QtCore/QVariantMap>
 #include <QtGui/QKeyEvent>
-#include <QtMultimediaKit/QMediaPlayer>
 #include <QtMultimediaKit/QMediaPlaylist>
 
 #include <KDialog>
@@ -32,6 +31,8 @@
 
 #include <Plasma/Applet>
 #include <Plasma/Dialog>
+
+#include "Player.h"
 
 #include "ui_general.h"
 #include "ui_controls.h"
@@ -48,7 +49,6 @@ namespace MiniPlayer
 {
 
 class VideoWidget;
-class MetaDataManager;
 class PlaylistModel;
 
 class Applet : public Plasma::Applet
@@ -63,19 +63,14 @@ class Applet : public Plasma::Applet
         void addToPlaylist(const KUrl::List &items, bool play, int index = -1);
         void createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List());
         QList<QAction*> contextualActions();
-        QMediaPlayer* mediaPlayer();
-        MetaDataManager* metaDataManager();
-        QMediaPlaylist* playlist();
-        QMediaPlaylist::PlaybackMode playbackMode() const;
+        Player* player();
         bool eventFilter(QObject *object, QEvent *event);
 
     public slots:
         void configAccepted();
         void configReset();
-        void stateChanged(QMediaPlayer::State state);
-        void errorOccured(QMediaPlayer::Error error);
+        void stateChanged(PlayerState state);
         void videoAvailableChanged(bool videoAvailable);
-        void volumeChanged();
         void metaDataChanged();
         void trackPressed();
         void trackChanged();
@@ -89,22 +84,11 @@ class Applet : public Plasma::Applet
         void openUrl();
         void play(int index);
         void play(KUrl url);
-        void playPause();
-        void playPrevious();
-        void playNext();
-        void play();
-        void pause();
-        void stop();
-        void seekBackward();
-        void seekForward();
-        void increaseVolume();
-        void decreaseVolume();
         void jumpToPosition();
         void toggleJumpToPosition();
         void toggleVolumeDialog();
         void togglePlaylistDialog();
         void toggleFullScreen();
-        void toggleMute();
         void filterPlaylist(const QString &text);
         void savePlaylistNames();
         void movePlaylist(int from, int to);
@@ -118,10 +102,6 @@ class Applet : public Plasma::Applet
         void clearPlaylist();
         void shufflePlaylist();
         void setCurrentPlaylist(const QString &playlist);
-        void setAspectRatio(int ratio);
-        void setPlaybackMode(int mode);
-        void changeAspectRatio(QAction *action);
-        void changePlaybackMode(QAction *action);
         void showToolTip();
         void updateToolTip();
         void toolTipAboutToShow();
@@ -140,13 +120,12 @@ class Applet : public Plasma::Applet
         void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
         void keyPressEvent(QKeyEvent *event);
         void timerEvent(QTimerEvent *event);
-        void updateControls(QMediaPlayer::State state);
+        void updateControls(PlayerState state);
         void updateVideoWidgets();
 
     private:
         QHash<QString, PlaylistModel*> m_playlists;
-        QMediaPlayer *m_mediaPlayer;
-        MetaDataManager *m_metaDataManager;
+        Player *m_mediaPlayer;
         VideoWidget *m_videoWidget;
         Plasma::Dialog *m_volumeDialog;
         Plasma::Dialog *m_playlistDialog;
@@ -161,16 +140,6 @@ class Applet : public Plasma::Applet
         QString m_visiblePlaylist;
         QString m_title;
         KDialog *m_jumpToPositionDialog;
-        QAction *m_audioAction;
-        QAction *m_volumeAction;
-        QAction *m_playPauseAction;
-        QAction *m_stopAction;
-        QAction *m_fullScreenAction;
-        QAction *m_muteAction;
-        QAction *m_videoAction;
-        QMenu *m_openMenu;
-        QMenu *m_aspectRatioMenu;
-        QMenu *m_playbackModeMenu;
         KNotificationRestrictions *m_notificationRestrictions;
         int m_hideFullScreenControls;
         int m_showPlaylist;

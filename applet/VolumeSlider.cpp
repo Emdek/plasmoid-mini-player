@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "VolumeSlider.h"
+#include "Player.h"
 
 #include <QtGui/QStyle>
 #include <QtGui/QMouseEvent>
@@ -30,7 +31,7 @@ namespace MiniPlayer
 {
 
 VolumeSlider::VolumeSlider(QWidget *parent) : QSlider(parent),
-    m_mediaPlayer(NULL)
+    m_player(NULL)
 {
     setEnabled(false);
     setRange(0, 100);
@@ -66,46 +67,46 @@ void VolumeSlider::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void VolumeSlider::setMediaPlayer(QMediaPlayer *mediaPlayer)
+void VolumeSlider::setPlayer(Player *player)
 {
-    if (m_mediaPlayer)
+    if (m_player)
     {
-        disconnect(this, SIGNAL(valueChanged(int)), m_mediaPlayer, SLOT(setVolume(int)));
-        disconnect(m_mediaPlayer, SIGNAL(volumeChanged(int)), this, SLOT(volumeChanged(int)));
-        disconnect(m_mediaPlayer, SIGNAL(audioAvailableChanged(bool)), this, SLOT(setEnabled(bool)));
+        disconnect(this, SIGNAL(valueChanged(int)), m_player, SLOT(setVolume(int)));
+        disconnect(m_player, SIGNAL(volumeChanged(int)), this, SLOT(volumeChanged(int)));
+        disconnect(m_player, SIGNAL(audioAvailableChanged(bool)), this, SLOT(setEnabled(bool)));
     }
 
-    m_mediaPlayer = mediaPlayer;
+    m_player = player;
 
-    if (!m_mediaPlayer)
+    if (!m_player)
     {
         triggerAction(QAbstractSlider::SliderToMinimum);
 
         return;
     }
 
-    setEnabled(m_mediaPlayer->isAudioAvailable());
-    setValue(m_mediaPlayer->volume());
+    setEnabled(m_player->isAudioAvailable());
+    setValue(m_player->volume());
 
-    connect(this, SIGNAL(valueChanged(int)), m_mediaPlayer, SLOT(setVolume(int)));
-    connect(m_mediaPlayer, SIGNAL(volumeChanged(int)), this, SLOT(volumeChanged(int)));
-    connect(m_mediaPlayer, SIGNAL(audioAvailableChanged(bool)), this, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(valueChanged(int)), m_player, SLOT(setVolume(int)));
+    connect(m_player, SIGNAL(volumeChanged(int)), this, SLOT(volumeChanged(int)));
+    connect(m_player, SIGNAL(audioAvailableChanged(bool)), this, SLOT(setEnabled(bool)));
 }
 
 void VolumeSlider::volumeChanged(int volume)
 {
-    if (!m_mediaPlayer)
+    if (!m_player)
     {
         return;
     }
 
-    disconnect(this, SIGNAL(valueChanged(int)), m_mediaPlayer, SLOT(setVolume(int)));
+    disconnect(this, SIGNAL(valueChanged(int)), m_player, SLOT(setVolume(int)));
 
     setValue(volume);
 
-    connect(this, SIGNAL(valueChanged(int)), m_mediaPlayer, SLOT(setVolume(int)));
+    connect(this, SIGNAL(valueChanged(int)), m_player, SLOT(setVolume(int)));
 
-    setToolTip(m_mediaPlayer->isMuted()?i18n("Muted"):i18n("Volume: %1%", m_mediaPlayer->volume()));
+    setToolTip(m_player->isAudioMuted()?i18n("Muted"):i18n("Volume: %1%", m_player->volume()));
 }
 
 }

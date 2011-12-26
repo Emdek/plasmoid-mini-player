@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "SeekSlider.h"
+#include "Player.h"
 #include "MetaDataManager.h"
 
 #include <QtGui/QStyle>
@@ -29,7 +30,7 @@ namespace MiniPlayer
 {
 
 SeekSlider::SeekSlider(QWidget *parent) : QSlider(parent),
-    m_mediaPlayer(NULL),
+    m_player(NULL),
     m_updatePosition(0),
     m_isDragged(false)
 {
@@ -74,7 +75,7 @@ void SeekSlider::mousePressEvent(QMouseEvent *event)
 
 void SeekSlider::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!m_mediaPlayer)
+    if (!m_player)
     {
         return;
     }
@@ -89,11 +90,11 @@ void SeekSlider::mouseMoveEvent(QMouseEvent *event)
 
     if (orientation() == Qt::Horizontal)
     {
-        position = (((float) (event->x()  - (handle.width() / 2)) / groove.width()) * m_mediaPlayer->duration());
+        position = (((float) (event->x()  - (handle.width() / 2)) / groove.width()) * m_player->duration());
     }
     else
     {
-        position = (((float) (event->y() - (handle.height() / 2)) / groove.height()) * m_mediaPlayer->duration());
+        position = (((float) (event->y() - (handle.height() / 2)) / groove.height()) * m_player->duration());
     }
 
     setToolTip(position?MetaDataManager::timeToString(position):"0:00:00");
@@ -105,27 +106,27 @@ void SeekSlider::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event)
 
-    if (!isSliderDown() && m_mediaPlayer)
+    if (!isSliderDown() && m_player)
     {
         disconnect(this, SIGNAL(valueChanged(int)), this, SLOT(positionChanged(int)));
 
-        setValue((m_mediaPlayer->position() * 10000) / m_mediaPlayer->duration());
+        setValue((m_player->position() * 10000) / m_player->duration());
 
         connect(this, SIGNAL(valueChanged(int)), this, SLOT(positionChanged(int)));
     }
 }
 
-void SeekSlider::setMediaPlayer(QMediaPlayer *mediaPlayer)
+void SeekSlider::setPlayer(Player *player)
 {
-    if (m_mediaPlayer)
+    if (m_player)
     {
-        disconnect(m_mediaPlayer, SIGNAL(seekableChanged(bool)), this, SLOT(mediaChanged()));
-        disconnect(m_mediaPlayer, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(mediaChanged()));
+        disconnect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(mediaChanged()));
+        disconnect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(mediaChanged()));
     }
 
-    m_mediaPlayer = mediaPlayer;
+    m_player = player;
 
-    if (!m_mediaPlayer)
+    if (!m_player)
     {
         setEnabled(false);
         setToolTip(QString());
@@ -136,17 +137,17 @@ void SeekSlider::setMediaPlayer(QMediaPlayer *mediaPlayer)
 
     mediaChanged();
 
-    connect(m_mediaPlayer, SIGNAL(seekableChanged(bool)), this, SLOT(mediaChanged()));
-    connect(m_mediaPlayer, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(mediaChanged()));
+    connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(mediaChanged()));
+    connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(mediaChanged()));
 }
 
 void SeekSlider::positionChanged(int position)
 {
-    if (m_mediaPlayer)
+    if (m_player)
     {
         killTimer(m_updatePosition);
 
-        m_mediaPlayer->setPosition((m_mediaPlayer->duration() * position) / 10000);
+        m_player->setPosition((m_player->duration() * position) / 10000);
 
         m_updatePosition = startTimer(250);
     }
@@ -154,16 +155,16 @@ void SeekSlider::positionChanged(int position)
 
 void SeekSlider::mediaChanged()
 {
-    if (!m_mediaPlayer)
+    if (!m_player)
     {
         return;
     }
 
-    if (m_mediaPlayer->isSeekable() && (m_mediaPlayer->state() == QMediaPlayer::PlayingState || m_mediaPlayer->state() == QMediaPlayer::PausedState))
+    if (m_player->isSeekable() && (m_player->state() == PlayingState || m_player->state() == PausedState))
     {
         setEnabled(true);
-        setSingleStep(qMin((qint64) 1, m_mediaPlayer->duration() / 300000));
-        setPageStep(qMin((qint64) 1, m_mediaPlayer->duration() / 30000));
+        setSingleStep(qMin((qint64) 1, m_player->duration() / 300000));
+        setPageStep(qMin((qint64) 1, m_player->duration() / 30000));
 
         m_updatePosition = startTimer(250);
     }

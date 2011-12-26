@@ -22,10 +22,11 @@
 #define MINIPLAYERVOLUMESLIDER_HEADER
 
 #include <QtGui/QSlider>
-#include <QtMultimediaKit/QMediaPlayer>
 
 namespace MiniPlayer
 {
+
+class Player;
 
 class VolumeSlider : public QSlider
 {
@@ -34,7 +35,7 @@ class VolumeSlider : public QSlider
     public:
         VolumeSlider(QWidget *parent = NULL);
 
-        void setMediaPlayer(QMediaPlayer *audioOutput);
+        void setPlayer(Player *player);
 
     public slots:
         void volumeChanged(int volume);
@@ -43,7 +44,7 @@ class VolumeSlider : public QSlider
         void mousePressEvent(QMouseEvent *event);
 
     private:
-        QMediaPlayer *m_mediaPlayer;
+        Player *m_player;
 };
 
 }

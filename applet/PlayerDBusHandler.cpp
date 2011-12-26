@@ -24,7 +24,6 @@
 #include "MetaDataManager.h"
 
 #include <QtDBus/QDBusConnection>
-#include <QtMultimediaKit/QMediaPlayer>
 #include <QtMultimediaKit/QMediaPlaylist>
 
 QDBusArgument &operator << (QDBusArgument &argument, const DBusStatus &status)
@@ -51,7 +50,7 @@ const QDBusArgument &operator >> (const QDBusArgument &argument, DBusStatus &sta
     return argument;
 }
 
-PlayerDBusHandler::PlayerDBusHandler(MiniPlayer::Applet *parent) : QObject(parent)
+PlayerDBusHandler::PlayerDBusHandler(MiniPlayer::Player *parent) : QObject(parent)
 {
     m_player = parent;
 
@@ -63,9 +62,9 @@ PlayerDBusHandler::PlayerDBusHandler(MiniPlayer::Applet *parent) : QObject(paren
 
     QDBusConnection::sessionBus().registerObject("/Player", this);
 
-    connect(m_player->mediaPlayer(), SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(stateChanged()));
-    connect(m_player->mediaPlayer(), SIGNAL(seekableChanged(bool)), this, SLOT(seekableChanged()));
-    connect(m_player->mediaPlayer(), SIGNAL(metaDataChanged()), this, SLOT(trackChanged()));
+    connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(stateChanged()));
+    connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(seekableChanged()));
+    connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(trackChanged()));
 }
 
 void PlayerDBusHandler::PlayPause()
@@ -100,7 +99,7 @@ void PlayerDBusHandler::Prev()
 
 void PlayerDBusHandler::Repeat(bool enable)
 {
-    m_player->setPlaybackMode(enable?QMediaPlaylist::CurrentItemInLoop:QMediaPlaylist::Sequential);
+    m_player->setPlaybackMode(enable?MiniPlayer::LoopTrackMode:MiniPlayer::SequentialMode);
 }
 
 void PlayerDBusHandler::stateChanged()
@@ -121,41 +120,40 @@ void PlayerDBusHandler::trackChanged()
 
 void PlayerDBusHandler::VolumeSet(int value)
 {
-    m_player->mediaPlayer()->setVolume(value);
+    m_player->setVolume(value);
 }
 
 void PlayerDBusHandler::PositionSet(int position)
 {
-    m_player->mediaPlayer()->setPosition(position);
+    m_player->setPosition(position);
 }
 
 DBusStatus PlayerDBusHandler::GetStatus()
 {
     DBusStatus status;
 
-    switch (m_player->mediaPlayer()->state())
+    switch (m_player->state())
     {
-        case QMediaPlayer::PlayingState:
+        case MiniPlayer::PlayingState:
             status.Play = 0;
         break;
-        case QMediaPlayer::PausedState:
+        case MiniPlayer::PausedState:
             status.Play = 1;
         break;
-        case QMediaPlayer::StoppedState:
         default:
             status.Play = 2;
     }
 
-    status.Random = ((m_player->playbackMode() == QMediaPlaylist::Random)?1:0);
-    status.Repeat = ((m_player->playbackMode() == QMediaPlaylist::CurrentItemInLoop)?1:0);
-    status.RepeatPlaylist = ((m_player->playbackMode() == QMediaPlaylist::Loop)?1:0);
+    status.Random = ((m_player->playbackMode() == MiniPlayer::RandomMode)?1:0);
+    status.Repeat = ((m_player->playbackMode() == MiniPlayer::LoopTrackMode)?1:0);
+    status.RepeatPlaylist = ((m_player->playbackMode() == MiniPlayer::LoopPlaylistMode)?1:0);
 
     return status;
 }
 
 QVariantMap PlayerDBusHandler::GetMetadata()
 {
-    return m_player->metaDataManager()->metaData(m_player->mediaPlayer());
+    return m_player->metaDataManager()->metaData(m_player->url());
 }
 
 int PlayerDBusHandler::GetCaps()
@@ -163,37 +161,34 @@ int PlayerDBusHandler::GetCaps()
     int caps = NONE;
 
     caps |= CAN_GO_NEXT;
-
     caps |= CAN_GO_PREV;
+    caps |= CAN_PROVIDE_METADATA;
+    caps |= CAN_HAS_TRACKLIST;
 
-    if (m_player->mediaPlayer()->state() == QMediaPlayer::PlayingState)
+    if (m_player->state() == MiniPlayer::PlayingState)
     {
         caps |= CAN_PAUSE;
     }
 
-    if (m_player->mediaPlayer()->state() == QMediaPlayer::PausedState)
+    if (m_player->state() == MiniPlayer::PausedState)
     {
         caps |= CAN_PLAY;
     }
 
-    if (m_player->mediaPlayer()->isSeekable())
+    if (m_player->isSeekable())
     {
         caps |= CAN_SEEK;
     }
-
-    caps |= CAN_PROVIDE_METADATA;
-
-    caps |= CAN_HAS_TRACKLIST;
 
     return caps;
 }
 
 int PlayerDBusHandler::VolumeGet() const
 {
-     return m_player->mediaPlayer()->volume();
+     return m_player->volume();
 }
 
 qint64 PlayerDBusHandler::PositionGet() const
 {
-    return m_player->mediaPlayer()->position();
+    return m_player->position();
 }

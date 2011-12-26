@@ -19,8 +19,8 @@
 ***********************************************************************************/
 
 #include "PlaylistModel.h"
+#include "Player.h"
 #include "MetaDataManager.h"
-#include "Applet.h"
 
 #include <KIcon>
 #include <KLocale>
@@ -29,13 +29,13 @@
 namespace MiniPlayer
 {
 
-PlaylistModel::PlaylistModel(Applet *parent) : QAbstractTableModel(parent),
+PlaylistModel::PlaylistModel(Player *parent) : QAbstractTableModel(parent),
     m_player(parent),
     m_playlist(new QMediaPlaylist(this))
 {
     setSupportedDragActions(Qt::MoveAction);
 
-    connect(m_player, SIGNAL(resetModel()), this, SIGNAL(layoutChanged()));
+//    connect(m_player, SIGNAL(resetModel()), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaChanged(int,int)), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaInserted(int,int)), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaRemoved(int,int)), this, SIGNAL(layoutChanged()));
@@ -307,7 +307,8 @@ bool PlaylistModel::dropMimeData(const QMimeData *mimeData, Qt::DropAction actio
 
     KUrl::List urls = KUrl::List::fromMimeData(mimeData);
 
-    m_player->addToPlaylist(urls, false, position);
+///FIXME move here or to PlaylistManager
+//     m_player->addToPlaylist(urls, false, position);
 
     emit needsSaving();
 

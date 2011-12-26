@@ -32,14 +32,14 @@
 namespace MiniPlayer
 {
 
-class Applet;
+class Player;
 
 class PlaylistModel : public QAbstractTableModel
 {
     Q_OBJECT
 
     public:
-        PlaylistModel(Applet *parent);
+        PlaylistModel(Player *parent);
 
         void addTracks(const KUrl::List &tracks, int index = -1);
         void sort(int column, Qt::SortOrder order);
@@ -58,7 +58,7 @@ class PlaylistModel : public QAbstractTableModel
         bool removeRows(int row, int count, const QModelIndex &index = QModelIndex());
 
     private:
-        Applet *m_player;
+        Player *m_player;
         QMediaPlaylist *m_playlist;
 
     signals:

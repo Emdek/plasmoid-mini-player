@@ -22,10 +22,11 @@
 #define MINIPLAYERSEEKSLIDER_HEADER
 
 #include <QtGui/QSlider>
-#include <QtMultimediaKit/QMediaPlayer>
 
 namespace MiniPlayer
 {
+
+class Player;
 
 class SeekSlider : public QSlider
 {
@@ -34,7 +35,7 @@ class SeekSlider : public QSlider
     public:
         SeekSlider(QWidget *parent = NULL);
 
-        void setMediaPlayer(QMediaPlayer *mediaPlayer);
+        void setPlayer(Player *player);
 
     public slots:
         void positionChanged(int position);
@@ -46,7 +47,7 @@ class SeekSlider : public QSlider
         void timerEvent(QTimerEvent *event);
 
     private:
-        QMediaPlayer *m_mediaPlayer;
+        Player *m_player;
         int m_updatePosition;
         bool m_isDragged;
 };

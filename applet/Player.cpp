@@ -19,24 +19,30 @@
 ***********************************************************************************/
 
 #include "Player.h"
+#include "MetaDataManager.h"
 
 #include <QtGui/QActionGroup>
 
 #include <KIcon>
 #include <KMenu>
 #include <KLocale>
+#include <KMessageBox>
 
 namespace MiniPlayer
 {
 
 Player::Player(QObject *parent) : QObject(parent),
     m_mediaPlayer(new QMediaPlayer(this)),
+    m_metaDataManager(new MetaDataManager(this)),
+    m_playbackMode(),
     m_aspectRatio(AutomaticRatio)
 {
     m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
     m_actions[OpenMenuAction]->setMenu(new KMenu());
-    m_actions[OpenFileAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("document-open"), i18n("Open File"), this, SLOT(openFiles()), QKeySequence(Qt::Key_O));
-    m_actions[OpenUrlAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("uri-mms"), i18n("Open URL"), this, SLOT(openUrl()), QKeySequence(Qt::Key_U));
+    m_actions[OpenFileAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("document-open"), i18n("Open File"));
+    m_actions[OpenFileAction]->setShortcut(QKeySequence(Qt::Key_O));
+    m_actions[OpenUrlAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("uri-mms"), i18n("Open URL"));
+    m_actions[OpenUrlAction]->setShortcut(QKeySequence(Qt::Key_U));
 
     m_actions[PlayPauseAction] = new QAction(KIcon("media-playback-start"), i18n("Play"), this);
     m_actions[PlayPauseAction]->setEnabled(false);
@@ -54,7 +60,8 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[SeekBackwardAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-seek-backward"), i18n("Seek Backward"), this, SLOT(seekBackward()), QKeySequence(Qt::Key_Left));
     m_actions[SeekForwardAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-seek-forward"), i18n("Seek Forward"), this, SLOT(seekForward()), QKeySequence(Qt::Key_Right));
     m_actions[NavigationMenuAction]->menu()->addSeparator();
-    m_actions[SeekToAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("go-jump"), i18n("Jump to Position"), this, SLOT(toggleJumpToPosition()), QKeySequence(Qt::Key_G));
+    m_actions[SeekToAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("go-jump"), i18n("Jump to Position"));
+    m_actions[SeekToAction]->setShortcut(QKeySequence(Qt::Key_G));
 
     m_actions[VolumeAction] = new QAction(KIcon("player-volume"), i18n("Volume"), this);
     m_actions[VolumeAction]->setShortcut(QKeySequence(Qt::Key_V));
@@ -63,44 +70,72 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[IncreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-high"), i18n("Increase Volume"), this, SLOT(increaseVolume()), QKeySequence(Qt::Key_Plus));
     m_actions[DecreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-low"), i18n("Decrease Volume"), this, SLOT(decreaseVolume()), QKeySequence(Qt::Key_Minus));
     m_actions[AudioMenuAction]->menu()->addSeparator();
-    m_actions[MuteAction]->menu()->addAction(KIcon("audio-volume-medium"), i18n("Mute Volume"));
+    m_actions[MuteAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-medium"), i18n("Mute Volume"));
     m_actions[MuteAction]->setCheckable(true);
     m_actions[MuteAction]->setShortcut(QKeySequence(Qt::Key_M));
 
     m_actions[VideoMenuAction] = new QAction(i18n("Video"), this);
     m_actions[VideoMenuAction]->setMenu(new KMenu());
+    m_actions[AspectRatioMenuAction] = m_actions[VideoMenuAction]->menu()->addAction(i18n("Aspect Ratio"));
+    m_actions[AspectRatioMenuAction]->setMenu(new KMenu());
 
-    QMenu *aspectRatioMenu = m_actions[VideoMenuAction]->menu()->addMenu(i18n("Aspect Ratio"));
-
-    QAction *aspectRatioAutomatic = aspectRatioMenu->addAction(i18n("Automatic"));
+    QAction *aspectRatioAutomatic = m_actions[AspectRatioMenuAction]->menu()->addAction(i18n("Automatic"));
     aspectRatioAutomatic->setCheckable(true);
     aspectRatioAutomatic->setData(AutomaticRatio);
 
-    QAction *aspectRatio4_3 = aspectRatioMenu->addAction(i18n("4:3"));
+    QAction *aspectRatio4_3 = m_actions[AspectRatioMenuAction]->menu()->addAction(i18n("4:3"));
     aspectRatio4_3->setCheckable(true);
     aspectRatio4_3->setData(Ratio4_3);
 
-    QAction *aspectRatio16_9 = aspectRatioMenu->addAction(i18n("16:9"));
+    QAction *aspectRatio16_9 = m_actions[AspectRatioMenuAction]->menu()->addAction(i18n("16:9"));
     aspectRatio16_9->setCheckable(true);
     aspectRatio16_9->setData(Ratio16_9);
 
-    QAction *aspectRatioFitTo = aspectRatioMenu->addAction(i18n("Fit to Window"));
+    QAction *aspectRatioFitTo = m_actions[AspectRatioMenuAction]->menu()->addAction(i18n("Fit to Window"));
     aspectRatioFitTo->setCheckable(true);
     aspectRatioFitTo->setData(FitToRatio);
 
-    QActionGroup *aspectRatioActionGroup = new QActionGroup(aspectRatioMenu);
+    QActionGroup *aspectRatioActionGroup = new QActionGroup(m_actions[VideoMenuAction]->menu());
     aspectRatioActionGroup->addAction(aspectRatioAutomatic);
     aspectRatioActionGroup->addAction(aspectRatio4_3);
     aspectRatioActionGroup->addAction(aspectRatio16_9);
     aspectRatioActionGroup->addAction(aspectRatioFitTo);
 
-    m_actions[AspectRatioMenuAction] = m_actions[VideoMenuAction]->menu()->addAction(i18n("Aspect Ratio"));
-    m_actions[AspectRatioMenuAction]->setMenu(aspectRatioMenu);
     m_actions[VideoMenuAction]->menu()->addSeparator();
-    m_actions[FullScreenAction] = m_actions[VideoMenuAction]->menu()->addAction(KIcon("view-fullscreen"), i18n("Full Screen Mode"), this, SLOT(toggleFullScreen()), QKeySequence(Qt::Key_F));
+    m_actions[FullScreenAction] = m_actions[VideoMenuAction]->menu()->addAction(KIcon("view-fullscreen"), i18n("Full Screen Mode"));
+    m_actions[FullScreenAction]->setShortcut(QKeySequence(Qt::Key_F));
 
-    connect(aspectRatioMenu, SIGNAL(triggered(QAction*)), this, SLOT(changeAspectRatio(QAction*)));
-    connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setMuted(bool)));
+    m_actions[PlaybackModeMenuAction] = new QAction(KIcon("edit-redo"), i18n("Playback Mode"), this);
+    m_actions[PlaybackModeMenuAction]->setMenu(new KMenu());
+
+    QAction *noRepeatAction = m_actions[PlaybackModeMenuAction]->menu()->addAction(KIcon("dialog-cancel"), i18n("No Repeat"));
+    noRepeatAction->setCheckable(true);
+    noRepeatAction->setData(SequentialMode);
+
+    QAction *repeatTrackAction = m_actions[PlaybackModeMenuAction]->menu()->addAction(KIcon("audio-x-generic"), i18n("Repeat Track"));
+    repeatTrackAction->setCheckable(true);
+    repeatTrackAction->setData(LoopTrackMode);
+
+    QAction *repeatPlaylistAction = m_actions[PlaybackModeMenuAction]->menu()->addAction(KIcon("view-media-playlist"), i18n("Repeat Playlist"));
+    repeatPlaylistAction->setCheckable(true);
+    repeatPlaylistAction->setData(LoopPlaylistMode);
+
+    QAction *randomTrackAction = m_actions[PlaybackModeMenuAction]->menu()->addAction(KIcon("roll"), i18n("Random Track"));
+    randomTrackAction->setCheckable(true);
+    randomTrackAction->setData(RandomMode);
+
+    QActionGroup *playbackModeActionGroup = new QActionGroup(m_actions[PlaybackModeMenuAction]->menu());
+    playbackModeActionGroup->addAction(noRepeatAction);
+    playbackModeActionGroup->addAction(repeatTrackAction);
+    playbackModeActionGroup->addAction(repeatPlaylistAction);
+    playbackModeActionGroup->addAction(randomTrackAction);
+
+    volumeChanged();
+    mediaChanged();
+
+    connect(m_actions[VideoMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAspectRatio(QAction*)));
+    connect(m_actions[PlaybackModeMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changePlaybackMode(QAction*)));
+    connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
     connect(m_mediaPlayer, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(stateChanged(QMediaPlayer::State)));
     connect(m_mediaPlayer, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(errorOccured(QMediaPlayer::Error)));
     connect(m_mediaPlayer, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
@@ -112,6 +147,7 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_mediaPlayer, SIGNAL(audioAvailableChanged(bool)), this, SIGNAL(audioAvailableChanged(bool)));
     connect(m_mediaPlayer, SIGNAL(audioAvailableChanged(bool)), this, SLOT(volumeChanged()));
     connect(m_mediaPlayer, SIGNAL(videoAvailableChanged(bool)), this, SIGNAL(videoAvailableChanged(bool)));
+    connect(m_mediaPlayer, SIGNAL(videoAvailableChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
     connect(m_mediaPlayer, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
     connect(m_mediaPlayer, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
 }
@@ -122,14 +158,12 @@ void Player::volumeChanged()
 
     if (isAudioMuted())
     {
-        m_actions[MuteAction]->setText(i18n("Unmute Volume"));
         m_actions[VolumeAction]->setText(i18n("Muted"));
 
         icon = KIcon("audio-volume-muted");
     }
     else
     {
-        m_actions[MuteAction]->setText(i18n("Mute Volume"));
         m_actions[VolumeAction]->setText(i18n("Volume: %1%", volume()));
 
         if (volume() > 65)
@@ -155,13 +189,21 @@ void Player::volumeChanged()
     emit configNeedsSaving();
 }
 
-void Player::changeAspectRatio(QAction *action)
+void Player::mediaChanged()
 {
-    setAspectRatio(static_cast<AspectRatio>(action->data().toInt()));
+    const PlayerState state = this->state();
+    const bool playingOrPaused = (state == PlayingState || state == PausedState);
+
+    m_actions[PlayPauseAction]->setIcon(KIcon((state == PlayingState)?"media-playback-pause":"media-playback-start"));
+    m_actions[PlayPauseAction]->setText((state == PlayingState)?i18n("Pause"):i18n("Play"));
+    m_actions[PlayPauseAction]->setEnabled(playingOrPaused || (m_mediaPlayer->playlist() && m_mediaPlayer->playlist()->mediaCount()));
+    m_actions[StopAction]->setEnabled(playingOrPaused);
 }
 
 void Player::stateChanged(QMediaPlayer::State state)
 {
+    mediaChanged();
+
     emit translateState(state);
 }
 
@@ -169,8 +211,20 @@ void Player::errorOccured(QMediaPlayer::Error error)
 {
     if (error != QMediaPlayer::NoError)
     {
+        KMessageBox::error(NULL, m_mediaPlayer->media().canonicalUrl().toString().replace("%20", " ") + "\n\n" + m_mediaPlayer->errorString());
+
         emit errorOccured(m_mediaPlayer->errorString());
     }
+}
+
+void Player::changeAspectRatio(QAction *action)
+{
+    setAspectRatio(static_cast<AspectRatio>(action->data().toInt()));
+}
+
+void Player::changePlaybackMode(QAction *action)
+{
+    setPlaybackMode(static_cast<PlaybackMode>(action->data().toInt()));
 }
 
 void Player::seekBackward()
@@ -220,9 +274,42 @@ void Player::stop()
     m_mediaPlayer->stop();
 }
 
+void Player::playPrevious()
+{
+    if (m_mediaPlayer->playlist())
+    {
+        m_mediaPlayer->playlist()->previous();
+
+        play();
+    }
+}
+
+void Player::playNext()
+{
+    if (m_mediaPlayer->playlist())
+    {
+        m_mediaPlayer->playlist()->next();
+
+        play();
+    }
+}
+
 void Player::setPlaylist(QMediaPlaylist *playlist)
 {
+    if (m_mediaPlayer->playlist())
+    {
+        disconnect(m_mediaPlayer->playlist(), SIGNAL(mediaChanged(int,int)), this, SLOT(mediaChanged()));
+        disconnect(m_mediaPlayer->playlist(), SIGNAL(mediaInserted(int,int)), this, SLOT(mediaChanged()));
+        disconnect(m_mediaPlayer->playlist(), SIGNAL(mediaRemoved(int,int)), this, SLOT(mediaChanged()));
+    }
+
     m_mediaPlayer->setPlaylist(playlist);
+
+    setPlaybackMode(m_playbackMode);
+
+    connect(playlist, SIGNAL(mediaChanged(int,int)), this, SLOT(mediaChanged()));
+    connect(playlist, SIGNAL(mediaInserted(int,int)), this, SLOT(mediaChanged()));
+    connect(playlist, SIGNAL(mediaRemoved(int,int)), this, SLOT(mediaChanged()));
 }
 
 void Player::setPosition(qint64 position)
@@ -240,8 +327,38 @@ void Player::setAudioMuted(bool muted)
     m_mediaPlayer->setMuted(muted);
 }
 
+void Player::setPlaybackMode(PlaybackMode mode)
+{
+    m_playbackMode = mode;
+
+    m_actions[PlaybackModeMenuAction]->menu()->actions().at(static_cast<int>(mode))->setChecked(true);
+
+    if (m_mediaPlayer->playlist())
+    {
+        switch (mode)
+        {
+            case LoopTrackMode:
+                m_mediaPlayer->playlist()->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+            break;
+            case LoopPlaylistMode:
+                m_mediaPlayer->playlist()->setPlaybackMode(QMediaPlaylist::Loop);
+            break;
+            case RandomMode:
+                m_mediaPlayer->playlist()->setPlaybackMode(QMediaPlaylist::Random);
+            break;
+            default:
+                m_mediaPlayer->playlist()->setPlaybackMode(QMediaPlaylist::Sequential);
+            break;
+        }
+    }
+
+    emit configNeedsSaving();
+}
+
 void Player::setAspectRatio(AspectRatio ratio)
 {
+    m_aspectRatio = ratio;
+
     switch (ratio)
     {
         case Ratio4_3:
@@ -268,6 +385,16 @@ QString Player::errorString() const
     return m_mediaPlayer->errorString();
 }
 
+QString Player::title() const
+{
+    return m_mediaPlayer->metaData(QtMultimediaKit::Title).toString();
+}
+
+MetaDataManager* Player::metaDataManager()
+{
+    return m_metaDataManager;
+}
+
 QMediaPlaylist* Player::playlist() const
 {
     return m_mediaPlayer->playlist();
@@ -276,6 +403,11 @@ QMediaPlaylist* Player::playlist() const
 QAction* Player::action(PlayerAction action) const
 {
     return (m_actions.contains(action)?m_actions[action]:NULL);
+}
+
+KUrl Player::url() const
+{
+    return m_mediaPlayer->media().canonicalUrl();
 }
 
 qint64 Player::duration() const
@@ -302,6 +434,16 @@ PlayerState Player::translateState(QMediaPlayer::State state) const
             return StoppedState;
         break;
     }
+}
+
+PlaybackMode Player::playbackMode() const
+{
+    return m_playbackMode;
+}
+
+AspectRatio Player::aspectRatio() const
+{
+    return m_aspectRatio;
 }
 
 PlayerState Player::state() const

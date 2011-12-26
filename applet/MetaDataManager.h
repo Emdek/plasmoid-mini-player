@@ -39,7 +39,7 @@ class MetaDataManager : public QObject
         MetaDataManager(QObject *parent);
 
         static QString timeToString(qint64 time);
-        QVariantMap metaData(QMediaPlayer *mediaPlayer);
+        QVariantMap metaData(const KUrl &url);
         QString title(const KUrl &url) const;
         KIcon icon(const KUrl &url) const;
         qint64 duration(const KUrl &url) const;

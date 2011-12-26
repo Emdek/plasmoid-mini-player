@@ -26,12 +26,17 @@
 #include <QtMultimediaKit/QMediaPlayer>
 #include <QtMultimediaKit/QMediaPlaylist>
 
+#include <KUrl>
+
 namespace MiniPlayer
 {
 
-enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VolumeAction, AudioMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, AspectRatioMenuAction, FullScreenAction };
+enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VolumeAction, AudioMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, AspectRatioMenuAction, FullScreenAction, PlaybackModeMenuAction };
 enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
+enum PlaybackMode { SequentialMode = 0, LoopTrackMode = 1, LoopPlaylistMode = 2, RandomMode = 3 };
 enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio = 3 };
+
+class MetaDataManager;
 
 class Player : public QObject
 {
@@ -42,11 +47,15 @@ class Player : public QObject
 
         QString errorString() const;
         QString title() const;
+        MetaDataManager* metaDataManager();
         QMediaPlaylist* playlist() const;
         QAction* action(PlayerAction action) const;
+        KUrl url() const;
         qint64 duration() const;
         qint64 position() const;
         PlayerState state() const;
+        PlaybackMode playbackMode() const;
+        AspectRatio aspectRatio() const;
         int volume() const;
         bool isAudioMuted() const;
         bool isAudioAvailable() const;
@@ -62,10 +71,13 @@ class Player : public QObject
         void playPause();
         void pause();
         void stop();
+        void playNext();
+        void playPrevious();
         void setPlaylist(QMediaPlaylist *playlist);
         void setPosition(qint64 position);
         void setVolume(int volume);
         void setAudioMuted(bool muted);
+        void setPlaybackMode(PlaybackMode mode);
         void setAspectRatio(AspectRatio ratio);
 
     protected:
@@ -73,13 +85,17 @@ class Player : public QObject
 
     protected slots:
         void volumeChanged();
-        void changeAspectRatio(QAction *action);
+        void mediaChanged();
         void stateChanged(QMediaPlayer::State state);
         void errorOccured(QMediaPlayer::Error error);
+        void changePlaybackMode(QAction *action);
+        void changeAspectRatio(QAction *action);
 
     private:
         QMediaPlayer *m_mediaPlayer;
+        MetaDataManager *m_metaDataManager;
         QHash<PlayerAction, QAction*> m_actions;
+        PlaybackMode m_playbackMode;
         AspectRatio m_aspectRatio;
 
     signals:

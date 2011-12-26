@@ -54,7 +54,7 @@ enum DbusCaps
 namespace MiniPlayer
 {
 
-class Applet;
+class Player;
 
 }
 
@@ -63,7 +63,7 @@ class PlayerDBusHandler : public QObject
     Q_OBJECT
 
     public:
-        PlayerDBusHandler(MiniPlayer::Applet *parent);
+        PlayerDBusHandler(MiniPlayer::Player *parent);
 
     public Q_SLOTS:
         void PlayPause();
@@ -92,7 +92,7 @@ class PlayerDBusHandler : public QObject
         void TrackChange(QVariantMap metadata);
 
     private:
-        MiniPlayer::Applet *m_player;
+        MiniPlayer::Player *m_player;
 };
 
 #endif
