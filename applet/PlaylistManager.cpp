@@ -36,6 +36,8 @@
 
 #include <Plasma/Theme>
 
+#include <QDebug>
+
 namespace MiniPlayer
 {
 
@@ -438,10 +440,13 @@ void PlaylistManager::shufflePlaylist()
 
 void PlaylistManager::setCurrentPlaylist(int position)
 {
+qDebug() << "initial position:" << position;
     if (position > m_playlists.count())
     {
         position = 0;
     }
+qDebug() << "position:" << position;
+qDebug() << "count:" << m_playlists.count();
 
     m_currentPlaylist = position;
 
