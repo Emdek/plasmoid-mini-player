@@ -1,4 +1,4 @@
-2.0 (24.12.2011):
+2.0 (31.12.2011):
 - fully refactored, cleaned up and modularized source;
 - added possibility to select displayed controls;
 - try up to three times to get meta data;

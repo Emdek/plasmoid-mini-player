@@ -32,7 +32,7 @@ namespace MiniPlayer
 {
 
 Player::Player(QObject *parent) : QObject(parent),
-    m_mediaPlayer(new QMediaPlayer(this)),
+    m_player(new QMediaPlayer(this)),
     m_metaDataManager(new MetaDataManager(this)),
     m_playbackMode(),
     m_aspectRatio(AutomaticRatio)
@@ -137,20 +137,20 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_actions[VideoMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAspectRatio(QAction*)));
     connect(m_actions[PlaybackModeMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changePlaybackMode(QAction*)));
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
-    connect(m_mediaPlayer, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(stateChanged(QMediaPlayer::State)));
-    connect(m_mediaPlayer, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(errorOccured(QMediaPlayer::Error)));
-    connect(m_mediaPlayer, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
-    connect(m_mediaPlayer, SIGNAL(durationChanged(qint64)), this, SIGNAL(durationChanged(qint64)));
-    connect(m_mediaPlayer, SIGNAL(volumeChanged(int)), this, SIGNAL(volumeChanged(int)));
-    connect(m_mediaPlayer, SIGNAL(volumeChanged(int)), this, SLOT(volumeChanged()));
-    connect(m_mediaPlayer, SIGNAL(mutedChanged(bool)), this, SIGNAL(audioMutedChanged(bool)));
-    connect(m_mediaPlayer, SIGNAL(mutedChanged(bool)), this, SLOT(volumeChanged()));
-    connect(m_mediaPlayer, SIGNAL(audioAvailableChanged(bool)), this, SIGNAL(audioAvailableChanged(bool)));
-    connect(m_mediaPlayer, SIGNAL(audioAvailableChanged(bool)), this, SLOT(volumeChanged()));
-    connect(m_mediaPlayer, SIGNAL(videoAvailableChanged(bool)), this, SIGNAL(videoAvailableChanged(bool)));
-    connect(m_mediaPlayer, SIGNAL(videoAvailableChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
-    connect(m_mediaPlayer, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
-    connect(m_mediaPlayer, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+    connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(stateChanged(QMediaPlayer::State)));
+    connect(m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(errorOccured(QMediaPlayer::Error)));
+    connect(m_player, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
+    connect(m_player, SIGNAL(durationChanged(qint64)), this, SIGNAL(durationChanged(qint64)));
+    connect(m_player, SIGNAL(volumeChanged(int)), this, SIGNAL(volumeChanged(int)));
+    connect(m_player, SIGNAL(volumeChanged(int)), this, SLOT(volumeChanged()));
+    connect(m_player, SIGNAL(mutedChanged(bool)), this, SIGNAL(audioMutedChanged(bool)));
+    connect(m_player, SIGNAL(mutedChanged(bool)), this, SLOT(volumeChanged()));
+    connect(m_player, SIGNAL(audioAvailableChanged(bool)), this, SIGNAL(audioAvailableChanged(bool)));
+    connect(m_player, SIGNAL(audioAvailableChanged(bool)), this, SLOT(volumeChanged()));
+    connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SIGNAL(videoAvailableChanged(bool)));
+    connect(m_player, SIGNAL(videoAvailableChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
+    connect(m_player, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
+    connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
 }
 
 void Player::volumeChanged()
@@ -197,7 +197,7 @@ void Player::mediaChanged()
 
     m_actions[PlayPauseAction]->setIcon(KIcon((state == PlayingState)?"media-playback-pause":"media-playback-start"));
     m_actions[PlayPauseAction]->setText((state == PlayingState)?i18n("Pause"):i18n("Play"));
-    m_actions[PlayPauseAction]->setEnabled(playingOrPaused || (m_mediaPlayer->playlist() && m_mediaPlayer->playlist()->mediaCount()));
+    m_actions[PlayPauseAction]->setEnabled(playingOrPaused || (m_player->playlist() && m_player->playlist()->mediaCount()));
     m_actions[StopAction]->setEnabled(playingOrPaused);
 }
 
@@ -212,9 +212,9 @@ void Player::errorOccured(QMediaPlayer::Error error)
 {
     if (error != QMediaPlayer::NoError)
     {
-        KMessageBox::error(NULL, m_mediaPlayer->media().canonicalUrl().toString().replace("%20", " ") + "\n\n" + m_mediaPlayer->errorString());
+        KMessageBox::error(NULL, m_player->media().canonicalUrl().toString().replace("%20", " ") + "\n\n" + m_player->errorString());
 
-        emit errorOccured(m_mediaPlayer->errorString());
+        emit errorOccured(m_player->errorString());
     }
 }
 
@@ -250,7 +250,17 @@ void Player::decreaseVolume()
 
 void Player::play()
 {
-    m_mediaPlayer->play();
+    m_player->play();
+}
+
+void Player::play(int index)
+{
+    if (m_player->playlist())
+    {
+        m_player->playlist()->setCurrentIndex(index);
+
+        m_player->play();
+    }
 }
 
 void Player::playPause()
@@ -267,19 +277,19 @@ void Player::playPause()
 
 void Player::pause()
 {
-    m_mediaPlayer->pause();
+    m_player->pause();
 }
 
 void Player::stop()
 {
-    m_mediaPlayer->stop();
+    m_player->stop();
 }
 
 void Player::playPrevious()
 {
-    if (m_mediaPlayer->playlist())
+    if (m_player->playlist())
     {
-        m_mediaPlayer->playlist()->previous();
+        m_player->playlist()->previous();
 
         play();
     }
@@ -287,9 +297,9 @@ void Player::playPrevious()
 
 void Player::playNext()
 {
-    if (m_mediaPlayer->playlist())
+    if (m_player->playlist())
     {
-        m_mediaPlayer->playlist()->next();
+        m_player->playlist()->next();
 
         play();
     }
@@ -297,14 +307,14 @@ void Player::playNext()
 
 void Player::setPlaylist(QMediaPlaylist *playlist)
 {
-    if (m_mediaPlayer->playlist())
+    if (m_player->playlist())
     {
-        disconnect(m_mediaPlayer->playlist(), SIGNAL(mediaChanged(int,int)), this, SLOT(mediaChanged()));
-        disconnect(m_mediaPlayer->playlist(), SIGNAL(mediaInserted(int,int)), this, SLOT(mediaChanged()));
-        disconnect(m_mediaPlayer->playlist(), SIGNAL(mediaRemoved(int,int)), this, SLOT(mediaChanged()));
+        disconnect(m_player->playlist(), SIGNAL(mediaChanged(int,int)), this, SLOT(mediaChanged()));
+        disconnect(m_player->playlist(), SIGNAL(mediaInserted(int,int)), this, SLOT(mediaChanged()));
+        disconnect(m_player->playlist(), SIGNAL(mediaRemoved(int,int)), this, SLOT(mediaChanged()));
     }
 
-    m_mediaPlayer->setPlaylist(playlist);
+    m_player->setPlaylist(playlist);
 
     setPlaybackMode(m_playbackMode);
 
@@ -315,17 +325,17 @@ void Player::setPlaylist(QMediaPlaylist *playlist)
 
 void Player::setPosition(qint64 position)
 {
-    m_mediaPlayer->setPosition(position);
+    m_player->setPosition(position);
 }
 
 void Player::setVolume(int volume)
 {
-    m_mediaPlayer->setVolume(volume);
+    m_player->setVolume(volume);
 }
 
 void Player::setAudioMuted(bool muted)
 {
-    m_mediaPlayer->setMuted(muted);
+    m_player->setMuted(muted);
 }
 
 void Player::setPlaybackMode(PlaybackMode mode)
@@ -334,21 +344,21 @@ void Player::setPlaybackMode(PlaybackMode mode)
 
     m_actions[PlaybackModeMenuAction]->menu()->actions().at(static_cast<int>(mode))->setChecked(true);
 
-    if (m_mediaPlayer->playlist())
+    if (m_player->playlist())
     {
         switch (mode)
         {
             case LoopTrackMode:
-                m_mediaPlayer->playlist()->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+                m_player->playlist()->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
             break;
             case LoopPlaylistMode:
-                m_mediaPlayer->playlist()->setPlaybackMode(QMediaPlaylist::Loop);
+                m_player->playlist()->setPlaybackMode(QMediaPlaylist::Loop);
             break;
             case RandomMode:
-                m_mediaPlayer->playlist()->setPlaybackMode(QMediaPlaylist::Random);
+                m_player->playlist()->setPlaybackMode(QMediaPlaylist::Random);
             break;
             default:
-                m_mediaPlayer->playlist()->setPlaybackMode(QMediaPlaylist::Sequential);
+                m_player->playlist()->setPlaybackMode(QMediaPlaylist::Sequential);
             break;
         }
     }
@@ -383,12 +393,12 @@ void Player::setAspectRatio(AspectRatio ratio)
 
 QString Player::errorString() const
 {
-    return m_mediaPlayer->errorString();
+    return m_player->errorString();
 }
 
 QString Player::title() const
 {
-    return m_mediaPlayer->metaData(QtMultimediaKit::Title).toString();
+    return m_player->metaData(QtMultimediaKit::Title).toString();
 }
 
 MetaDataManager* Player::metaDataManager()
@@ -398,7 +408,7 @@ MetaDataManager* Player::metaDataManager()
 
 QMediaPlaylist* Player::playlist() const
 {
-    return m_mediaPlayer->playlist();
+    return m_player->playlist();
 }
 
 QAction* Player::action(PlayerAction action) const
@@ -408,17 +418,17 @@ QAction* Player::action(PlayerAction action) const
 
 KUrl Player::url() const
 {
-    return m_mediaPlayer->media().canonicalUrl();
+    return m_player->media().canonicalUrl();
 }
 
 qint64 Player::duration() const
 {
-    return m_mediaPlayer->duration();
+    return m_player->duration();
 }
 
 qint64 Player::position() const
 {
-    return m_mediaPlayer->position();
+    return m_player->position();
 }
 
 PlayerState Player::translateState(QMediaPlayer::State state) const
@@ -449,32 +459,32 @@ AspectRatio Player::aspectRatio() const
 
 PlayerState Player::state() const
 {
-    return translateState(m_mediaPlayer->state());
+    return translateState(m_player->state());
 }
 
 int Player::volume() const
 {
-    return m_mediaPlayer->volume();
+    return m_player->volume();
 }
 
 bool Player::isAudioMuted() const
 {
-    return m_mediaPlayer->isMuted();
+    return m_player->isMuted();
 }
 
 bool Player::isAudioAvailable() const
 {
-    return m_mediaPlayer->isAudioAvailable();
+    return m_player->isAudioAvailable();
 }
 
 bool Player::isVideoAvailable() const
 {
-    return m_mediaPlayer->isVideoAvailable();
+    return m_player->isVideoAvailable();
 }
 
 bool Player::isSeekable() const
 {
-    return m_mediaPlayer->isSeekable();
+    return m_player->isSeekable();
 }
 
 }

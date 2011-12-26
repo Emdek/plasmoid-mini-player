@@ -21,10 +21,77 @@
 #ifndef MINIPLAYERPLAYLISTMANAGER_HEADER
 #define MINIPLAYERPLAYLISTMANAGER_HEADER
 
+#include <QtCore/QObject>
+
+#include <Plasma/Dialog>
+
+#include "ui_playlist.h"
+
 namespace MiniPlayer
 {
 
 enum PlaylistType { None = 0, PLS, M3U, XSPF, ASX };
+
+class Player;
+class PlaylistModel;
+
+class PlaylistManager : public QObject
+{
+    Q_OBJECT
+
+    public:
+        PlaylistManager(Player *parent);
+
+        void addTracks(const KUrl::List &tracks, int index = -1, bool play = false);
+        QList<PlaylistModel*> playlists() const;
+        QSize dialogSize() const;
+        QByteArray splitterState() const;
+        QByteArray headerState() const;
+        int currentPlaylist() const;
+        int visiblePlaylist() const;
+        bool isDialogVisible() const;
+        bool eventFilter(QObject *object, QEvent *event);
+
+    public slots:
+        void createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List());
+        void filterPlaylist(const QString &text);
+        void movePlaylist(int from, int to);
+        void renamePlaylist(int position);
+        void removePlaylist(int position);
+        void visiblePlaylistChanged(int position);
+        void exportPlaylist();
+        void newPlaylist();
+        void clearPlaylist();
+        void shufflePlaylist();
+        void setCurrentPlaylist(int position);
+        void setDialogSize(const QSize &size);
+        void setSplitterState(const QByteArray &state);
+        void setHeaderState(const QByteArray &state);
+        void showDialog(const QPoint &position);
+        void closeDialog();
+
+    public slots:
+        void trackPressed();
+        void trackChanged();
+        void moveUpTrack();
+        void moveDownTrack();
+        void playTrack(QModelIndex index = QModelIndex());
+        void editTrackTitle();
+        void copyTrackUrl();
+        void removeTrack();
+        void updateTheme();
+
+    private:
+        Player *m_player;
+        Plasma::Dialog *m_dialog;
+        QList<PlaylistModel*> m_playlists;
+        int m_currentPlaylist;
+        bool m_editorActive;
+        Ui::playlist m_playlistUi;
+
+    signals:
+        void configNeedsSaving();
+};
 
 }
 

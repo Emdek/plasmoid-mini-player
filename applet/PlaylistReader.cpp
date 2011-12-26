@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "PlaylistReader.h"
+#include "PlaylistModel.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -34,7 +35,7 @@
 namespace MiniPlayer
 {
 
-PlaylistReader::PlaylistReader(const KUrl::List &urls, int index, bool play, QObject *parent) : QObject(parent),
+PlaylistReader::PlaylistReader(PlaylistModel *parent, const KUrl::List &urls, int index, bool play) : QObject(parent),
     m_imports(0),
     m_index(index),
     m_play(play)

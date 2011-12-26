@@ -39,11 +39,13 @@ class PlaylistModel : public QAbstractTableModel
     Q_OBJECT
 
     public:
-        PlaylistModel(Player *parent);
+        PlaylistModel(Player *parent, const QString &title);
 
         void addTracks(const KUrl::List &tracks, int index = -1, bool play = false);
         void sort(int column, Qt::SortOrder order);
+        void setTitle(const QString &title);
         QStringList mimeTypes() const;
+        QString title() const;
         QVariant data(const QModelIndex &index, int role) const;
         QVariant headerData(int section, Qt::Orientation orientation, int role) const;
         QMimeData* mimeData(const QModelIndexList &indexes) const;
@@ -63,6 +65,7 @@ class PlaylistModel : public QAbstractTableModel
     private:
         Player *m_player;
         QMediaPlaylist *m_playlist;
+        QString m_title;
 
     signals:
         void needsSaving();

@@ -68,6 +68,7 @@ class Player : public QObject
         void increaseVolume();
         void decreaseVolume();
         void play();
+        void play(int index);
         void playPause();
         void pause();
         void stop();
@@ -92,7 +93,7 @@ class Player : public QObject
         void changeAspectRatio(QAction *action);
 
     private:
-        QMediaPlayer *m_mediaPlayer;
+        QMediaPlayer *m_player;
         MetaDataManager *m_metaDataManager;
         QHash<PlayerAction, QAction*> m_actions;
         PlaybackMode m_playbackMode;

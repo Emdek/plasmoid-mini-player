@@ -24,7 +24,6 @@
 #include <QtCore/QTimerEvent>
 #include <QtCore/QVariantMap>
 #include <QtGui/QKeyEvent>
-#include <QtMultimediaKit/QMediaPlaylist>
 
 #include <KDialog>
 #include <KNotificationRestrictions>
@@ -37,7 +36,6 @@
 #include "ui_general.h"
 #include "ui_controls.h"
 #include "ui_jumpToPosition.h"
-#include "ui_playlist.h"
 #include "ui_fullScreen.h"
 #include "ui_volume.h"
 
@@ -48,8 +46,8 @@ class RootDBusHandler;
 namespace MiniPlayer
 {
 
+class PlaylistManager;
 class VideoWidget;
-class PlaylistModel;
 
 class Applet : public Plasma::Applet
 {
@@ -60,7 +58,6 @@ class Applet : public Plasma::Applet
         ~Applet();
 
         void init();
-        void createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List());
         QList<QAction*> contextualActions();
         Player* player();
         bool eventFilter(QObject *object, QEvent *event);
@@ -72,41 +69,17 @@ class Applet : public Plasma::Applet
         void stateChanged(PlayerState state);
         void videoAvailableChanged(bool videoAvailable);
         void metaDataChanged();
-        void trackPressed();
-        void trackChanged();
-        void moveUpTrack();
-        void moveDownTrack();
-        void playTrack(QModelIndex index = QModelIndex());
-        void editTrackTitle();
-        void copyTrackUrl();
-        void removeTrack();
         void openFiles();
         void openUrl();
-        void play(int index);
-        void play(KUrl url);
         void jumpToPosition();
         void toggleJumpToPosition();
         void toggleVolumeDialog();
-        void togglePlaylistDialog();
         void toggleFullScreen();
-        void filterPlaylist(const QString &text);
-        void savePlaylistNames();
-        void movePlaylist(int from, int to);
-        void renamePlaylist(int position);
-        void removePlaylist(int position);
-        void visiblePlaylistChanged(int position);
-        void savePlaylist();
-        void exportPlaylist();
-        void newPlaylist();
-        void clearPlaylist();
-        void shufflePlaylist();
-        void setCurrentPlaylist(const QString &playlist);
+        void togglePlaylistDialog();
         void showToolTip();
         void updateToolTip();
         void toolTipAboutToShow();
         void toolTipHidden();
-        void savePlaylistSettings(int position = 0, int index = 0);
-        void updateTheme();
 
     protected:
         void createConfigurationInterface(KConfigDialog *parent);
@@ -121,11 +94,10 @@ class Applet : public Plasma::Applet
         void updateVideoWidgets();
 
     private:
-        QHash<QString, PlaylistModel*> m_playlists;
         Player *m_player;
+        PlaylistManager *m_playlistManager;
         VideoWidget *m_videoWidget;
         Plasma::Dialog *m_volumeDialog;
-        Plasma::Dialog *m_playlistDialog;
         PlayerDBusHandler *m_playerDBUSHandler;
         TrackListDBusHandler *m_trackListDBusHandler;
         RootDBusHandler *m_rootDBUSHandler;
@@ -133,8 +105,6 @@ class Applet : public Plasma::Applet
         QList<QAction*> m_actions;
         QGraphicsWidget *m_controlsWidget;
         QWidget *m_fullScreenWidget;
-        QString m_currentPlaylist;
-        QString m_visiblePlaylist;
         QString m_title;
         KDialog *m_jumpToPositionDialog;
         KNotificationRestrictions *m_notificationRestrictions;
@@ -142,18 +112,17 @@ class Applet : public Plasma::Applet
         int m_showPlaylist;
         int m_hideToolTip;
         int m_stopSleepCookie;
-        bool m_editorActive;
         bool m_updateToolTip;
         bool m_videoMode;
         Ui::general m_generalUi;
         Ui::controls m_controlsUi;
         Ui::jumpToPosition m_jumpToPositionUi;
-        Ui::playlist m_playlistUi;
         Ui::fullScreen m_fullScreenUi;
         Ui::volume m_volumeUi;
 
     signals:
         void resetModel();
+        void titleChanged(QString title);
 };
 
 }

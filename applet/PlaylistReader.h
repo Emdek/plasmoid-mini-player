@@ -32,12 +32,14 @@
 namespace MiniPlayer
 {
 
+class PlaylistModel;
+
 class PlaylistReader : public QObject
 {
     Q_OBJECT
 
     public:
-        PlaylistReader(const KUrl::List &urls, int index, bool play, QObject *parent);
+        PlaylistReader(PlaylistModel *parent, const KUrl::List &urls, int index, bool play);
 
     public slots:
         void importData(KIO::Job *job, const QByteArray &data);

@@ -30,13 +30,13 @@
 namespace MiniPlayer
 {
 
-PlaylistModel::PlaylistModel(Player *parent) : QAbstractTableModel(parent),
+PlaylistModel::PlaylistModel(Player *parent, const QString &title) : QAbstractTableModel(parent),
     m_player(parent),
-    m_playlist(new QMediaPlaylist(this))
+    m_playlist(new QMediaPlaylist(this)),
+    m_title(title)
 {
     setSupportedDragActions(Qt::MoveAction);
 
-//    connect(m_player, SIGNAL(resetModel()), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaChanged(int,int)), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaInserted(int,int)), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaRemoved(int,int)), this, SIGNAL(layoutChanged()));
@@ -45,7 +45,7 @@ PlaylistModel::PlaylistModel(Player *parent) : QAbstractTableModel(parent),
 
 void PlaylistModel::addTracks(const KUrl::List &tracks, int index, bool play)
 {
-    new PlaylistReader(tracks, index, play, this);
+    new PlaylistReader(this, tracks, index, play);
 }
 
 void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int index, bool play)
@@ -149,6 +149,16 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
 
     emit layoutChanged();
     emit needsSaving();
+}
+
+void PlaylistModel::setTitle(const QString &title)
+{
+    m_title = title;
+}
+
+QString PlaylistModel::title() const
+{
+    return m_title;
 }
 
 QVariant PlaylistModel::data(const QModelIndex &index, int role) const
