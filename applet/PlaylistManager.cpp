@@ -158,8 +158,7 @@ void PlaylistManager::renamePlaylist(int position)
     QString oldTitle = KGlobal::locale()->removeAcceleratorMarker(m_playlistUi.tabBar->tabText(position));
     QString newTitle = KInputDialog::getText(i18n("Rename Playlist"), i18n("Enter name:"), oldTitle);
 
-///FIXME add plaistnames method?
-    if (newTitle.isEmpty())// || m_playlists.contains(newTitle))
+    if (newTitle.isEmpty())
     {
         return;
     }
@@ -336,8 +335,7 @@ void PlaylistManager::filterPlaylist(const QString &text)
 
 void PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks)
 {
-///FIXME
-    if (title.isEmpty())// || m_playlists.contains(title))
+    if (title.isEmpty())
     {
         return;
     }
