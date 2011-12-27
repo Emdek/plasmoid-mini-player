@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>498</height>
+    <height>495</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -64,7 +64,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="videoOutputWidget" native="true">
+     <widget class="QGraphicsView" name="videoOutputWidget">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -144,31 +144,12 @@
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item>
-        <widget class="QLabel" name="blankLabel">
-         <property name="acceptDrops">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QVideoWidget" name="videoWidget" native="true">
-         <property name="mouseTracking">
-          <bool>true</bool>
-         </property>
-         <property name="acceptDrops">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
      </widget>
      <widget class="QWidget" name="controlsWidget" native="true">
       <property name="sizePolicy">
@@ -507,12 +488,6 @@
    <class>MiniPlayer::VolumeSlider</class>
    <extends>QSlider</extends>
    <header>VolumeSlider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QVideoWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">qvideowidget.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
