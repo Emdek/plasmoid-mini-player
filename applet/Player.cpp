@@ -49,17 +49,14 @@ Player::Player(QObject *parent) : QObject(parent),
     m_playbackMode(SequentialMode),
     m_aspectRatio(AutomaticRatio),
     m_videoMode(false),
-    m_fullScreenMode(false),
-    m_manualStop(false)
+    m_fullScreenMode(false)
 {
-    m_mediaObject->setTickInterval(100);
-
     m_videoWidget->setScaleMode(Phonon::VideoWidget::FitInView);
     m_videoWidget->setWindowIcon(KIcon("applications-multimedia"));
     m_videoWidget->setAcceptDrops(true);
 
-    Phonon::createPath(m_mediaObject, m_videoWidget);
     Phonon::createPath(m_mediaObject, m_audioOutput);
+    Phonon::createPath(m_mediaObject, m_videoWidget);
 
     m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
     m_actions[OpenMenuAction]->setMenu(new KMenu());
@@ -164,6 +161,7 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_actions[PlayPauseAction], SIGNAL(triggered()), this, SLOT(playPause()));
     connect(m_actions[StopAction], SIGNAL(triggered()), this, SLOT(stop()));
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
+    connect(m_mediaObject, SIGNAL(finished()), this, SLOT(trackFinished()));
     connect(m_mediaObject, SIGNAL(stateChanged(Phonon::State,Phonon::State)), this, SLOT(stateChanged(Phonon::State)));
     connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
     connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SIGNAL(durationChanged(qint64)));
@@ -185,7 +183,7 @@ void Player::volumeChanged(qreal volume)
 
     if (volume >= 0)
     {
-        emit volumeChanged(volume * 100);
+        emit volumeChanged((int) (volume * 100));
     }
 
     if (isAudioMuted())
@@ -271,13 +269,6 @@ void Player::stateChanged(Phonon::State state)
     if (this->state() == StoppedState)
     {
         videoChanged();
-
-        if (!m_manualStop && m_playlist)
-        {
-            m_playlist->setCurrentTrack(m_playlist->nextTrack(), true);
-        }
-
-        m_manualStop = false;
     }
 
     if (state == Phonon::ErrorState && m_mediaObject->errorType() != Phonon::NoError)
@@ -298,6 +289,16 @@ void Player::changeAspectRatio(QAction *action)
 void Player::changePlaybackMode(QAction *action)
 {
     setPlaybackMode(static_cast<PlaybackMode>(action->data().toInt()));
+}
+
+void Player::trackFinished()
+{
+    videoChanged();
+
+    if (m_playlist)
+    {
+        m_playlist->setCurrentTrack(m_playlist->nextTrack(), true);
+    }
 }
 
 void Player::registerAppletVideoWidget(VideoWidget *videoWidget)
@@ -374,8 +375,6 @@ void Player::pause()
 
 void Player::stop()
 {
-    m_manualStop = true;
-
     m_mediaObject->stop();
 }
 
@@ -383,8 +382,6 @@ void Player::playPrevious()
 {
     if (m_playlist)
     {
-        m_manualStop = true;
-
         m_playlist->previous();
 
         play();
@@ -395,8 +392,6 @@ void Player::playNext()
 {
     if (m_playlist)
     {
-        m_manualStop = true;
-
         m_playlist->next();
 
         play();
@@ -536,7 +531,7 @@ QString Player::errorString() const
 
 QString Player::title() const
 {
-    QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
+    const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
 
     if (titles.isEmpty() || titles.first().isEmpty())
     {

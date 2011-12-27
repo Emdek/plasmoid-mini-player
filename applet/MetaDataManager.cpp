@@ -32,7 +32,6 @@ MetaDataManager::MetaDataManager(QObject *parent) : QObject(parent),
     m_resolveMedia(0),
     m_attempts(0)
 {
-    connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SLOT(resolveMetaData()));
 }
 
 void MetaDataManager::timerEvent(QTimerEvent *event)
@@ -79,6 +78,8 @@ void MetaDataManager::resolveMetaData()
 
     m_mediaObject->deleteLater();
     m_mediaObject = new Phonon::MediaObject(this);
+
+    connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SLOT(resolveMetaData()));
 
     while (!m_queue.isEmpty())
     {

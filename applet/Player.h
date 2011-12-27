@@ -104,6 +104,7 @@ class Player : public QObject
         void stateChanged(Phonon::State state);
         void changePlaybackMode(QAction *action);
         void changeAspectRatio(QAction *action);
+        void trackFinished();
 
     private:
         Phonon::MediaObject *m_mediaObject;
@@ -120,7 +121,6 @@ class Player : public QObject
         AspectRatio m_aspectRatio;
         bool m_videoMode;
         bool m_fullScreenMode;
-        bool m_manualStop;
 
     signals:
         void configNeedsSaving();
