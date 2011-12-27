@@ -224,11 +224,13 @@ void Player::mediaChanged()
 {
     const PlayerState state = this->state();
     const bool playingOrPaused = (state == PlayingState || state == PausedState);
+    const bool hasTracks = (m_player->playlist() && m_player->playlist()->mediaCount());
 
     m_actions[PlayPauseAction]->setIcon(KIcon((state == PlayingState)?"media-playback-pause":"media-playback-start"));
     m_actions[PlayPauseAction]->setText((state == PlayingState)?i18n("Pause"):i18n("Play"));
-    m_actions[PlayPauseAction]->setEnabled(playingOrPaused || (m_player->playlist() && m_player->playlist()->mediaCount()));
+    m_actions[PlayPauseAction]->setEnabled(playingOrPaused || hasTracks);
     m_actions[StopAction]->setEnabled(playingOrPaused);
+    m_actions[NavigationMenuAction]->setEnabled(hasTracks);
 }
 
 void Player::stateChanged(QMediaPlayer::State state)
@@ -374,6 +376,7 @@ void Player::setPlaylist(PlaylistModel *playlist)
     m_player->setPlaylist(playlist->playlist());
 
     setPlaybackMode(m_playbackMode);
+    mediaChanged();
 
     connect(playlist->playlist(), SIGNAL(mediaChanged(int,int)), this, SLOT(mediaChanged()));
     connect(playlist->playlist(), SIGNAL(mediaInserted(int,int)), this, SLOT(mediaChanged()));
