@@ -544,6 +544,9 @@ void Player::setVideoMode(bool mode)
 {
     m_videoMode = mode;
 
+    m_videoWidget->setParent(NULL);
+    m_videoWidget->hide();
+
     if (m_fullScreenMode && m_fullScreenVideoWidget)
     {
         m_appletVideoWidget->setVideoWidget(NULL);
@@ -554,6 +557,8 @@ void Player::setVideoMode(bool mode)
         }
 
         m_fullScreenVideoWidget->layout()->addWidget(m_videoWidget);
+
+        m_videoWidget->show();
     }
     else
     {
@@ -570,14 +575,20 @@ void Player::setVideoMode(bool mode)
             }
 
             m_appletVideoWidget->setVideoWidget(m_videoWidget);
+
+            m_videoWidget->show();
         }
         else if (m_dialogVideoWidget)
         {
             m_appletVideoWidget->setVideoWidget(NULL);
 
             m_dialogVideoWidget->setVideoWidget(m_videoWidget);
+
+            m_videoWidget->show();
         }
     }
+
+    m_videoWidget->update();
 
     if (!isVideoAvailable())
     {
