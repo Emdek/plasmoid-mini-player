@@ -64,7 +64,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QGraphicsView" name="videoOutputWidget">
+     <widget class="QGraphicsView" name="graphicsView">
       <property name="minimumSize">
        <size>
         <width>0</width>

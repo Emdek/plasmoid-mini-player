@@ -84,14 +84,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     setHasConfigurationInterface(true);
     setAcceptDrops(true);
 
-    QPalette palette = m_videoWidget->palette();
-    palette.setColor(QPalette::Window, Qt::black);
-
-    m_videoWidget->setPalette(palette);
-    m_videoWidget->setAcceptDrops(true);
-    m_videoWidget->setAutoFillBackground(true);
-    m_videoWidget->setAcceptHoverEvents(true);
-    m_videoWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     m_videoWidget->installEventFilter(this);
 
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical, this);
@@ -189,7 +181,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 
     m_controlsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
     m_controlsWidget->setLayout(controlsLayout);
-
 
     if (args.count())
     {

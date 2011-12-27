@@ -34,6 +34,7 @@ enum PlaylistType { None = 0, PLS, M3U, XSPF, ASX };
 
 class Player;
 class PlaylistModel;
+class VideoWidget;
 
 class PlaylistManager : public QObject
 {
@@ -84,6 +85,7 @@ class PlaylistManager : public QObject
     private:
         Player *m_player;
         Plasma::Dialog *m_dialog;
+        VideoWidget *m_videoWidget;
         QList<PlaylistModel*> m_playlists;
         int m_currentPlaylist;
         bool m_editorActive;

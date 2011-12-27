@@ -22,6 +22,7 @@
 #include "PlaylistModel.h"
 #include "MetaDataManager.h"
 #include "Player.h"
+#include "VideoWidget.h"
 
 #include <QtCore/QFile>
 #include <QtGui/QKeyEvent>
@@ -42,6 +43,7 @@ namespace MiniPlayer
 PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_player(parent),
     m_dialog(NULL),
+    m_videoWidget(NULL),
     m_currentPlaylist(0),
     m_editorActive(false)
 {
@@ -237,9 +239,18 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_dialog->setContentsMargins(0, 0, 0, 0);
         m_dialog->adjustSize();
 
-        m_playlistUi.videoOutputWidget->installEventFilter(this);
+        m_videoWidget = new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()));
+        m_videoWidget->showVideo(false);
+
+        m_playlistUi.graphicsView->setScene(new QGraphicsScene(this));
+        m_playlistUi.graphicsView->scene()->addItem(m_videoWidget);
+        m_playlistUi.graphicsView->centerOn(m_videoWidget);
+        m_playlistUi.graphicsView->installEventFilter(this);
+
+        m_videoWidget->installEventFilter(this);
+        m_videoWidget->resize(m_playlistUi.graphicsView->size());
+
         m_playlistUi.playlistView->installEventFilter(this);
-        m_playlistUi.blankLabel->setPixmap(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous));
         m_playlistUi.closeButton->setIcon(KIcon("window-close"));
         m_playlistUi.addButton->setIcon(KIcon("list-add"));
         m_playlistUi.removeButton->setIcon(KIcon("list-remove"));
@@ -544,55 +555,65 @@ bool PlaylistManager::isDialogVisible() const
 
 bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress && !m_editorActive)
+    if (object == m_playlistUi.playlistView)
     {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-
-        if (keyEvent->key() == Qt::Key_Return && m_playlistUi.playlistView->selectionModel()->selectedIndexes().count())
+        if (event->type() == QEvent::KeyPress && !m_editorActive)
         {
-            playTrack(m_playlistUi.playlistView->selectionModel()->selectedIndexes().first());
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+
+            if (keyEvent->key() == Qt::Key_Return && m_playlistUi.playlistView->selectionModel()->selectedIndexes().count())
+            {
+                playTrack(m_playlistUi.playlistView->selectionModel()->selectedIndexes().first());
+            }
+            else
+            {
+                QCoreApplication::sendEvent(m_player->parent(), keyEvent);
+            }
+
+            return true;
         }
-        else
+        else if (event->type() == QEvent::ContextMenu)
         {
-            QCoreApplication::sendEvent(m_player->parent(), keyEvent);
-        }
+            QPoint point = static_cast<QContextMenuEvent*>(event)->pos();
+            point.setY(point.y() - m_playlistUi.playlistView->horizontalHeader()->height());
 
-        return true;
-    }
-    else if (event->type() == QEvent::ContextMenu)
-    {
-        QPoint point = static_cast<QContextMenuEvent*>(event)->pos();
-        point.setY(point.y() - m_playlistUi.playlistView->horizontalHeader()->height());
+            QModelIndex index = m_playlistUi.playlistView->indexAt(point);
 
-        QModelIndex index = m_playlistUi.playlistView->indexAt(point);
+            if (index.data(Qt::DisplayRole).toString().isEmpty())
+            {
+                return false;
+            }
 
-        if (index.data(Qt::DisplayRole).toString().isEmpty())
-        {
-            return false;
-        }
-
-        KUrl url = KUrl(index.data(Qt::ToolTipRole).toString());
-        KMenu menu;
-        menu.addAction(KIcon("document-edit"), i18n("Edit title"), this, SLOT(editTrackTitle()));
-        menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
-        menu.addSeparator();
+            KUrl url = KUrl(index.data(Qt::ToolTipRole).toString());
+            KMenu menu;
+            menu.addAction(KIcon("document-edit"), i18n("Edit title"), this, SLOT(editTrackTitle()));
+            menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
+            menu.addSeparator();
 
 ///FIXME use index
-        if (url == m_player->url())
-        {
-            menu.addAction(m_player->action(PlayPauseAction));
-            menu.addAction(m_player->action(StopAction));
-        }
-        else
-        {
-            menu.addAction(KIcon("media-playback-start"), i18n("Play"), this, SLOT(playTrack()));
-        }
+            if (url == m_player->url())
+            {
+                menu.addAction(m_player->action(PlayPauseAction));
+                menu.addAction(m_player->action(StopAction));
+            }
+            else
+            {
+                menu.addAction(KIcon("media-playback-start"), i18n("Play"), this, SLOT(playTrack()));
+            }
 
-        menu.addSeparator();
-        menu.addAction(KIcon("list-remove"), i18n("Remove"), this, SLOT(removeTrack()));
-        menu.exec(QCursor::pos());
+            menu.addSeparator();
+            menu.addAction(KIcon("list-remove"), i18n("Remove"), this, SLOT(removeTrack()));
+            menu.exec(QCursor::pos());
 
-        return true;
+            return true;
+        }
+    }
+    else if (object == m_playlistUi.graphicsView && event->type() == QEvent::Resize)
+    {
+        m_videoWidget->resize(m_playlistUi.graphicsView->size());
+
+        m_playlistUi.graphicsView->centerOn(m_videoWidget);
+        m_playlistUi.graphicsView->scene()->setSceneRect(m_playlistUi.graphicsView->rect());
     }
 
     return QObject::eventFilter(object, event);

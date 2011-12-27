@@ -32,6 +32,15 @@ VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsWidget(parent),
    m_videoItem(new QGraphicsVideoItem(this)),
    m_pixmapItem(new QGraphicsPixmapItem(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous), this))
 {
+    QPalette palette = this->palette();
+    palette.setColor(QPalette::Window, Qt::black);
+
+    setPalette(palette);
+    setAcceptDrops(true);
+    setAutoFillBackground(true);
+    setAcceptHoverEvents(true);
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+
     m_videoItem->setPos(14, 14);
     m_videoItem->setSize(size());
 
