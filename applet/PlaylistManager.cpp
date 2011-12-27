@@ -146,7 +146,6 @@ void PlaylistManager::removeTrack()
 
 void PlaylistManager::movePlaylist(int from, int to)
 {
-///FIXME validate
     m_playlists.swap(from, to);
 
     emit configNeedsSaving();

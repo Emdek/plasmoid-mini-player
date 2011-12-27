@@ -720,7 +720,7 @@ void Applet::openUrl()
 {
     const QString url = KInputDialog::getText(i18n("Open URL"), i18n("Enter a URL:"));
 
-    if (url.isEmpty())
+    if (!url.isEmpty())
     {
         m_playlistManager->addTracks(KUrl::List(url), -1, !m_playlistManager->isDialogVisible());
     }
