@@ -48,13 +48,13 @@ class PlaylistManager : public QObject
         QSize dialogSize() const;
         QByteArray splitterState() const;
         QByteArray headerState() const;
+        int createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List());
         int currentPlaylist() const;
         int visiblePlaylist() const;
         bool isDialogVisible() const;
         bool eventFilter(QObject *object, QEvent *event);
 
     public slots:
-        void createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List());
         void filterPlaylist(const QString &text);
         void movePlaylist(int from, int to);
         void renamePlaylist(int position);

@@ -87,10 +87,16 @@ QVariantMap TrackListDBusHandler::GetMetadata(int position)
 
 void TrackListDBusHandler::SetLoop(bool enable)
 {
-    m_player->setPlaybackMode(enable?MiniPlayer::LoopPlaylistMode:MiniPlayer::SequentialMode);
+    if (m_player->playlist())
+    {
+        m_player->playlist()->setPlaybackMode(enable?MiniPlayer::LoopPlaylistMode:MiniPlayer::SequentialMode);
+    }
 }
 
 void TrackListDBusHandler::SetRandom(bool enable)
 {
-    m_player->setPlaybackMode(enable?MiniPlayer::RandomMode:m_player->playbackMode());
+    if (m_player->playlist())
+    {
+        m_player->playlist()->setPlaybackMode(enable?MiniPlayer::RandomMode:m_player->playlist()->playbackMode());
+    }
 }

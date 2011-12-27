@@ -20,7 +20,7 @@
 
 #include "PlayerDBusHandler.h"
 #include "PlayerAdaptor.h"
-#include "Applet.h"
+#include "PlaylistModel.h"
 #include "MetaDataManager.h"
 
 #include <QtDBus/QDBusConnection>
@@ -98,7 +98,10 @@ void PlayerDBusHandler::Prev()
 
 void PlayerDBusHandler::Repeat(bool enable)
 {
-    m_player->setPlaybackMode(enable?MiniPlayer::LoopTrackMode:MiniPlayer::SequentialMode);
+    if (m_player->playlist())
+    {
+        m_player->playlist()->setPlaybackMode(enable?MiniPlayer::LoopTrackMode:MiniPlayer::SequentialMode);
+    }
 }
 
 void PlayerDBusHandler::stateChanged()
@@ -143,9 +146,9 @@ DBusStatus PlayerDBusHandler::GetStatus()
             status.Play = 2;
     }
 
-    status.Random = ((m_player->playbackMode() == MiniPlayer::RandomMode)?1:0);
-    status.Repeat = ((m_player->playbackMode() == MiniPlayer::LoopTrackMode)?1:0);
-    status.RepeatPlaylist = ((m_player->playbackMode() == MiniPlayer::LoopPlaylistMode)?1:0);
+    status.Random = ((m_player->playlist() && m_player->playlist()->playbackMode() == MiniPlayer::RandomMode)?1:0);
+    status.Repeat = ((m_player->playlist() && m_player->playlist()->playbackMode() == MiniPlayer::LoopTrackMode)?1:0);
+    status.RepeatPlaylist = ((m_player->playlist() && m_player->playlist()->playbackMode() == MiniPlayer::LoopPlaylistMode)?1:0);
 
     return status;
 }

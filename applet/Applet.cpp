@@ -251,7 +251,10 @@ void Applet::init()
             m_player->metaDataManager()->setMetaData(tracks.at(j), titles.value(j, QString()), duration);
         }
 
-        m_playlistManager->createPlaylist(playlistConfiguration.readEntry("title", i18n("Default")), tracks);
+        int playlist = m_playlistManager->createPlaylist(playlistConfiguration.readEntry("title", i18n("Default")), tracks);
+
+        m_playlistManager->playlists().at(playlist)->setCurrentTrack(playlistConfiguration.readEntry("currentTrack", 0));
+        m_playlistManager->playlists().at(playlist)->setPlaybackMode(static_cast<PlaybackMode>(playlistConfiguration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
     }
 
     if (!m_playlistManager->playlists().count())
@@ -396,7 +399,6 @@ void Applet::configAccepted()
 void Applet::configSave()
 {
     KConfigGroup configuration = config();
-    configuration.writeEntry("playbackMode", static_cast<int>(m_player->playbackMode()));
     configuration.writeEntry("apectRatio", static_cast<int>(m_player->aspectRatio()));
     configuration.writeEntry("mute", m_player->isAudioMuted());
     configuration.writeEntry("volume", m_player->volume());
@@ -439,10 +441,12 @@ void Applet::configSave()
         }
 
         KConfigGroup playlistConfiguration = playlistsConfiguration.group(QString::number(i));
-        configuration.writeEntry("tracks", playlists[i]->title());
+        configuration.writeEntry("tracks", urls);
         configuration.writeEntry("titles", titles);
         configuration.writeEntry("durations", durations);
-        configuration.writeEntry("title", urls);
+        configuration.writeEntry("title", playlists[i]->title());
+        configuration.writeEntry("playbackMode", static_cast<int>(playlists[i]->playbackMode()));
+        configuration.writeEntry("currentTrack", playlists[i]->currentTrack());
     }
 
     playlistsConfiguration.writeEntry("current", m_playlistManager->currentPlaylist());
@@ -475,7 +479,6 @@ void Applet::configReset()
     m_controlsWidget->setMaximumHeight(visible?-1:0);
 
     m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
-    m_player->setPlaybackMode(static_cast<PlaybackMode>(configuration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
     m_player->setAspectRatio(static_cast<AspectRatio>(configuration.readEntry("apectRatio", static_cast<int>(AutomaticRatio))));
     m_player->setAudioMuted(configuration.readEntry("mute", false));
     m_player->setVolume(configuration.readEntry("volume", 50));

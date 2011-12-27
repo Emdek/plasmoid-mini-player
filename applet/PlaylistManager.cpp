@@ -332,38 +332,6 @@ void PlaylistManager::filterPlaylist(const QString &text)
     }
 }
 
-void PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks)
-{
-    if (title.isEmpty())
-    {
-        return;
-    }
-
-    PlaylistModel *playlist = new PlaylistModel(m_player, title);
-    int position = (visiblePlaylist() + 1);
-
-    m_playlists.insert(position, playlist);
-
-    if (!tracks.isEmpty())
-    {
-        m_playlists[position]->addTracks(tracks);
-
-        m_player->metaDataManager()->addTracks(tracks);
-    }
-
-    if (m_dialog)
-    {
-        m_playlistUi.tabBar->show();
-        m_playlistUi.tabBar->insertTab((position + 1), KIcon("view-media-playlist"), title);
-        m_playlistUi.tabBar->setCurrentIndex(position + 1);
-    }
-
-    emit configNeedsSaving();
-
-    connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(configNeedsSaving()));
-    connect(playlist, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
-}
-
 void PlaylistManager::exportPlaylist()
 {
     KFileDialog dialog(KUrl("~"), QString(), NULL);
@@ -521,6 +489,35 @@ QByteArray PlaylistManager::splitterState() const
 QByteArray PlaylistManager::headerState() const
 {
     return (m_dialog?m_playlistUi.playlistView->horizontalHeader()->saveState():QByteArray());
+}
+
+int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks)
+{
+    PlaylistModel *playlist = new PlaylistModel(m_player, title);
+    int position = (visiblePlaylist() + 1);
+
+    m_playlists.insert(position, playlist);
+
+    if (!tracks.isEmpty())
+    {
+        m_playlists[position]->addTracks(tracks);
+
+        m_player->metaDataManager()->addTracks(tracks);
+    }
+
+    if (m_dialog)
+    {
+        m_playlistUi.tabBar->show();
+        m_playlistUi.tabBar->insertTab((position + 1), KIcon("view-media-playlist"), title);
+        m_playlistUi.tabBar->setCurrentIndex(position + 1);
+    }
+
+    emit configNeedsSaving();
+
+    connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(configNeedsSaving()));
+    connect(playlist, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
+
+    return position;
 }
 
 int PlaylistManager::currentPlaylist() const

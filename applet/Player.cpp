@@ -50,7 +50,6 @@ Player::Player(QObject *parent) : QObject(parent),
     m_audioChannelGroup(new QActionGroup(this)),
     m_subtitlesGroup(new QActionGroup(this)),
     m_anglesGroup(new QActionGroup(this)),
-    m_playbackMode(SequentialMode),
     m_aspectRatio(AutomaticRatio),
     m_videoMode(false),
     m_fullScreenMode(false)
@@ -479,7 +478,10 @@ void Player::changeAngle(QAction *action)
 
 void Player::changePlaybackMode(QAction *action)
 {
-    setPlaybackMode(static_cast<PlaybackMode>(action->data().toInt()));
+    if (m_playlist)
+    {
+        m_playlist->setPlaybackMode(static_cast<PlaybackMode>(action->data().toInt()));
+    }
 }
 
 void Player::trackFinished()
@@ -617,8 +619,9 @@ void Player::setPlaylist(PlaylistModel *playlist)
 
     m_playlist = playlist;
 
+    m_actions[PlaybackModeMenuAction]->menu()->actions().at(static_cast<int>(m_playlist->playbackMode()))->setChecked(true);
+
     currentTrackChanged(playlist->currentTrack(), (state() == PlayingState));
-    setPlaybackMode(m_playbackMode);
     mediaChanged();
 
     connect(playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
@@ -638,20 +641,6 @@ void Player::setVolume(int volume)
 void Player::setAudioMuted(bool muted)
 {
     m_audioOutput->setMuted(muted);
-}
-
-void Player::setPlaybackMode(PlaybackMode mode)
-{
-    m_playbackMode = mode;
-
-    m_actions[PlaybackModeMenuAction]->menu()->actions().at(static_cast<int>(mode))->setChecked(true);
-
-    if (m_playlist)
-    {
-        m_playlist->setPlaybackMode(mode);
-    }
-
-    emit configNeedsSaving();
 }
 
 void Player::setAspectRatio(AspectRatio ratio)
@@ -843,11 +832,6 @@ PlayerState Player::translateState(Phonon::State state) const
             return StoppedState;
         break;
     }
-}
-
-PlaybackMode Player::playbackMode() const
-{
-    return m_playbackMode;
 }
 
 AspectRatio Player::aspectRatio() const
