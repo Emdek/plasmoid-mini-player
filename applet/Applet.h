@@ -104,7 +104,6 @@ class Applet : public Plasma::Applet
         QList<QAction*> m_actions;
         QGraphicsWidget *m_controlsWidget;
         QWidget *m_fullScreenWidget;
-        QString m_title;
         KDialog *m_jumpToPositionDialog;
         KNotificationRestrictions *m_notificationRestrictions;
         int m_hideFullScreenControls;

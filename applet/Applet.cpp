@@ -696,25 +696,15 @@ void Applet::videoAvailableChanged(bool videoAvailable)
 
 void Applet::metaDataChanged()
 {
-    QString title = m_player->title();
     KUrl url = m_player->url();
 
-    if (!title.isEmpty())
+    if (!m_player->title().isEmpty() && !m_player->metaDataManager()->available(url))
     {
-        m_title = title;
+        m_player->metaDataManager()->setMetaData(url, m_player->title(), m_player->duration());
 
-        if (!m_player->metaDataManager()->available(url))
-        {
-            m_player->metaDataManager()->setMetaData(url, m_title, m_player->duration());
+        emit resetModel();
 
-            emit resetModel();
-
-            configSave();
-        }
-    }
-    else
-    {
-        m_title = m_player->metaDataManager()->title(url);
+        configSave();
     }
 
     if (m_player->position() < 3 && m_hideToolTip == 0)
@@ -724,7 +714,7 @@ void Applet::metaDataChanged()
         QTimer::singleShot(500, this, SLOT(showToolTip()));
     }
 
-    emit titleChanged(m_title);
+    emit titleChanged(m_player->title());
 }
 
 void Applet::openUrl()
@@ -868,9 +858,9 @@ void Applet::toggleFullScreen()
         m_player->setFullScreen(true);
 
         m_fullScreenWidget->showFullScreen();
-        m_fullScreenWidget->setWindowTitle(m_title);
+        m_fullScreenWidget->setWindowTitle(m_player->title());
 
-        m_fullScreenUi.titleLabel->setText(m_title);
+        m_fullScreenUi.titleLabel->setText(m_player->title());
         m_fullScreenUi.titleLabel->hide();
         m_fullScreenUi.controlsWidget->hide();
 
@@ -921,7 +911,7 @@ void Applet::updateToolTip()
 
     if (m_player->state() == PlayingState || m_player->state() == PausedState)
     {
-        data.setMainText(m_title);
+        data.setMainText(m_player->title());
         data.setSubText((m_player->duration() > 0)?i18n("Position: %1 / %2", MetaDataManager::timeToString(m_player->position()), MetaDataManager::timeToString(m_player->duration())):"");
         data.setImage(m_player->metaDataManager()->icon(m_player->url()).pixmap(IconSize(KIconLoader::Desktop)));
         data.setAutohide(true);
