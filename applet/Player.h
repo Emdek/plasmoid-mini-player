@@ -95,6 +95,7 @@ class Player : public QObject
 
     protected slots:
         void volumeChanged();
+        void videoChanged();
         void mediaChanged();
         void stateChanged(QMediaPlayer::State state);
         void errorOccured(QMediaPlayer::Error error);

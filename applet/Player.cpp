@@ -158,6 +158,7 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_player, SIGNAL(audioAvailableChanged(bool)), this, SIGNAL(audioAvailableChanged(bool)));
     connect(m_player, SIGNAL(audioAvailableChanged(bool)), this, SLOT(volumeChanged()));
     connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SIGNAL(videoAvailableChanged(bool)));
+    connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(videoChanged()));
     connect(m_player, SIGNAL(videoAvailableChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
     connect(m_player, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
@@ -198,6 +199,23 @@ void Player::volumeChanged()
     m_actions[AudioMenuAction]->setEnabled(isAudioAvailable());
 
     emit configNeedsSaving();
+}
+
+void Player::videoChanged()
+{
+    if (isVideoAvailable())
+    {
+        setVideoMode(m_videoMode);
+    }
+    else
+    {
+        m_appletVideoWidget->showVideo(false);
+
+        if (m_dialogVideoWidget)
+        {
+            m_dialogVideoWidget->showVideo(false);
+        }
+    }
 }
 
 void Player::mediaChanged()
@@ -459,6 +477,11 @@ void Player::setVideoMode(bool mode)
 
             m_dialogVideoWidget->showVideo(true);
         }
+    }
+
+    if (!isVideoAvailable())
+    {
+        videoChanged();
     }
 }
 
