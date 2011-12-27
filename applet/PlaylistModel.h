@@ -29,6 +29,8 @@
 
 #include <KUrl>
 
+#include "Player.h"
+
 namespace MiniPlayer
 {
 
@@ -54,6 +56,7 @@ class PlaylistModel : public QAbstractTableModel
         Qt::ItemFlags flags(const QModelIndex &index) const;
         Qt::DropActions supportedDropActions() const;
         KUrl track(int position) const;
+        PlaybackMode playbackMode() const;
         int currentTrack() const;
         int trackCount() const;
         int columnCount(const QModelIndex &index) const;
@@ -70,6 +73,7 @@ class PlaylistModel : public QAbstractTableModel
         void next();
         void previous();
         void setCurrentTrack(int track);
+        void setPlaybackMode(PlaybackMode mode);
 
     protected:
         QMediaPlaylist* playlist();
@@ -81,6 +85,7 @@ class PlaylistModel : public QAbstractTableModel
         Player *m_player;
         QMediaPlaylist *m_playlist;
         QString m_title;
+        PlaybackMode m_playbackMode;
 
     signals:
         void needsSaving();

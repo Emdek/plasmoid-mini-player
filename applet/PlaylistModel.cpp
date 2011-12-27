@@ -33,9 +33,11 @@ namespace MiniPlayer
 PlaylistModel::PlaylistModel(Player *parent, const QString &title) : QAbstractTableModel(parent),
     m_player(parent),
     m_playlist(new QMediaPlaylist(this)),
-    m_title(title)
+    m_title(title),
+    m_playbackMode(SequentialMode)
 {
     setSupportedDragActions(Qt::MoveAction);
+    setPlaybackMode(m_playbackMode);
 
     connect(m_player->parent(), SIGNAL(resetModel()), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaChanged(int,int)), this, SIGNAL(layoutChanged()));
@@ -187,6 +189,29 @@ void PlaylistModel::setCurrentTrack(int track)
     m_playlist->setCurrentIndex(track);
 }
 
+void PlaylistModel::setPlaybackMode(PlaybackMode mode)
+{
+    m_playbackMode = mode;
+
+    switch (mode)
+    {
+        case LoopTrackMode:
+            m_playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+        break;
+        case LoopPlaylistMode:
+            m_playlist->setPlaybackMode(QMediaPlaylist::Loop);
+        break;
+        case RandomMode:
+            m_playlist->setPlaybackMode(QMediaPlaylist::Random);
+        break;
+        default:
+            m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
+        break;
+    }
+
+    emit needsSaving();
+}
+
 void PlaylistModel::setTitle(const QString &title)
 {
     m_title = title;
@@ -303,6 +328,11 @@ QStringList PlaylistModel::mimeTypes() const
 KUrl PlaylistModel::track(int position) const
 {
     return KUrl(m_playlist->media(position).canonicalUrl());
+}
+
+PlaybackMode PlaylistModel::playbackMode() const
+{
+    return m_playbackMode;
 }
 
 int PlaylistModel::currentTrack() const

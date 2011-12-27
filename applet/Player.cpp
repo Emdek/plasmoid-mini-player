@@ -41,7 +41,7 @@ Player::Player(QObject *parent) : QObject(parent),
     m_appletVideoWidget(NULL),
     m_dialogVideoWidget(NULL),
     m_fullScreenVideoWidget(NULL),
-    m_playbackMode(),
+    m_playbackMode(SequentialMode),
     m_aspectRatio(AutomaticRatio),
     m_videoMode(false),
     m_fullScreenMode(false)
@@ -364,11 +364,9 @@ void Player::playNext()
 
 void Player::setPlaylist(PlaylistModel *playlist)
 {
-    if (m_player->playlist())
+    if (m_playlist)
     {
-        disconnect(m_player->playlist(), SIGNAL(mediaChanged(int,int)), this, SLOT(mediaChanged()));
-        disconnect(m_player->playlist(), SIGNAL(mediaInserted(int,int)), this, SLOT(mediaChanged()));
-        disconnect(m_player->playlist(), SIGNAL(mediaRemoved(int,int)), this, SLOT(mediaChanged()));
+        disconnect(m_playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
     }
 
     m_playlist = playlist;
@@ -378,9 +376,7 @@ void Player::setPlaylist(PlaylistModel *playlist)
     setPlaybackMode(m_playbackMode);
     mediaChanged();
 
-    connect(playlist->playlist(), SIGNAL(mediaChanged(int,int)), this, SLOT(mediaChanged()));
-    connect(playlist->playlist(), SIGNAL(mediaInserted(int,int)), this, SLOT(mediaChanged()));
-    connect(playlist->playlist(), SIGNAL(mediaRemoved(int,int)), this, SLOT(mediaChanged()));
+    connect(playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
 }
 
 void Player::setPosition(qint64 position)
@@ -406,21 +402,7 @@ void Player::setPlaybackMode(PlaybackMode mode)
 
     if (m_playlist)
     {
-        switch (mode)
-        {
-            case LoopTrackMode:
-                m_player->playlist()->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
-            break;
-            case LoopPlaylistMode:
-                m_player->playlist()->setPlaybackMode(QMediaPlaylist::Loop);
-            break;
-            case RandomMode:
-                m_player->playlist()->setPlaybackMode(QMediaPlaylist::Random);
-            break;
-            default:
-                m_player->playlist()->setPlaybackMode(QMediaPlaylist::Sequential);
-            break;
-        }
+        m_playlist->setPlaybackMode(mode);
     }
 
     emit configNeedsSaving();
