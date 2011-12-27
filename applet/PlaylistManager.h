@@ -80,7 +80,6 @@ class PlaylistManager : public QObject
         void editTrackTitle();
         void copyTrackUrl();
         void removeTrack();
-        void updateTheme();
 
     private:
         Player *m_player;

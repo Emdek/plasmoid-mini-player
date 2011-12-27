@@ -25,6 +25,7 @@
 #include "VideoWidget.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QTextStream>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QClipboard>
 #include <QtGui/QHeaderView>
@@ -34,8 +35,6 @@
 #include <KMessageBox>
 #include <KFileDialog>
 #include <KInputDialog>
-
-#include <Plasma/Theme>
 
 namespace MiniPlayer
 {
@@ -282,7 +281,6 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
 
-        updateTheme();
         trackPressed();
         visiblePlaylistChanged(m_currentPlaylist);
 
@@ -308,7 +306,6 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
         connect(m_player->parent(), SIGNAL(titleChanged(QString)), m_playlistUi.titleLabel, SLOT(setText(QString)));
         connect(this, SIGNAL(destroyed()), m_dialog, SLOT(deleteLater()));
-        connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
     }
 
     m_dialog->move(position);
@@ -502,17 +499,6 @@ void PlaylistManager::setHeaderState(const QByteArray &state)
         m_playlistUi.playlistView->horizontalHeader()->restoreState(state);
         m_playlistUi.playlistView->horizontalHeader()->resizeSection(1, 300);
     }
-}
-
-void PlaylistManager::updateTheme()
-{
-//     QPalette palette = m_dialog->palette();
-//     palette.setColor(QPalette::WindowText, Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor));
-//     palette.setColor(QPalette::ButtonText, Plasma::Theme::defaultTheme()->color(Plasma::Theme::ButtonTextColor));
-//     palette.setColor(QPalette::Background, Plasma::Theme::defaultTheme()->color(Plasma::Theme::BackgroundColor));
-//     palette.setColor(QPalette::Button, palette.color(QPalette::Background).lighter(250));
-//
-//     m_dialog->setPalette(palette);
 }
 
 QList<PlaylistModel*> PlaylistManager::playlists() const

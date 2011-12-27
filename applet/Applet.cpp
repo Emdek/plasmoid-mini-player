@@ -32,7 +32,6 @@
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 #include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QGraphicsSceneResizeEvent>
 #include <QtGui/QGraphicsSceneDragDropEvent>
