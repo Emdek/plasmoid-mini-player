@@ -294,7 +294,7 @@ void Player::volumeChanged(qreal volume)
 
 void Player::videoChanged()
 {
-    if (isVideoAvailable())
+    if (isVideoAvailable() && state() != StoppedState)
     {
         setVideoMode(m_videoMode);
     }
@@ -434,11 +434,7 @@ void Player::currentTrackChanged(int track, bool play)
 void Player::stateChanged(Phonon::State state)
 {
     mediaChanged();
-
-    if (this->state() == StoppedState)
-    {
-        videoChanged();
-    }
+    videoChanged();
 
     if (state == Phonon::ErrorState && m_mediaObject->errorType() != Phonon::NoError)
     {
@@ -690,7 +686,7 @@ void Player::setVideoMode(bool mode)
 
         m_videoWidget->show();
     }
-    else
+    else if (state() != StoppedState)
     {
         if (m_fullScreenVideoWidget)
         {
