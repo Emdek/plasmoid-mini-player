@@ -25,7 +25,6 @@
 #include <QtGui/QAction>
 #include <QtMultimediaKit/QMediaPlayer>
 #include <QtMultimediaKit/QVideoWidget>
-#include <QtMultimediaKit/QMediaPlaylist>
 
 #include <KUrl>
 
@@ -97,6 +96,7 @@ class Player : public QObject
         void volumeChanged();
         void videoChanged();
         void mediaChanged();
+        void currentTrackChanged(int track, bool play = false);
         void stateChanged(QMediaPlayer::State state);
         void errorOccured(QMediaPlayer::Error error);
         void changePlaybackMode(QAction *action);
@@ -114,6 +114,7 @@ class Player : public QObject
         AspectRatio m_aspectRatio;
         bool m_videoMode;
         bool m_fullScreenMode;
+        bool m_manualStop;
 
     signals:
         void configNeedsSaving();

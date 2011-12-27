@@ -834,6 +834,7 @@ void Applet::toggleFullScreen()
         m_fullScreenUi.muteButton->setDefaultAction(m_player->action(MuteAction));
         m_fullScreenUi.volumeSlider->setPlayer(m_player);
         m_fullScreenUi.fullScreenButton->setDefaultAction(m_player->action(FullScreenAction));
+        m_fullScreenUi.titleLabel->setText(m_player->title());
 
         m_player->registerFullScreenVideoWidget(m_fullScreenUi.videoWidget);
 

@@ -26,129 +26,133 @@
 #include <KIcon>
 #include <KLocale>
 #include <KMimeType>
+#include <KRandomSequence>
 
 namespace MiniPlayer
 {
 
 PlaylistModel::PlaylistModel(Player *parent, const QString &title) : QAbstractTableModel(parent),
     m_player(parent),
-    m_playlist(new QMediaPlaylist(this)),
     m_title(title),
-    m_playbackMode(SequentialMode)
+    m_playbackMode(SequentialMode),
+    m_currentTrack(-1),
+    m_isReadOnly(false)
 {
     setSupportedDragActions(Qt::MoveAction);
     setPlaybackMode(m_playbackMode);
 
     connect(m_player->parent(), SIGNAL(resetModel()), this, SIGNAL(layoutChanged()));
-    connect(m_playlist, SIGNAL(mediaChanged(int,int)), this, SIGNAL(layoutChanged()));
-    connect(m_playlist, SIGNAL(mediaInserted(int,int)), this, SIGNAL(layoutChanged()));
-    connect(m_playlist, SIGNAL(mediaRemoved(int,int)), this, SIGNAL(layoutChanged()));
-    connect(m_playlist, SIGNAL(currentIndexChanged(int)), this, SIGNAL(layoutChanged()));
 }
 
 void PlaylistModel::addTrack(int position, const KUrl &url)
 {
-    m_playlist->insertMedia(position, url);
+    m_tracks.insert(position, url);
+
+    emit layoutChanged();
+    emit needsSaving();
 }
 
 void PlaylistModel::removeTrack(int position)
 {
-    m_playlist->removeMedia(position);
+    m_tracks.removeAt(position);
+
+    emit layoutChanged();
+    emit needsSaving();
 }
 
-void PlaylistModel::addTracks(const KUrl::List &tracks, int index, bool play)
+void PlaylistModel::addTracks(const KUrl::List &tracks, int position, bool play)
 {
-    new PlaylistReader(this, tracks, index, play);
+    new PlaylistReader(this, tracks, position, play);
 }
 
-void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int index, bool play)
+void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, bool play)
 {
-    QList<QMediaContent> items;
+    KUrl::List items;
 
-    if (index == -1)
+    if (position == -1)
     {
-        index = m_playlist->mediaCount();
+        position = m_tracks.count();
     }
 
-    for (int i = 0; i < tracks.count(); ++i)
+    for (int i = (tracks.count() - 1); i >= 0; --i)
     {
-        if (!tracks.at(i).isValid())
+        if (tracks.at(i).isValid())
         {
-            continue;
+            m_tracks.insert(position, tracks.at(i));
         }
-
-        items.append(QMediaContent(tracks.at(i)));
     }
-
-    m_playlist->insertMedia(index, items);
 
     m_player->metaDataManager()->addTracks(tracks);
 
     if (play && tracks.count())
     {
-        m_playlist->setCurrentIndex(index);
+        setCurrentTrack(position);
 
         m_player->play();
+    }
+    else if (m_tracks.count())
+    {
+        setCurrentTrack(0);
     }
 
     m_player->metaDataManager()->setMetaData(metaData);
 
+    emit layoutChanged();
     emit needsSaving();
 }
 
 void PlaylistModel::clear()
 {
-    m_playlist->clear();
+    m_tracks.clear();
+
+    emit layoutChanged();
+    emit needsSaving();
 }
 
 void PlaylistModel::shuffle()
 {
-    m_playlist->shuffle();
+    KRandomSequence().randomize(m_tracks);
+
+    emit layoutChanged();
+    emit needsSaving();
 }
 
 void PlaylistModel::sort(int column, Qt::SortOrder order)
 {
     Q_UNUSED(column)
 
-    if (m_playlist->mediaCount() < 2)
+    if (m_tracks.count() < 2)
     {
         return;
     }
 
-    QMultiMap<QString, QMediaContent> urlMap;
-    QMultiMap<QString, QMediaContent> titleMap;
-    QMultiMap<qint64, QMediaContent> lengthMap;
-    QList<QMediaContent> tracks;
-    KUrl url;
+    QMultiMap<QString, KUrl> urlMap;
+    QMultiMap<QString, KUrl> titleMap;
+    QMultiMap<qint64, KUrl> lengthMap;
+    KUrl::List tracks;
 
     switch (column)
     {
         case 1:
-            for (int i = 0; i < m_playlist->mediaCount(); ++i)
+            for (int i = 0; i < m_tracks.count(); ++i)
             {
-                url = KUrl(m_playlist->media(i).canonicalUrl());
-
-                titleMap.insert(m_player->metaDataManager()->title(url), QMediaContent(url));
+                titleMap.insert(m_player->metaDataManager()->title(m_tracks.at(i)), m_tracks.at(i));
             }
 
             tracks = titleMap.values();
         break;
         case 2:
-            for (int i = 0; i < m_playlist->mediaCount(); ++i)
+            for (int i = 0; i < m_tracks.count(); ++i)
             {
-                url = KUrl(m_playlist->media(i).canonicalUrl());
-
-                lengthMap.insert(m_player->metaDataManager()->duration(url), QMediaContent(url));
+                lengthMap.insert(m_player->metaDataManager()->duration(m_tracks.at(i)), m_tracks.at(i));
             }
 
             tracks = lengthMap.values();
         break;
         default:
-            for (int i = 0; i < m_playlist->mediaCount(); ++i)
+            for (int i = 0; i < m_tracks.count(); ++i)
             {
-                url = KUrl(m_playlist->media(i).canonicalUrl());
-
-                urlMap.insert(url.pathOrUrl(), QMediaContent(url));
+                urlMap.insert(m_tracks.at(i).pathOrUrl(), m_tracks.at(i));
             }
 
             tracks = urlMap.values();
@@ -157,7 +161,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
 
     if (order == Qt::AscendingOrder)
     {
-        QList<QMediaContent> items;
+        KUrl::List items;
 
         for (int i = (tracks.count() - 1); i >= 0; --i)
         {
@@ -167,8 +171,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
         tracks = items;
     }
 
-    m_playlist->clear();
-    m_playlist->insertMedia(0, tracks);
+    m_tracks = tracks;
 
     emit layoutChanged();
     emit needsSaving();
@@ -176,38 +179,68 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
 
 void PlaylistModel::next()
 {
-    m_playlist->next();
+    if (m_tracks.count() < 2)
+    {
+        setCurrentTrack(0);
+    }
+    else if (m_playbackMode == RandomMode)
+    {
+        setCurrentTrack(randomTrack());
+    }
+    else
+    {
+        if (m_currentTrack >= (m_tracks.count() - 1))
+        {
+            setCurrentTrack(0);
+        }
+        else
+        {
+            setCurrentTrack(m_currentTrack + 1);
+        }
+    }
 }
 
 void PlaylistModel::previous()
 {
-    m_playlist->previous();
+    if (m_tracks.count() < 2)
+    {
+        setCurrentTrack(0);
+    }
+    else if (m_playbackMode == RandomMode)
+    {
+        setCurrentTrack(randomTrack());
+    }
+    else
+    {
+        if (m_currentTrack == 0)
+        {
+            setCurrentTrack(m_tracks.count() - 1);
+        }
+        else
+        {
+            setCurrentTrack(m_currentTrack - 1);
+        }
+    }
 }
 
-void PlaylistModel::setCurrentTrack(int track)
+void PlaylistModel::setCurrentTrack(int track, bool play)
 {
-    m_playlist->setCurrentIndex(track);
+    if (track > m_tracks.count())
+    {
+        track = 0;
+    }
+
+    if (m_currentTrack != track)
+    {
+        m_currentTrack = track;
+
+        emit currentTrackChanged(m_currentTrack, play);
+    }
 }
 
 void PlaylistModel::setPlaybackMode(PlaybackMode mode)
 {
     m_playbackMode = mode;
-
-    switch (mode)
-    {
-        case LoopTrackMode:
-            m_playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
-        break;
-        case LoopPlaylistMode:
-            m_playlist->setPlaybackMode(QMediaPlaylist::Loop);
-        break;
-        case RandomMode:
-            m_playlist->setPlaybackMode(QMediaPlaylist::Random);
-        break;
-        default:
-            m_playlist->setPlaybackMode(QMediaPlaylist::Sequential);
-        break;
-    }
 
     emit needsSaving();
 }
@@ -224,16 +257,16 @@ QString PlaylistModel::title() const
 
 QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || (index.row() >= m_playlist->mediaCount()))
+    if (!index.isValid() || (index.row() >= m_tracks.count()))
     {
         return QVariant();
     }
 
-    KUrl url(m_playlist->media(index.row()).canonicalUrl());
+    KUrl url(m_tracks.at(index.row()));
 
     if (role == Qt::DecorationRole && index.column() == 0 && url.isValid())
     {
-        return ((m_player->playlist() == this && index.row() == m_playlist->currentIndex())?KIcon("media-playback-start"):m_player->metaDataManager()->icon(url));
+        return ((m_player->playlist() == this && index.row() == m_currentTrack)?KIcon("media-playback-start"):m_player->metaDataManager()->icon(url));
     }
     else if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
@@ -305,7 +338,7 @@ QMimeData* PlaylistModel::mimeData(const QModelIndexList &indexes) const
     {
         if (index.isValid() && (index.column() == 0))
         {
-            urls.append(KUrl(m_playlist->media(index.row()).canonicalUrl()));
+            urls.append(KUrl(m_tracks.at(index.row())));
         }
     }
 
@@ -315,11 +348,6 @@ QMimeData* PlaylistModel::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
-QMediaPlaylist* PlaylistModel::playlist()
-{
-    return m_playlist;
-}
-
 QStringList PlaylistModel::mimeTypes() const
 {
     return QStringList("text/uri-list");
@@ -327,7 +355,7 @@ QStringList PlaylistModel::mimeTypes() const
 
 KUrl PlaylistModel::track(int position) const
 {
-    return KUrl(m_playlist->media(position).canonicalUrl());
+    return m_tracks.value(position, KUrl());
 }
 
 PlaybackMode PlaylistModel::playbackMode() const
@@ -335,14 +363,60 @@ PlaybackMode PlaylistModel::playbackMode() const
     return m_playbackMode;
 }
 
+int PlaylistModel::randomTrack() const
+{
+    if (trackCount() < 2)
+    {
+        return 0;
+    }
+
+    qsrand(QDateTime::currentDateTime().toTime_t());
+
+    KRandomSequence sequence(qrand() % 1000);
+    int randomTrack = currentTrack();
+
+    while (randomTrack == currentTrack())
+    {
+        randomTrack = sequence.getLong(trackCount() - 1);
+    }
+
+    return randomTrack;
+}
+
 int PlaylistModel::currentTrack() const
 {
-    return m_playlist->currentIndex();
+    return m_currentTrack;
+}
+
+int PlaylistModel::nextTrack() const
+{
+    if (m_tracks.isEmpty())
+    {
+        return -1;
+    }
+
+    switch (m_playbackMode)
+    {
+        case RandomMode:
+            return randomTrack();
+        case LoopTrackMode:
+            return m_currentTrack;
+        case LoopPlaylistMode:
+        default:
+            if ((m_currentTrack + 1) >= m_tracks.count())
+            {
+                return ((m_playbackMode == LoopPlaylistMode)?0:-1);
+            }
+
+            return (m_currentTrack + 1);
+    }
+
+    return -1;
 }
 
 int PlaylistModel::trackCount() const
 {
-    return m_playlist->mediaCount();
+    return m_tracks.count();
 }
 
 int PlaylistModel::columnCount(const QModelIndex &index) const
@@ -362,19 +436,19 @@ int PlaylistModel::rowCount(const QModelIndex &index) const
         return 0;
     }
 
-    return m_playlist->mediaCount();
+    return m_tracks.count();
 }
 
 bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() || value.toString().isEmpty() || index.row() >= m_playlist->mediaCount())
+    if (!index.isValid() || value.toString().isEmpty() || index.row() >= m_tracks.count())
     {
         return false;
     }
 
     if (role == Qt::EditRole)
     {
-        m_player->metaDataManager()->setMetaData(KUrl(m_playlist->media(index.row()).canonicalUrl()), value.toString(), -1);
+        m_player->metaDataManager()->setMetaData(m_tracks.at(index.row()), value.toString(), -1);
     }
     else
     {
@@ -382,7 +456,6 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
     }
 
     emit needsSaving();
-    emit itemChanged(index);
 
     return true;
 }
@@ -401,7 +474,7 @@ bool PlaylistModel::dropMimeData(const QMimeData *mimeData, Qt::DropAction actio
         return false;
     }
 
-    int position = m_playlist->mediaCount();
+    int position = m_tracks.count();
 
     if (index.isValid())
     {
@@ -412,18 +485,14 @@ bool PlaylistModel::dropMimeData(const QMimeData *mimeData, Qt::DropAction actio
         position = row;
     }
 
-    KUrl::List urls = KUrl::List::fromMimeData(mimeData);
-
-    addTracks(urls, position, false);
-
-    emit needsSaving();
+    addTracks(KUrl::List::fromMimeData(mimeData), position, false);
 
     return true;
 }
 
 bool PlaylistModel::insertRows(int row, int count, const QModelIndex &index)
 {
-    if (!index.isValid() || row < 0 || row >= m_playlist->mediaCount())
+    if (!index.isValid() || row < 0 || row >= m_tracks.count())
     {
         return false;
     }
@@ -434,7 +503,7 @@ bool PlaylistModel::insertRows(int row, int count, const QModelIndex &index)
 
     for (int i = 0; i < count; ++i)
     {
-        m_playlist->insertMedia((row + i), QMediaContent());
+        m_tracks.insert((row + i), KUrl());
     }
 
     endInsertRows();
@@ -446,7 +515,7 @@ bool PlaylistModel::insertRows(int row, int count, const QModelIndex &index)
 
 bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
 {
-    if (!index.isValid() || row < 0 || row >= m_playlist->mediaCount())
+    if (!index.isValid() || row < 0 || row >= m_tracks.count())
     {
         return false;
     }
@@ -455,10 +524,14 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
 
     beginRemoveRows(index, row, (end - 1));
 
-    m_playlist->removeMedia(row, end);
+    for (int i = 0; i < (end - row); ++i)
+    {
+        m_tracks.removeAt(row);
+    }
 
     endRemoveRows();
 
+    emit layoutChanged();
     emit needsSaving();
 
     return true;
@@ -466,7 +539,7 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
 
 bool PlaylistModel::isReadOnly() const
 {
-    return false;
+    return m_isReadOnly;
 }
 
 }

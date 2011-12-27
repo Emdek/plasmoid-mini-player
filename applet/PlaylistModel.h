@@ -25,7 +25,6 @@
 #include <QtCore/QVariant>
 #include <QtCore/QMimeData>
 #include <QtCore/QAbstractTableModel>
-#include <QtMultimediaKit/QMediaPlaylist>
 
 #include <KUrl>
 
@@ -45,7 +44,7 @@ class PlaylistModel : public QAbstractTableModel
 
         void addTrack(int position, const KUrl &url);
         void removeTrack(int position);
-        void addTracks(const KUrl::List &tracks, int index = -1, bool play = false);
+        void addTracks(const KUrl::List &tracks, int position = -1, bool play = false);
         void sort(int column, Qt::SortOrder order);
         void setTitle(const QString &title);
         QStringList mimeTypes() const;
@@ -58,6 +57,7 @@ class PlaylistModel : public QAbstractTableModel
         KUrl track(int position) const;
         PlaybackMode playbackMode() const;
         int currentTrack() const;
+        int nextTrack() const;
         int trackCount() const;
         int columnCount(const QModelIndex &index) const;
         int rowCount(const QModelIndex &index) const;
@@ -72,24 +72,26 @@ class PlaylistModel : public QAbstractTableModel
         void shuffle();
         void next();
         void previous();
-        void setCurrentTrack(int track);
+        void setCurrentTrack(int track, bool play = false);
         void setPlaybackMode(PlaybackMode mode);
 
     protected:
-        QMediaPlaylist* playlist();
+        int randomTrack() const;
 
     protected slots:
-        void addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int index, bool play);
+        void addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, bool play);
 
     private:
         Player *m_player;
-        QMediaPlaylist *m_playlist;
+        KUrl::List m_tracks;
         QString m_title;
         PlaybackMode m_playbackMode;
+        int m_currentTrack;
+        bool m_isReadOnly;
 
     signals:
         void needsSaving();
-        void itemChanged(QModelIndex index);
+        void currentTrackChanged(int track, bool play);
 
     friend class Player;
 };

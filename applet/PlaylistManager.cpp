@@ -267,6 +267,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.seekSlider->setPlayer(m_player);
         m_playlistUi.muteButton->setDefaultAction(m_player->action(MuteAction));
         m_playlistUi.volumeSlider->setPlayer(m_player);
+        m_playlistUi.titleLabel->setText(m_player->title());
         m_playlistUi.splitter->setStretchFactor(0, 1);
         m_playlistUi.splitter->setStretchFactor(1, 3);
         m_playlistUi.splitter->setStretchFactor(2, 1);
@@ -359,7 +360,7 @@ void PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tra
     emit configNeedsSaving();
 
     connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(configNeedsSaving()));
-    connect(playlist, SIGNAL(itemChanged(QModelIndex)), this, SLOT(trackChanged()));
+    connect(playlist, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
 }
 
 void PlaylistManager::exportPlaylist()

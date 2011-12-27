@@ -44,7 +44,8 @@ Player::Player(QObject *parent) : QObject(parent),
     m_playbackMode(SequentialMode),
     m_aspectRatio(AutomaticRatio),
     m_videoMode(false),
-    m_fullScreenMode(false)
+    m_fullScreenMode(false),
+    m_manualStop(false)
 {
     m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
     m_actions[OpenMenuAction]->setMenu(new KMenu());
@@ -233,6 +234,19 @@ void Player::mediaChanged()
     m_actions[NavigationMenuAction]->setEnabled(hasTracks);
 }
 
+void Player::currentTrackChanged(int track, bool play)
+{
+    if (m_playlist)
+    {
+        m_player->setMedia(QMediaContent(m_playlist->track(track)));
+
+        if (play)
+        {
+            this->play();
+        }
+    }
+}
+
 void Player::stateChanged(QMediaPlayer::State state)
 {
     mediaChanged();
@@ -240,6 +254,13 @@ void Player::stateChanged(QMediaPlayer::State state)
     if (this->state() == StoppedState)
     {
         videoChanged();
+
+        if (!m_manualStop && m_playlist)
+        {
+            m_playlist->setCurrentTrack(m_playlist->nextTrack(), true);
+        }
+
+        m_manualStop = false;
     }
 
     emit translateState(state);
@@ -339,6 +360,8 @@ void Player::pause()
 
 void Player::stop()
 {
+    m_manualStop = true;
+
     m_player->stop();
 }
 
@@ -346,6 +369,8 @@ void Player::playPrevious()
 {
     if (m_playlist)
     {
+        m_manualStop = true;
+
         m_playlist->previous();
 
         play();
@@ -356,6 +381,8 @@ void Player::playNext()
 {
     if (m_playlist)
     {
+        m_manualStop = true;
+
         m_playlist->next();
 
         play();
@@ -367,16 +394,17 @@ void Player::setPlaylist(PlaylistModel *playlist)
     if (m_playlist)
     {
         disconnect(m_playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
+        disconnect(m_playlist, SIGNAL(currentTrackChanged(int,bool)), this, SLOT(currentTrackChanged(int,bool)));
     }
 
     m_playlist = playlist;
 
-    m_player->setPlaylist(playlist->playlist());
-
+    currentTrackChanged(playlist->currentTrack(), (state() == PlayingState));
     setPlaybackMode(m_playbackMode);
     mediaChanged();
 
     connect(playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
+    connect(playlist, SIGNAL(currentTrackChanged(int,bool)), this, SLOT(currentTrackChanged(int,bool)));
 }
 
 void Player::setPosition(qint64 position)
