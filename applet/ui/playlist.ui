@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>495</height>
+    <height>499</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -313,11 +313,14 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QToolButton" name="addButton">
-         <property name="toolTip">
-          <string>Add</string>
+        <widget class="KPushButton" name="addButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="autoRaise">
+         <property name="flat">
           <bool>true</bool>
          </property>
         </widget>
@@ -478,6 +481,11 @@
    <class>KLineEdit</class>
    <extends>QLineEdit</extends>
    <header>klineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KPushButton</class>
+   <extends>QPushButton</extends>
+   <header>kpushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>MiniPlayer::SeekSlider</class>

@@ -252,6 +252,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.playlistView->installEventFilter(this);
         m_playlistUi.closeButton->setIcon(KIcon("window-close"));
         m_playlistUi.addButton->setIcon(KIcon("list-add"));
+        m_playlistUi.addButton->setDelayedMenu(m_player->action(OpenMenuAction)->menu());
         m_playlistUi.removeButton->setIcon(KIcon("list-remove"));
         m_playlistUi.editButton->setIcon(KIcon("document-edit"));
         m_playlistUi.moveUpButton->setIcon(KIcon("arrow-up"));

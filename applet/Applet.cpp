@@ -718,7 +718,12 @@ void Applet::metaDataChanged()
 
 void Applet::openUrl()
 {
-    m_playlistManager->addTracks(KUrl::List(KInputDialog::getText(i18n("Open URL"), i18n("Enter a URL:"))), -1, true);
+    const QString url = KInputDialog::getText(i18n("Open URL"), i18n("Enter a URL:"));
+
+    if (url.isEmpty())
+    {
+        m_playlistManager->addTracks(KUrl::List(url), -1, !m_playlistManager->isDialogVisible());
+    }
 }
 
 void Applet::openFiles()

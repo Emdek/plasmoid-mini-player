@@ -1,6 +1,7 @@
 2.0 (31.12.2011):
 - fully refactored, cleaned up and modularized source;
 - added possibility to select displayed controls;
+- added menu for add track button (on long button press);
 - try up to three times to get meta data;
 - many fixes and changes.
 
