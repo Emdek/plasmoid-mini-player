@@ -23,6 +23,7 @@
 
 #include <QtCore/QObject>
 #include <QtGui/QAction>
+#include <QtGui/QSlider>
 
 #include <KUrl>
 
@@ -125,6 +126,10 @@ class Player : public QObject
         VideoWidget *m_appletVideoWidget;
         VideoWidget *m_dialogVideoWidget;
         QWidget *m_fullScreenVideoWidget;
+        QSlider *m_brightnessSlider;
+        QSlider *m_contrastSlider;
+        QSlider *m_hueSlider;
+        QSlider *m_saturationSlider;
         QHash<PlayerAction, QAction*> m_actions;
         PlaybackMode m_playbackMode;
         AspectRatio m_aspectRatio;

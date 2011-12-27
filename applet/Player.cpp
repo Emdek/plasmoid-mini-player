@@ -25,7 +25,6 @@
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QLayout>
-#include <QtGui/QSlider>
 #include <QtGui/QActionGroup>
 #include <QtGui/QWidgetAction>
 #include <QtGui/QGraphicsSceneMouseEvent>
@@ -103,37 +102,41 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[VideoPropepertiesMenu] = m_actions[VideoMenuAction]->menu()->addAction(i18n("Properties"));
     m_actions[VideoPropepertiesMenu]->setMenu(new KMenu());
 
-    QSlider *brightnessSlider = new QSlider;
-    brightnessSlider->setOrientation(Qt::Horizontal);
-    brightnessSlider->setRange(0, 100);
-    brightnessSlider->setValue(50);
+    m_brightnessSlider = new QSlider;
+    m_brightnessSlider->setOrientation(Qt::Horizontal);
+    m_brightnessSlider->setRange(0, 100);
+    m_brightnessSlider->setValue(50);
+    m_brightnessSlider->setMinimumWidth(150);
 
     QWidgetAction *brightnessAction = new QWidgetAction(this);
-    brightnessAction->setDefaultWidget(brightnessSlider);
+    brightnessAction->setDefaultWidget(m_brightnessSlider);
 
-    QSlider *contrastSlider = new QSlider;
-    contrastSlider->setOrientation(Qt::Horizontal);
-    contrastSlider->setRange(0, 100);
-    contrastSlider->setValue(50);
+    m_contrastSlider = new QSlider;
+    m_contrastSlider->setOrientation(Qt::Horizontal);
+    m_contrastSlider->setRange(0, 100);
+    m_contrastSlider->setValue(50);
+    m_contrastSlider->setMinimumWidth(150);
 
     QWidgetAction *contrastAction = new QWidgetAction(this);
-    contrastAction->setDefaultWidget(contrastSlider);
+    contrastAction->setDefaultWidget(m_contrastSlider);
 
-    QSlider *hueSlider = new QSlider;
-    hueSlider->setOrientation(Qt::Horizontal);
-    hueSlider->setRange(0, 100);
-    hueSlider->setValue(50);
+    m_hueSlider = new QSlider;
+    m_hueSlider->setOrientation(Qt::Horizontal);
+    m_hueSlider->setRange(0, 100);
+    m_hueSlider->setValue(50);
+    m_hueSlider->setMinimumWidth(150);
 
     QWidgetAction *hueAction = new QWidgetAction(this);
-    hueAction->setDefaultWidget(hueSlider);
+    hueAction->setDefaultWidget(m_hueSlider);
 
-    QSlider *saturationSlider = new QSlider;
-    saturationSlider->setOrientation(Qt::Horizontal);
-    saturationSlider->setRange(0, 100);
-    saturationSlider->setValue(50);
+    m_saturationSlider = new QSlider;
+    m_saturationSlider->setOrientation(Qt::Horizontal);
+    m_saturationSlider->setRange(0, 100);
+    m_saturationSlider->setValue(50);
+    m_saturationSlider->setMinimumWidth(150);
 
     QWidgetAction *saturationAction = new QWidgetAction(this);
-    saturationAction->setDefaultWidget(saturationSlider);
+    saturationAction->setDefaultWidget(m_saturationSlider);
 
     m_actions[VideoPropepertiesMenu]->menu()->addAction(brightnessAction);
     m_actions[VideoPropepertiesMenu]->menu()->addAction(contrastAction);
@@ -197,6 +200,7 @@ Player::Player(QObject *parent) : QObject(parent),
 
     volumeChanged();
     mediaChanged();
+    updateSliders();
 
     connect(m_actions[VideoMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAspectRatio(QAction*)));
     connect(m_actions[PlaybackModeMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changePlaybackMode(QAction*)));
@@ -216,10 +220,10 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged()));
     connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SIGNAL(audioMutedChanged(bool)));
     connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(volumeChanged()));
-    connect(brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
-    connect(contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
-    connect(hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
-    connect(saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
+    connect(m_brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
+    connect(m_contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
+    connect(m_hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
+    connect(m_saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
     connect(this, SIGNAL(destroyed()), m_videoWidget, SLOT(deleteLater()));
 }
 
@@ -349,7 +353,20 @@ void Player::trackFinished()
 
 void Player::updateSliders()
 {
+    disconnect(m_brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
+    disconnect(m_contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
+    disconnect(m_hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
+    disconnect(m_saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
 
+    m_brightnessSlider->setToolTip(QString(i18n("Brightness: %1%")).arg(brightness()));
+    m_contrastSlider->setToolTip(QString(i18n("Contrast: %1%")).arg(contrast()));
+    m_hueSlider->setToolTip(QString(i18n("Hue: %1%")).arg(hue()));
+    m_saturationSlider->setToolTip(QString(i18n("Saturation: %1%")).arg(saturation()));
+
+    connect(m_brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
+    connect(m_contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
+    connect(m_hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
+    connect(m_saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
 }
 
 void Player::registerAppletVideoWidget(VideoWidget *videoWidget)
@@ -579,12 +596,16 @@ void Player::setBrightness(int value)
 {
     m_videoWidget->setBrightness((value > 0)?(((qreal) value / 50) - 1):-1);
 
+    updateSliders();
+
     emit configNeedsSaving();
 }
 
 void Player::setContrast(int value)
 {
     m_videoWidget->setContrast((value > 0)?(((qreal) value / 50) - 1):-1);
+
+    updateSliders();
 
     emit configNeedsSaving();
 }
@@ -593,12 +614,16 @@ void Player::setHue(int value)
 {
     m_videoWidget->setHue((value > 0)?(((qreal) value / 50) - 1):-1);
 
+    updateSliders();
+
     emit configNeedsSaving();
 }
 
 void Player::setSaturation(int value)
 {
     m_videoWidget->setSaturation((value > 0)?(((qreal) value / 50) - 1):-1);
+
+    updateSliders();
 
     emit configNeedsSaving();
 }
@@ -685,27 +710,27 @@ PlayerState Player::state() const
 
 int Player::volume() const
 {
-    return (m_audioOutput->volume() * 100);
+    return (m_audioOutput->volume() * 50);
 }
 
 int Player::brightness() const
 {
-    return (m_videoWidget->brightness() * 100);
+    return ((m_videoWidget->brightness() * 50) + 50);
 }
 
 int Player::contrast() const
 {
-    return (m_videoWidget->contrast() * 100);
+    return ((m_videoWidget->contrast() * 50) + 50);
 }
 
 int Player::hue() const
 {
-    return (m_videoWidget->hue() * 100);
+    return ((m_videoWidget->hue() * 50) + 50);
 }
 
 int Player::saturation() const
 {
-    return (m_videoWidget->saturation() * 100);
+    return ((m_videoWidget->saturation() * 100) + 50);
 }
 
 bool Player::isAudioMuted() const
