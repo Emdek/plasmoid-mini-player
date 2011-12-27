@@ -146,6 +146,8 @@ Player::Player(QObject *parent) : QObject(parent),
 
     connect(m_actions[VideoMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAspectRatio(QAction*)));
     connect(m_actions[PlaybackModeMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changePlaybackMode(QAction*)));
+    connect(m_actions[PlayPauseAction], SIGNAL(triggered()), this, SLOT(playPause()));
+    connect(m_actions[StopAction], SIGNAL(triggered()), this, SLOT(stop()));
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
     connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(stateChanged(QMediaPlayer::State)));
     connect(m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(errorOccured(QMediaPlayer::Error)));
@@ -232,6 +234,11 @@ void Player::mediaChanged()
 void Player::stateChanged(QMediaPlayer::State state)
 {
     mediaChanged();
+
+    if (this->state() == StoppedState)
+    {
+        videoChanged();
+    }
 
     emit translateState(state);
 }
