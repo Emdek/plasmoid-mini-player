@@ -25,7 +25,6 @@
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QLayout>
-#include <QtGui/QActionGroup>
 #include <QtGui/QWidgetAction>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
@@ -47,6 +46,10 @@ Player::Player(QObject *parent) : QObject(parent),
     m_appletVideoWidget(NULL),
     m_dialogVideoWidget(NULL),
     m_fullScreenVideoWidget(NULL),
+    m_chaptersGroup(new QActionGroup(this)),
+    m_audioChannelGroup(new QActionGroup(this)),
+    m_subtitlesGroup(new QActionGroup(this)),
+    m_anglesGroup(new QActionGroup(this)),
     m_playbackMode(SequentialMode),
     m_aspectRatio(AutomaticRatio),
     m_videoMode(false),
@@ -76,6 +79,9 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[NavigationMenuAction] = new QAction(i18n("Navigation"), this);
     m_actions[NavigationMenuAction]->setMenu(new KMenu());
     m_actions[NavigationMenuAction]->setEnabled(false);
+    m_actions[ChapterMenuAction] = m_actions[NavigationMenuAction]->menu()->addAction(i18n("Chapter"));
+    m_actions[ChapterMenuAction]->setMenu(new KMenu());
+    m_actions[ChapterMenuAction]->setEnabled(false);
     m_actions[PlayNextAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-skip-backward"), i18n("Previous"), this, SLOT(playPrevious()), QKeySequence(Qt::Key_PageDown));
     m_actions[PlayPreviousAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-skip-forward"), i18n("Next"), this, SLOT(playNext()), QKeySequence(Qt::Key_PageUp));
     m_actions[NavigationMenuAction]->menu()->addSeparator();
@@ -89,6 +95,9 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[VolumeAction]->setShortcut(QKeySequence(Qt::Key_V));
     m_actions[AudioMenuAction] = new QAction(i18n("Audio"), this);
     m_actions[AudioMenuAction]->setMenu(new KMenu());
+    m_actions[AudioChannelMenuAction] = m_actions[AudioMenuAction]->menu()->addAction(i18n("Channel"));
+    m_actions[AudioChannelMenuAction]->setMenu(new KMenu());
+    m_actions[AudioChannelMenuAction]->setEnabled(false);
     m_actions[IncreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-high"), i18n("Increase Volume"), this, SLOT(increaseVolume()), QKeySequence(Qt::Key_Plus));
     m_actions[DecreaseVolumeAction] = m_actions[AudioMenuAction]->menu()->addAction(KIcon("audio-volume-low"), i18n("Decrease Volume"), this, SLOT(decreaseVolume()), QKeySequence(Qt::Key_Minus));
     m_actions[AudioMenuAction]->menu()->addSeparator();
@@ -168,6 +177,12 @@ Player::Player(QObject *parent) : QObject(parent),
     aspectRatioActionGroup->addAction(aspectRatio16_9);
     aspectRatioActionGroup->addAction(aspectRatioFitTo);
 
+    m_actions[SubtitleMenuAction] = m_actions[VideoMenuAction]->menu()->addAction(i18n("Subtitle"));
+    m_actions[SubtitleMenuAction]->setMenu(new KMenu());
+    m_actions[SubtitleMenuAction]->setEnabled(false);
+    m_actions[AngleMenuAction] = m_actions[VideoMenuAction]->menu()->addAction(i18n("Angle"));
+    m_actions[AngleMenuAction]->setMenu(new KMenu());
+    m_actions[AngleMenuAction]->setEnabled(false);
     m_actions[VideoMenuAction]->menu()->addSeparator();
     m_actions[FullScreenAction] = m_actions[VideoMenuAction]->menu()->addAction(KIcon("view-fullscreen"), i18n("Full Screen Mode"));
     m_actions[FullScreenAction]->setEnabled(false);
@@ -202,8 +217,12 @@ Player::Player(QObject *parent) : QObject(parent),
     mediaChanged();
     updateSliders();
 
-    connect(m_actions[VideoMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAspectRatio(QAction*)));
     connect(m_actions[PlaybackModeMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changePlaybackMode(QAction*)));
+    connect(m_actions[AspectRatioMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAspectRatio(QAction*)));
+    connect(m_actions[ChapterMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeChapter(QAction*)));
+    connect(m_actions[AudioMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAudioChannel(QAction*)));
+    connect(m_actions[SubtitleMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeSubtitles(QAction*)));
+    connect(m_actions[AngleMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAngle(QAction*)));
     connect(m_actions[PlayPauseAction], SIGNAL(triggered()), this, SLOT(playPause()));
     connect(m_actions[StopAction], SIGNAL(triggered()), this, SLOT(stop()));
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
@@ -220,6 +239,10 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged()));
     connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SIGNAL(audioMutedChanged(bool)));
     connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(volumeChanged()));
+    connect(m_mediaController, SIGNAL(availableChaptersChanged(int)), this, SLOT(availableChaptersChanged()));
+    connect(m_mediaController, SIGNAL(availableAudioChannelsChanged()), this, SLOT(availableAudioChannelsChanged()));
+    connect(m_mediaController, SIGNAL(availableSubtitlesChanged()), this, SLOT(availableSubtitlesChanged()));
+    connect(m_mediaController, SIGNAL(availableAnglesChanged(int)), this, SLOT(availableAnglesChanged()));
     connect(m_brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
     connect(m_contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
     connect(m_hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
@@ -300,6 +323,102 @@ void Player::mediaChanged()
     m_actions[NavigationMenuAction]->setEnabled(hasTracks);
 }
 
+void Player::availableChaptersChanged()
+{
+    m_actions[ChapterMenuAction]->menu()->clear();
+    m_actions[ChapterMenuAction]->setEnabled(false);
+
+    m_chaptersGroup->deleteLater();
+    m_chaptersGroup = new QActionGroup(this);
+    m_chaptersGroup->setExclusive(true);
+
+    if (m_mediaController->availableChapters() > 1)
+    {
+        for (int i = 0; i < m_mediaController->availableChapters(); ++i)
+        {
+            QAction *action = m_actions[ChapterMenuAction]->menu()->addAction(i18n("Chapter %1", i));
+            action->setData(i);
+            action->setCheckable(true);
+
+            m_chaptersGroup->addAction(action);
+        }
+
+        m_actions[ChapterMenuAction]->setEnabled(true);
+    }
+}
+
+void Player::availableAudioChannelsChanged()
+{
+    m_actions[AudioChannelMenuAction]->menu()->clear();
+    m_actions[AudioChannelMenuAction]->setEnabled(false);
+
+    m_audioChannelGroup->deleteLater();
+    m_audioChannelGroup = new QActionGroup(this);
+    m_audioChannelGroup->setExclusive(true);
+
+    if (m_mediaController->availableAudioChannels().count() > 1)
+    {
+        for (int i = 0; i < m_mediaController->availableAudioChannels().count(); ++i)
+        {
+            QAction *action = m_actions[AudioChannelMenuAction]->menu()->addAction(m_mediaController->availableAudioChannels().at(i).name());
+            action->setData(i);
+            action->setCheckable(true);
+
+            m_audioChannelGroup->addAction(action);
+        }
+
+        m_actions[AudioChannelMenuAction]->setEnabled(true);
+    }
+}
+
+void Player::availableSubtitlesChanged()
+{
+    m_actions[SubtitleMenuAction]->menu()->clear();
+    m_actions[SubtitleMenuAction]->setEnabled(false);
+
+    m_subtitlesGroup->deleteLater();
+    m_subtitlesGroup = new QActionGroup(this);
+    m_subtitlesGroup->setExclusive(true);
+
+    if (m_mediaController->availableSubtitles().count())
+    {
+        for (int i = 0; i < m_mediaController->availableSubtitles().count(); ++i)
+        {
+            QAction *action = m_actions[SubtitleMenuAction]->menu()->addAction(m_mediaController->availableSubtitles().at(i).name());
+            action->setData(i);
+            action->setCheckable(true);
+
+            m_subtitlesGroup->addAction(action);
+        }
+
+        m_actions[SubtitleMenuAction]->setEnabled(true);
+    }
+}
+
+void Player::availableAnglesChanged()
+{
+    m_actions[AngleMenuAction]->menu()->clear();
+    m_actions[AngleMenuAction]->setEnabled(false);
+
+    m_anglesGroup->deleteLater();
+    m_anglesGroup = new QActionGroup(this);
+    m_anglesGroup->setExclusive(true);
+
+    if (m_mediaController->availableAngles() > 1)
+    {
+        for (int i = 0; i < m_mediaController->availableAngles(); ++i)
+        {
+            QAction *action = m_actions[AngleMenuAction]->menu()->addAction(i18n("Angle %1", i));
+            action->setData(i);
+            action->setCheckable(true);
+
+            m_anglesGroup->addAction(action);
+        }
+
+        m_actions[AngleMenuAction]->setEnabled(true);
+    }
+}
+
 void Player::currentTrackChanged(int track, bool play)
 {
     if (m_playlist)
@@ -336,6 +455,26 @@ void Player::stateChanged(Phonon::State state)
 void Player::changeAspectRatio(QAction *action)
 {
     setAspectRatio(static_cast<AspectRatio>(action->data().toInt()));
+}
+
+void Player::changeChapter(QAction *action)
+{
+    m_mediaController->setCurrentChapter(action->data().toInt());
+}
+
+void Player::changeAudioChannel(QAction *action)
+{
+    m_mediaController->setCurrentAudioChannel(m_mediaController->availableAudioChannels().at(action->data().toInt()));
+}
+
+void Player::changeSubtitles(QAction *action)
+{
+    m_mediaController->setCurrentSubtitle(m_mediaController->availableSubtitles().at(action->data().toInt()));
+}
+
+void Player::changeAngle(QAction *action)
+{
+    m_mediaController->setCurrentAngle(action->data().toInt());
 }
 
 void Player::changePlaybackMode(QAction *action)

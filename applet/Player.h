@@ -24,6 +24,7 @@
 #include <QtCore/QObject>
 #include <QtGui/QAction>
 #include <QtGui/QSlider>
+#include <QtGui/QActionGroup>
 
 #include <KUrl>
 
@@ -36,7 +37,7 @@
 namespace MiniPlayer
 {
 
-enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VolumeAction, AudioMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, VideoPropepertiesMenu, AspectRatioMenuAction, FullScreenAction, PlaybackModeMenuAction };
+enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, NavigationMenuAction, ChapterMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VolumeAction, AudioMenuAction, AudioChannelMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, VideoPropepertiesMenu, AspectRatioMenuAction, SubtitleMenuAction, AngleMenuAction, FullScreenAction, PlaybackModeMenuAction };
 enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
 enum PlaybackMode { SequentialMode = 0, LoopTrackMode = 1, LoopPlaylistMode = 2, RandomMode = 3 };
 enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio = 3 };
@@ -109,10 +110,18 @@ class Player : public QObject
         void volumeChanged(qreal volume = -1);
         void videoChanged();
         void mediaChanged();
+        void availableChaptersChanged();
+        void availableAudioChannelsChanged();
+        void availableSubtitlesChanged();
+        void availableAnglesChanged();
         void currentTrackChanged(int track, bool play = false);
         void stateChanged(Phonon::State state);
         void changePlaybackMode(QAction *action);
         void changeAspectRatio(QAction *action);
+        void changeChapter(QAction *action);
+        void changeAudioChannel(QAction *action);
+        void changeSubtitles(QAction *action);
+        void changeAngle(QAction *action);
         void trackFinished();
         void updateSliders();
 
@@ -130,6 +139,10 @@ class Player : public QObject
         QSlider *m_contrastSlider;
         QSlider *m_hueSlider;
         QSlider *m_saturationSlider;
+        QActionGroup *m_chaptersGroup;
+        QActionGroup *m_audioChannelGroup;
+        QActionGroup *m_subtitlesGroup;
+        QActionGroup *m_anglesGroup;
         QHash<PlayerAction, QAction*> m_actions;
         PlaybackMode m_playbackMode;
         AspectRatio m_aspectRatio;
