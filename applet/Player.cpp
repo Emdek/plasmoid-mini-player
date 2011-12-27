@@ -297,11 +297,11 @@ void Player::playPause()
 {
     if (state() == PlayingState)
     {
-        play();
+        pause();
     }
     else
     {
-        pause();
+        play();
     }
 }
 
