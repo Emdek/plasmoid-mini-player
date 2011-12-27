@@ -23,10 +23,14 @@
 
 #include <QtCore/QObject>
 #include <QtGui/QAction>
-#include <QtMultimediaKit/QMediaPlayer>
-#include <QtMultimediaKit/QVideoWidget>
 
 #include <KUrl>
+
+#include <Phonon/AudioOutput>
+#include <Phonon/MediaObject>
+#include <Phonon/MediaSource>
+#include <Phonon/VideoWidget>
+#include <Phonon/MediaController>
 
 namespace MiniPlayer
 {
@@ -49,7 +53,7 @@ class Player : public QObject
 
         void registerAppletVideoWidget(VideoWidget *videoWidget);
         void registerDialogVideoWidget(VideoWidget *videoWidget);
-        void registerFullScreenVideoWidget(QVideoWidget *videoWidget);
+        void registerFullScreenVideoWidget(QWidget *videoWidget);
         QString errorString() const;
         QString title() const;
         MetaDataManager* metaDataManager();
@@ -90,25 +94,27 @@ class Player : public QObject
         void setFullScreen(bool enable);
 
     protected:
-        PlayerState translateState(QMediaPlayer::State state) const;
+        PlayerState translateState(Phonon::State state) const;
 
     protected slots:
-        void volumeChanged();
+        void volumeChanged(qreal volume = -1);
         void videoChanged();
         void mediaChanged();
         void currentTrackChanged(int track, bool play = false);
-        void stateChanged(QMediaPlayer::State state);
-        void errorOccured(QMediaPlayer::Error error);
+        void stateChanged(Phonon::State state);
         void changePlaybackMode(QAction *action);
         void changeAspectRatio(QAction *action);
 
     private:
-        QMediaPlayer *m_player;
+        Phonon::MediaObject *m_mediaObject;
+        Phonon::MediaController *m_mediaController;
+        Phonon::AudioOutput *m_audioOutput;
+        Phonon::VideoWidget *m_videoWidget;
         MetaDataManager *m_metaDataManager;
         PlaylistModel *m_playlist;
         VideoWidget *m_appletVideoWidget;
         VideoWidget *m_dialogVideoWidget;
-        QVideoWidget *m_fullScreenVideoWidget;
+        QWidget *m_fullScreenVideoWidget;
         QHash<PlayerAction, QAction*> m_actions;
         PlaybackMode m_playbackMode;
         AspectRatio m_aspectRatio;

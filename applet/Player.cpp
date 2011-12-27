@@ -23,6 +23,8 @@
 #include "PlaylistModel.h"
 #include "VideoWidget.h"
 
+#include <QtCore/QFileInfo>
+#include <QtGui/QLayout>
 #include <QtGui/QActionGroup>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
@@ -35,7 +37,10 @@ namespace MiniPlayer
 {
 
 Player::Player(QObject *parent) : QObject(parent),
-    m_player(new QMediaPlayer(this)),
+    m_mediaObject(new Phonon::MediaObject(this)),
+    m_mediaController(new Phonon::MediaController(m_mediaObject)),
+    m_audioOutput(new Phonon::AudioOutput(this)),
+    m_videoWidget(new Phonon::VideoWidget()),
     m_metaDataManager(new MetaDataManager(this)),
     m_playlist(NULL),
     m_appletVideoWidget(NULL),
@@ -47,6 +52,15 @@ Player::Player(QObject *parent) : QObject(parent),
     m_fullScreenMode(false),
     m_manualStop(false)
 {
+    m_mediaObject->setTickInterval(100);
+
+    m_videoWidget->setScaleMode(Phonon::VideoWidget::FitInView);
+    m_videoWidget->setWindowIcon(KIcon("applications-multimedia"));
+    m_videoWidget->setAcceptDrops(true);
+
+    Phonon::createPath(m_mediaObject, m_videoWidget);
+    Phonon::createPath(m_mediaObject, m_audioOutput);
+
     m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
     m_actions[OpenMenuAction]->setMenu(new KMenu());
     m_actions[OpenFileAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("document-open"), i18n("Open File"));
@@ -150,26 +164,29 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_actions[PlayPauseAction], SIGNAL(triggered()), this, SLOT(playPause()));
     connect(m_actions[StopAction], SIGNAL(triggered()), this, SLOT(stop()));
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
-    connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(stateChanged(QMediaPlayer::State)));
-    connect(m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(errorOccured(QMediaPlayer::Error)));
-    connect(m_player, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
-    connect(m_player, SIGNAL(durationChanged(qint64)), this, SIGNAL(durationChanged(qint64)));
-    connect(m_player, SIGNAL(volumeChanged(int)), this, SIGNAL(volumeChanged(int)));
-    connect(m_player, SIGNAL(volumeChanged(int)), this, SLOT(volumeChanged()));
-    connect(m_player, SIGNAL(mutedChanged(bool)), this, SIGNAL(audioMutedChanged(bool)));
-    connect(m_player, SIGNAL(mutedChanged(bool)), this, SLOT(volumeChanged()));
-    connect(m_player, SIGNAL(audioAvailableChanged(bool)), this, SIGNAL(audioAvailableChanged(bool)));
-    connect(m_player, SIGNAL(audioAvailableChanged(bool)), this, SLOT(volumeChanged()));
-    connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SIGNAL(videoAvailableChanged(bool)));
-    connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(videoChanged()));
-    connect(m_player, SIGNAL(videoAvailableChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
-    connect(m_player, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
-    connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+    connect(m_mediaObject, SIGNAL(stateChanged(Phonon::State,Phonon::State)), this, SLOT(stateChanged(Phonon::State)));
+    connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
+    connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SIGNAL(durationChanged(qint64)));
+    connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), this, SIGNAL(videoAvailableChanged(bool)));
+    connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), this, SLOT(videoChanged()));
+    connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
+    connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
+    connect(m_mediaObject, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+    connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
+    connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged()));
+    connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SIGNAL(audioMutedChanged(bool)));
+    connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(volumeChanged()));
+    connect(this, SIGNAL(destroyed()), m_videoWidget, SLOT(deleteLater()));
 }
 
-void Player::volumeChanged()
+void Player::volumeChanged(qreal volume)
 {
     KIcon icon;
+
+    if (volume >= 0)
+    {
+        emit volumeChanged(volume * 100);
+    }
 
     if (isAudioMuted())
     {
@@ -179,13 +196,13 @@ void Player::volumeChanged()
     }
     else
     {
-        m_actions[VolumeAction]->setText(i18n("Volume: %1%", volume()));
+        m_actions[VolumeAction]->setText(i18n("Volume: %1%", this->volume()));
 
-        if (volume() > 65)
+        if (this->volume() > 65)
         {
             icon = KIcon("audio-volume-high");
         }
-        else if (volume() < 35)
+        else if (this->volume() < 35)
         {
             icon = KIcon("audio-volume-low");
         }
@@ -212,11 +229,11 @@ void Player::videoChanged()
     }
     else
     {
-        m_appletVideoWidget->showVideo(false);
+        m_appletVideoWidget->setVideoWidget(NULL);
 
         if (m_dialogVideoWidget)
         {
-            m_dialogVideoWidget->showVideo(false);
+            m_dialogVideoWidget->setVideoWidget(NULL);
         }
     }
 }
@@ -238,7 +255,7 @@ void Player::currentTrackChanged(int track, bool play)
 {
     if (m_playlist)
     {
-        m_player->setMedia(QMediaContent(m_playlist->track(track)));
+        m_mediaObject->setCurrentSource(Phonon::MediaSource(m_playlist->track(track)));
 
         if (play)
         {
@@ -247,7 +264,7 @@ void Player::currentTrackChanged(int track, bool play)
     }
 }
 
-void Player::stateChanged(QMediaPlayer::State state)
+void Player::stateChanged(Phonon::State state)
 {
     mediaChanged();
 
@@ -263,17 +280,14 @@ void Player::stateChanged(QMediaPlayer::State state)
         m_manualStop = false;
     }
 
-    emit translateState(state);
-}
-
-void Player::errorOccured(QMediaPlayer::Error error)
-{
-    if (error != QMediaPlayer::NoError)
+    if (state == Phonon::ErrorState && m_mediaObject->errorType() != Phonon::NoError)
     {
-        KMessageBox::error(NULL, m_player->media().canonicalUrl().toString().replace("%20", " ") + "\n\n" + m_player->errorString());
+        KMessageBox::error(NULL, m_mediaObject->currentSource().url().toString().replace("%20", " ") + "\n\n" + m_mediaObject->errorString());
 
-        emit errorOccured(m_player->errorString());
+        emit errorOccured(m_mediaObject->errorString());
     }
+
+    emit translateState(state);
 }
 
 void Player::changeAspectRatio(QAction *action)
@@ -300,7 +314,7 @@ void Player::registerDialogVideoWidget(VideoWidget *videoWidget)
     setVideoMode(m_videoMode);
 }
 
-void Player::registerFullScreenVideoWidget(QVideoWidget *videoWidget)
+void Player::registerFullScreenVideoWidget(QWidget *videoWidget)
 {
     m_fullScreenVideoWidget = videoWidget;
     m_fullScreenVideoWidget->installEventFilter(this);
@@ -328,7 +342,7 @@ void Player::decreaseVolume()
 
 void Player::play()
 {
-    m_player->play();
+    m_mediaObject->play();
 }
 
 void Player::play(int index)
@@ -337,7 +351,7 @@ void Player::play(int index)
     {
         m_playlist->setCurrentTrack(index);
 
-        m_player->play();
+        m_mediaObject->play();
     }
 }
 
@@ -355,14 +369,14 @@ void Player::playPause()
 
 void Player::pause()
 {
-    m_player->pause();
+    m_mediaObject->pause();
 }
 
 void Player::stop()
 {
     m_manualStop = true;
 
-    m_player->stop();
+    m_mediaObject->stop();
 }
 
 void Player::playPrevious()
@@ -409,17 +423,17 @@ void Player::setPlaylist(PlaylistModel *playlist)
 
 void Player::setPosition(qint64 position)
 {
-    m_player->setPosition(position);
+    m_mediaObject->seek(position);
 }
 
 void Player::setVolume(int volume)
 {
-    m_player->setVolume(volume);
+    m_audioOutput->setVolume((qreal) volume / 100);
 }
 
 void Player::setAudioMuted(bool muted)
 {
-    m_player->setMuted(muted);
+    m_audioOutput->setMuted(muted);
 }
 
 void Player::setPlaybackMode(PlaybackMode mode)
@@ -443,17 +457,19 @@ void Player::setAspectRatio(AspectRatio ratio)
     switch (ratio)
     {
         case Ratio4_3:
-//         m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio4_3);
+            m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio4_3);
         break;
         case Ratio16_9:
-//         m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
+            m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
+        break;
         case FitToRatio:
-//         m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioWidget);
+            m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioWidget);
         break;
         default:
-//         m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
+            m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
 
             ratio = AutomaticRatio;
+        break;
     }
 
     m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(ratio))->setChecked(true);
@@ -467,35 +483,36 @@ void Player::setVideoMode(bool mode)
 
     if (m_fullScreenMode && m_fullScreenVideoWidget)
     {
-        m_player->setVideoOutput(m_fullScreenVideoWidget);
-
-        m_appletVideoWidget->showVideo(false);
+        m_appletVideoWidget->setVideoWidget(NULL);
 
         if (m_dialogVideoWidget)
         {
-            m_dialogVideoWidget->showVideo(true);
+            m_dialogVideoWidget->setVideoWidget(NULL);
         }
+
+        m_fullScreenVideoWidget->layout()->addWidget(m_videoWidget);
     }
     else
     {
+        if (m_fullScreenVideoWidget)
+        {
+            m_fullScreenVideoWidget->layout()->removeWidget(m_videoWidget);
+        }
+
         if (m_videoMode)
         {
-            m_player->setVideoOutput(m_appletVideoWidget->videoItem());
-
-            m_appletVideoWidget->showVideo(true);
-
             if (m_dialogVideoWidget)
             {
-                m_dialogVideoWidget->showVideo(false);
+                m_dialogVideoWidget->setVideoWidget(NULL);
             }
+
+            m_appletVideoWidget->setVideoWidget(m_videoWidget);
         }
         else if (m_dialogVideoWidget)
         {
-            m_player->setVideoOutput(m_dialogVideoWidget->videoItem());
+            m_appletVideoWidget->setVideoWidget(NULL);
 
-            m_appletVideoWidget->showVideo(false);
-
-            m_dialogVideoWidget->showVideo(true);
+            m_dialogVideoWidget->setVideoWidget(m_videoWidget);
         }
     }
 
@@ -514,12 +531,21 @@ void Player::setFullScreen(bool enable)
 
 QString Player::errorString() const
 {
-    return m_player->errorString();
+    return m_mediaObject->errorString();
 }
 
 QString Player::title() const
 {
-    return m_player->metaData(QtMultimediaKit::Title).toString();
+    QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
+
+    if (titles.isEmpty() || titles.first().isEmpty())
+    {
+        return QFileInfo(m_mediaObject->currentSource().url().toString()).completeBaseName().replace("%20", " ");
+    }
+    else
+    {
+        return titles.first();
+    }
 }
 
 MetaDataManager* Player::metaDataManager()
@@ -539,27 +565,27 @@ QAction* Player::action(PlayerAction action) const
 
 KUrl Player::url() const
 {
-    return m_player->media().canonicalUrl();
+    return KUrl(m_mediaObject->currentSource().url());
 }
 
 qint64 Player::duration() const
 {
-    return m_player->duration();
+    return m_mediaObject->totalTime();
 }
 
 qint64 Player::position() const
 {
-    return m_player->position();
+    return m_mediaObject->currentTime();
 }
 
-PlayerState Player::translateState(QMediaPlayer::State state) const
+PlayerState Player::translateState(Phonon::State state) const
 {
     switch (state)
     {
-        case QMediaPlayer::PlayingState:
+        case Phonon::PlayingState:
             return PlayingState;
         break;
-        case QMediaPlayer::PausedState:
+        case Phonon::PausedState:
             return PausedState;
         break;
         default:
@@ -580,32 +606,32 @@ AspectRatio Player::aspectRatio() const
 
 PlayerState Player::state() const
 {
-    return translateState(m_player->state());
+    return translateState(m_mediaObject->state());
 }
 
 int Player::volume() const
 {
-    return m_player->volume();
+    return (m_audioOutput->volume() * 100);
 }
 
 bool Player::isAudioMuted() const
 {
-    return m_player->isMuted();
+    return m_audioOutput->isMuted();
 }
 
 bool Player::isAudioAvailable() const
 {
-    return m_player->isAudioAvailable();
+    return (state() != StoppedState);
 }
 
 bool Player::isVideoAvailable() const
 {
-    return m_player->isVideoAvailable();
+    return m_mediaObject->hasVideo();
 }
 
 bool Player::isSeekable() const
 {
-    return m_player->isSeekable();
+    return m_mediaObject->isSeekable();
 }
 
 bool Player::eventFilter(QObject *object, QEvent *event)

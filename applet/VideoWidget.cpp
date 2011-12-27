@@ -28,8 +28,7 @@
 namespace MiniPlayer
 {
 
-VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsWidget(parent),
-   m_videoItem(new QGraphicsVideoItem(this)),
+VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsProxyWidget(parent),
    m_pixmapItem(new QGraphicsPixmapItem(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous), this))
 {
     QPalette palette = this->palette();
@@ -41,43 +40,31 @@ VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsWidget(parent),
     setAcceptHoverEvents(true);
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    m_videoItem->setPos(14, 14);
-    m_videoItem->setSize(size());
-
     m_pixmapItem->setTransformationMode(Qt::SmoothTransformation);
-
-    showVideo(true);
 }
 
 void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-    m_videoItem->setSize(event->newSize());
-
     qreal scale = qMin(event->newSize().width(), event->newSize().height()) / m_pixmapItem->pixmap().width();
 
     m_pixmapItem->setScale(scale);
     m_pixmapItem->setPos(((event->newSize().width() - (m_pixmapItem->boundingRect().width() * scale)) / 2), ((event->newSize().height() - (m_pixmapItem->boundingRect().height() * scale)) / 2));
 }
 
-void VideoWidget::showVideo(bool show)
+void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget)
 {
-    m_videoItem->setVisible(show);
+    m_pixmapItem->setVisible(videoWidget == NULL);
 
-    m_pixmapItem->setVisible(!show);
-
-    if (show)
+    if (videoWidget)
     {
-        setGraphicsItem(m_videoItem);
+        setGraphicsItem(NULL);
+        setWidget(videoWidget);
     }
     else
     {
+        setWidget(NULL);
         setGraphicsItem(m_pixmapItem);
     }
-}
-
-QGraphicsVideoItem* VideoWidget::videoItem()
-{
-    return m_videoItem;
 }
 
 }

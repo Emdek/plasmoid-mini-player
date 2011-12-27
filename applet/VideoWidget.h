@@ -21,16 +21,17 @@
 #ifndef MINIPLAYERVIDEOWIDGET_HEADER
 #define MINIPLAYERVIDEOWIDGET_HEADER
 
-#include <QtGui/QGraphicsWidget>
 #include <QtGui/QGraphicsPixmapItem>
-#include <QtMultimediaKit/QGraphicsVideoItem>
+#include <QtGui/QGraphicsProxyWidget>
+
+#include <Phonon/VideoWidget>
 
 namespace MiniPlayer
 {
 
 class Player;
 
-class VideoWidget : public QGraphicsWidget
+class VideoWidget : public QGraphicsProxyWidget
 {
     Q_OBJECT
 
@@ -38,14 +39,12 @@ class VideoWidget : public QGraphicsWidget
         VideoWidget(QGraphicsWidget *parent);
 
     protected slots:
-        void showVideo(bool show);
+        void setVideoWidget(Phonon::VideoWidget *videoWidget);
 
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
-        QGraphicsVideoItem* videoItem();
 
     private:
-        QGraphicsVideoItem *m_videoItem;
         QGraphicsPixmapItem *m_pixmapItem;
 
     friend class Player;

@@ -23,10 +23,11 @@
 
 #include <QtCore/QQueue>
 #include <QtCore/QObject>
-#include <QtMultimediaKit/QMediaPlayer>
 
 #include <KUrl>
 #include <KIcon>
+
+#include <Phonon/MediaObject>
 
 namespace MiniPlayer
 {
@@ -55,7 +56,7 @@ class MetaDataManager : public QObject
         void timerEvent(QTimerEvent *event);
 
     private:
-        QMediaPlayer *m_mediaPlayer;
+        Phonon::MediaObject *m_mediaObject;
         QHash<KUrl, QPair<QString, qint64> > m_tracks;
         QQueue<QPair<KUrl, int> > m_queue;
         int m_resolveMedia;

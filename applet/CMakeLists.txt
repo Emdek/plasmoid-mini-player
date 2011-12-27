@@ -1,7 +1,6 @@
 project(miniplayer)
 
 find_package(KDE4 REQUIRED)
-find_package(QtMultimediaKit REQUIRED)
 include(KDE4Defaults)
 
 add_definitions (${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
@@ -22,9 +21,9 @@ QT4_ADD_DBUS_ADAPTOR(miniplayer_SRCS dbus/org.freedesktop.MediaPlayer.tracklist.
 kde4_add_ui_files(miniplayer_SRCS ui/general.ui ui/controls.ui ui/jumpToPosition.ui ui/playlist.ui ui/fullScreen.ui ui/volume.ui)
 kde4_add_plugin(plasma_applet_miniplayer ${miniplayer_SRCS})
 target_link_libraries(plasma_applet_miniplayer
-                      ${QT_MOBILITY_MULTIMEDIA_LIBRARY}
                       ${QT_QTDBUS_LIBRARY}
                       ${KDE4_PLASMA_LIBS}
+                      ${KDE4_PHONON_LIBS}
                       ${KDE4_SOLID_LIBS}
                       ${KDE4_KDEUI_LIBS}
                       ${KDE4_KIO_LIBS}

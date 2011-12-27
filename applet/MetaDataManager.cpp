@@ -28,13 +28,11 @@ namespace MiniPlayer
 {
 
 MetaDataManager::MetaDataManager(QObject *parent) : QObject(parent),
-    m_mediaPlayer(new QMediaPlayer(this)),
+    m_mediaObject(new Phonon::MediaObject(this)),
     m_resolveMedia(0),
     m_attempts(0)
 {
-    m_mediaPlayer->setMuted(true);
-
-    connect(m_mediaPlayer, SIGNAL(durationChanged(qint64)), this, SLOT(resolveMetaData()));
+    connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SLOT(resolveMetaData()));
 }
 
 void MetaDataManager::timerEvent(QTimerEvent *event)
@@ -52,31 +50,35 @@ void MetaDataManager::resolveMetaData()
 
     killTimer(m_resolveMedia);
 
-    if (m_mediaPlayer->media().canonicalUrl().isValid())
+    if (m_mediaObject->currentSource().type() != Phonon::MediaSource::Invalid)
     {
-        QString title = m_mediaPlayer->metaData(QtMultimediaKit::Title).toString();
-        const qint64 duration = m_mediaPlayer->duration();
+        const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
+        QString title = (titles.isEmpty()?QString():titles.first());
+        const qint64 duration = m_mediaObject->totalTime();
 
-        m_mediaPlayer->stop();
+        m_mediaObject->stop();
 
         if ((title.isEmpty() || duration < 1) && m_attempts < 4)
         {
             ++m_attempts;
 
-            m_queue.insert(m_attempts, qMakePair(KUrl(m_mediaPlayer->media().canonicalUrl()), m_attempts));
+            m_queue.insert(m_attempts, qMakePair(KUrl(m_mediaObject->currentSource().url()), m_attempts));
         }
         else
         {
             if (title.isEmpty())
             {
-                title = QFileInfo(m_mediaPlayer->media().canonicalUrl().toString()).completeBaseName().replace("%20", " ");
+                title = QFileInfo(m_mediaObject->currentSource().url().toString()).completeBaseName().replace("%20", " ");
             }
 
-            setMetaData(m_mediaPlayer->media().canonicalUrl(), title, duration);
+            setMetaData(m_mediaObject->currentSource().url(), title, duration);
 
-            emit urlChanged(m_mediaPlayer->media().canonicalUrl());
+            emit urlChanged(m_mediaObject->currentSource().url());
         }
     }
+
+    m_mediaObject->deleteLater();
+    m_mediaObject = new Phonon::MediaObject(this);
 
     while (!m_queue.isEmpty())
     {
@@ -89,15 +91,15 @@ void MetaDataManager::resolveMetaData()
 
         m_attempts = track.second;
 
-        m_mediaPlayer->setMedia(QMediaContent(track.first));
-        m_mediaPlayer->play();
+        m_mediaObject->setCurrentSource(Phonon::MediaSource(track.first));
+        m_mediaObject->play();
 
         m_resolveMedia = startTimer(200);
 
         return;
     }
 
-    m_mediaPlayer->setMedia(QMediaContent());
+    m_mediaObject->setCurrentSource(Phonon::MediaSource());
 }
 
 void MetaDataManager::addTracks(const KUrl::List &urls)
@@ -107,7 +109,7 @@ void MetaDataManager::addTracks(const KUrl::List &urls)
         m_queue.append(qMakePair(urls.at(i), 0));
     }
 
-    if (!m_mediaPlayer->media().canonicalUrl().isValid())
+    if (!m_mediaObject->currentSource().url().isValid())
     {
         resolveMetaData();
     }
@@ -140,31 +142,34 @@ void MetaDataManager::setMetaData(const QHash<KUrl, QPair<QString, qint64> > &me
 
 QVariantMap MetaDataManager::metaData(const KUrl &url)
 {
-    QMediaPlayer *mediaPlayer = new QMediaPlayer(this);
-    mediaPlayer->setMedia(QMediaContent(url));
+    Phonon::MediaObject *mediaObject = new Phonon::MediaObject(this);
+    mediaObject->setCurrentSource(Phonon::MediaSource(url));
 
     QVariantMap metaData;
-    QStringList keys = mediaPlayer->availableExtendedMetaData();
+    QMultiMap<QString, QString> stringMap = mediaObject->metaData();
+    QMultiMap<QString, QString>::const_iterator i = stringMap.constBegin();
 
-    for (int i = 0; i < keys.count(); ++i)
+    while (i != stringMap.constEnd())
     {
         bool number = false;
-        int value = mediaPlayer->extendedMetaData(keys.at(i)).toInt(&number);
+        int value = i.value().toInt(&number);
 
-        if (number && (keys.at(i).toLower() != "tracknumber"))
+        if (number && (i.key().toLower() != "tracknumber"))
         {
-            metaData[keys.at(i).toLower()] = value;
+            metaData[i.key().toLower()] = value;
         }
         else
         {
-            metaData[keys.at(i).toLower()] = mediaPlayer->extendedMetaData(keys.at(i));
+            metaData[i.key().toLower()] = QVariant(i.value());
         }
+
+        ++i;
     }
 
-    metaData["time"] = ((mediaPlayer->duration() > 0)?(mediaPlayer->duration() / 1000):-1);
+    metaData["time"] = ((mediaObject->totalTime() > 0)?(mediaObject->totalTime() / 1000):-1);
     metaData["location"] = url.pathOrUrl();
 
-    mediaPlayer->deleteLater();
+    mediaObject->deleteLater();
 
     return metaData;
 }
