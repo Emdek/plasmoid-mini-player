@@ -767,7 +767,7 @@ void Applet::openFiles()
 
     config().writeEntry("directory", QFileInfo(urls.at(0).toLocalFile()).absolutePath());
 
-    m_playlistManager->addTracks(urls, -1, (sender() == m_player->action(OpenFileAction)));
+    m_playlistManager->addTracks(urls, -1, !m_playlistManager->isDialogVisible());
 
     emit configNeedsSaving();
 }
