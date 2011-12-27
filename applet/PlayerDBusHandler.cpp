@@ -24,7 +24,6 @@
 #include "MetaDataManager.h"
 
 #include <QtDBus/QDBusConnection>
-#include <QtMultimediaKit/QMediaPlaylist>
 
 QDBusArgument &operator << (QDBusArgument &argument, const DBusStatus &status)
 {

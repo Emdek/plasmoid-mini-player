@@ -20,6 +20,7 @@
 
 #include "Player.h"
 #include "MetaDataManager.h"
+#include "PlaylistModel.h"
 
 #include <QtGui/QActionGroup>
 
@@ -34,6 +35,7 @@ namespace MiniPlayer
 Player::Player(QObject *parent) : QObject(parent),
     m_player(new QMediaPlayer(this)),
     m_metaDataManager(new MetaDataManager(this)),
+    m_playlist(NULL),
     m_playbackMode(),
     m_aspectRatio(AutomaticRatio)
 {
@@ -305,7 +307,7 @@ void Player::playNext()
     }
 }
 
-void Player::setPlaylist(QMediaPlaylist *playlist)
+void Player::setPlaylist(PlaylistModel *playlist)
 {
     if (m_player->playlist())
     {
@@ -314,13 +316,15 @@ void Player::setPlaylist(QMediaPlaylist *playlist)
         disconnect(m_player->playlist(), SIGNAL(mediaRemoved(int,int)), this, SLOT(mediaChanged()));
     }
 
-    m_player->setPlaylist(playlist);
+    m_playlist = playlist;
+
+    m_player->setPlaylist(playlist->playlist());
 
     setPlaybackMode(m_playbackMode);
 
-    connect(playlist, SIGNAL(mediaChanged(int,int)), this, SLOT(mediaChanged()));
-    connect(playlist, SIGNAL(mediaInserted(int,int)), this, SLOT(mediaChanged()));
-    connect(playlist, SIGNAL(mediaRemoved(int,int)), this, SLOT(mediaChanged()));
+    connect(playlist->playlist(), SIGNAL(mediaChanged(int,int)), this, SLOT(mediaChanged()));
+    connect(playlist->playlist(), SIGNAL(mediaInserted(int,int)), this, SLOT(mediaChanged()));
+    connect(playlist->playlist(), SIGNAL(mediaRemoved(int,int)), this, SLOT(mediaChanged()));
 }
 
 void Player::setPosition(qint64 position)
@@ -406,9 +410,9 @@ MetaDataManager* Player::metaDataManager()
     return m_metaDataManager;
 }
 
-QMediaPlaylist* Player::playlist() const
+PlaylistModel* Player::playlist() const
 {
-    return m_player->playlist();
+    return m_playlist;
 }
 
 QAction* Player::action(PlayerAction action) const

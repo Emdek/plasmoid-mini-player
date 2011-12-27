@@ -280,7 +280,7 @@ void Applet::init()
     m_player->setVolume(config().readEntry("volume", 50));
     m_player->setAudioMuted(config().readEntry("muted", false));
 
-    if (m_player->playlist() && m_player->playlist()->mediaCount())
+    if (m_player->playlist() && m_player->playlist()->trackCount())
     {
         KUrl currentTrack;
 
@@ -290,14 +290,14 @@ void Applet::init()
         {
             if (!currentTrack.isValid())
             {
-                currentTrack = KUrl(m_player->playlist()->media(0).canonicalUrl());
+                currentTrack = m_player->playlist()->track(0);
             }
 
             int index = -1;
 
-            for (int i = 0; i < m_player->playlist()->mediaCount(); ++i)
+            for (int i = 0; i < m_player->playlist()->trackCount(); ++i)
             {
-                if (currentTrack == KUrl(m_player->playlist()->media(i).canonicalUrl()))
+                if (currentTrack == m_player->playlist()->track(i))
                 {
                     index = i;
 
@@ -432,14 +432,12 @@ void Applet::configSave()
 
     for (int i = 0; i < playlists.count(); ++i)
     {
-        for (int j = 0; j < playlists[i]->playlist()->mediaCount(); ++j)
+        for (int j = 0; j < playlists[i]->trackCount(); ++j)
         {
-            KUrl url(playlists[i]->playlist()->media(j).canonicalUrl());
-
-            if (m_player->metaDataManager()->available(url))
+            if (m_player->metaDataManager()->available(playlists[i]->track(j)))
             {
-                titles.append(m_player->metaDataManager()->title(url));
-                durations.append(QString::number(m_player->metaDataManager()->duration(url)));
+                titles.append(m_player->metaDataManager()->title(playlists[i]->track(j)));
+                durations.append(QString::number(m_player->metaDataManager()->duration(playlists[i]->track(j))));
             }
             else
             {
@@ -447,7 +445,7 @@ void Applet::configSave()
                 durations.append(QString("-1"));
             }
 
-            urls.append(url.pathOrUrl());
+            urls.append(playlists[i]->track(j).pathOrUrl());
         }
 
         KConfigGroup playlistConfiguration = playlistsConfiguration.group(QString::number(i));

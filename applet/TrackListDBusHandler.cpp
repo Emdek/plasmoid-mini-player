@@ -20,11 +20,11 @@
 
 #include "TrackListDBusHandler.h"
 #include "TrackListAdaptor.h"
-#include "Applet.h"
+#include "Player.h"
 #include "MetaDataManager.h"
+#include "PlaylistModel.h"
 
 #include <QtCore/QList>
-#include <QtMultimediaKit/QMediaPlaylist>
 
 #include <KUrl>
 
@@ -43,10 +43,9 @@ int TrackListDBusHandler::AddTrack(const QString &url, bool playImmediately)
 {
     if (KUrl(url).isValid())
     {
-///FIXME
-//         m_player->addToPlaylist(KUrl::List(KUrl(url)), playImmediately);
+        m_player->playlist()->addTracks(KUrl::List(KUrl(url)), -1, playImmediately);
 
-        emit TrackListChange(m_player->playlist()->mediaCount());
+        emit TrackListChange(m_player->playlist()->trackCount());
 
         return 0;
     }
@@ -58,32 +57,32 @@ int TrackListDBusHandler::AddTrack(const QString &url, bool playImmediately)
 
 void TrackListDBusHandler::DelTrack(int index)
 {
-    if (index < m_player->playlist()->mediaCount())
+    if (index < m_player->playlist()->trackCount())
     {
-        m_player->playlist()->removeMedia(index);
+        m_player->playlist()->removeTrack(index);
 
-        emit TrackListChange(m_player->playlist()->mediaCount());
+        emit TrackListChange(m_player->playlist()->trackCount());
     }
 }
 
 int TrackListDBusHandler::GetCurrentTrack()
 {
-    return m_player->playlist()->currentIndex();
+    return m_player->playlist()->currentTrack();
 }
 
 int TrackListDBusHandler::GetLength()
 {
-    return m_player->playlist()->mediaCount();
+    return m_player->playlist()->trackCount();
 }
 
 QVariantMap TrackListDBusHandler::GetMetadata(int position)
 {
-    if (position < 0 || position > (m_player->playlist()->mediaCount() - 1))
+    if (position < 0 || position > (m_player->playlist()->trackCount() - 1))
     {
         return QVariantMap();
     }
 
-    return m_player->metaDataManager()->metaData(m_player->playlist()->media(position).canonicalUrl());
+    return m_player->metaDataManager()->metaData(m_player->playlist()->track(position));
 }
 
 void TrackListDBusHandler::SetLoop(bool enable)

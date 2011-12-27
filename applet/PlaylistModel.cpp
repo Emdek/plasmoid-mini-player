@@ -37,10 +37,21 @@ PlaylistModel::PlaylistModel(Player *parent, const QString &title) : QAbstractTa
 {
     setSupportedDragActions(Qt::MoveAction);
 
+    connect(m_player->parent(), SIGNAL(resetModel()), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaChanged(int,int)), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaInserted(int,int)), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(mediaRemoved(int,int)), this, SIGNAL(layoutChanged()));
     connect(m_playlist, SIGNAL(currentIndexChanged(int)), this, SIGNAL(layoutChanged()));
+}
+
+void PlaylistModel::addTrack(int position, const KUrl &url)
+{
+    m_playlist->insertMedia(position, url);
+}
+
+void PlaylistModel::removeTrack(int position)
+{
+    m_playlist->removeMedia(position);
 }
 
 void PlaylistModel::addTracks(const KUrl::List &tracks, int index, bool play)
@@ -81,6 +92,16 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<
     m_player->metaDataManager()->setMetaData(metaData);
 
     emit needsSaving();
+}
+
+void PlaylistModel::clear()
+{
+    m_playlist->clear();
+}
+
+void PlaylistModel::shuffle()
+{
+    m_playlist->shuffle();
 }
 
 void PlaylistModel::sort(int column, Qt::SortOrder order)
@@ -172,7 +193,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole && index.column() == 0 && url.isValid())
     {
-        return ((m_player->playlist() == m_playlist && index.row() == m_playlist->currentIndex())?KIcon("media-playback-start"):m_player->metaDataManager()->icon(url));
+        return ((m_player->playlist() == this && index.row() == m_playlist->currentIndex())?KIcon("media-playback-start"):m_player->metaDataManager()->icon(url));
     }
     else if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
@@ -262,6 +283,21 @@ QMediaPlaylist* PlaylistModel::playlist()
 QStringList PlaylistModel::mimeTypes() const
 {
     return QStringList("text/uri-list");
+}
+
+KUrl PlaylistModel::track(int position) const
+{
+    return KUrl(m_playlist->media(position).canonicalUrl());
+}
+
+int PlaylistModel::currentTrack() const
+{
+    return m_playlist->currentIndex();
+}
+
+int PlaylistModel::trackCount() const
+{
+    return m_playlist->mediaCount();
 }
 
 int PlaylistModel::columnCount(const QModelIndex &index) const
@@ -381,6 +417,11 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
     emit needsSaving();
 
     return true;
+}
+
+bool PlaylistModel::isReadOnly() const
+{
+    return false;
 }
 
 }

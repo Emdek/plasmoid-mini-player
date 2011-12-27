@@ -37,6 +37,7 @@ enum PlaybackMode { SequentialMode = 0, LoopTrackMode = 1, LoopPlaylistMode = 2,
 enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio = 3 };
 
 class MetaDataManager;
+class PlaylistModel;
 
 class Player : public QObject
 {
@@ -48,7 +49,7 @@ class Player : public QObject
         QString errorString() const;
         QString title() const;
         MetaDataManager* metaDataManager();
-        QMediaPlaylist* playlist() const;
+        PlaylistModel* playlist() const;
         QAction* action(PlayerAction action) const;
         KUrl url() const;
         qint64 duration() const;
@@ -74,7 +75,7 @@ class Player : public QObject
         void stop();
         void playNext();
         void playPrevious();
-        void setPlaylist(QMediaPlaylist *playlist);
+        void setPlaylist(PlaylistModel *playlist);
         void setPosition(qint64 position);
         void setVolume(int volume);
         void setAudioMuted(bool muted);
@@ -95,6 +96,7 @@ class Player : public QObject
     private:
         QMediaPlayer *m_player;
         MetaDataManager *m_metaDataManager;
+        PlaylistModel *m_playlist;
         QHash<PlayerAction, QAction*> m_actions;
         PlaybackMode m_playbackMode;
         AspectRatio m_aspectRatio;

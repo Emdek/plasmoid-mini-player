@@ -41,6 +41,8 @@ class PlaylistModel : public QAbstractTableModel
     public:
         PlaylistModel(Player *parent, const QString &title);
 
+        void addTrack(int position, const KUrl &url);
+        void removeTrack(int position);
         void addTracks(const KUrl::List &tracks, int index = -1, bool play = false);
         void sort(int column, Qt::SortOrder order);
         void setTitle(const QString &title);
@@ -49,15 +51,25 @@ class PlaylistModel : public QAbstractTableModel
         QVariant data(const QModelIndex &index, int role) const;
         QVariant headerData(int section, Qt::Orientation orientation, int role) const;
         QMimeData* mimeData(const QModelIndexList &indexes) const;
-        QMediaPlaylist* playlist();
         Qt::ItemFlags flags(const QModelIndex &index) const;
         Qt::DropActions supportedDropActions() const;
+        KUrl track(int position) const;
+        int currentTrack() const;
+        int trackCount() const;
         int columnCount(const QModelIndex &index) const;
         int rowCount(const QModelIndex &index) const;
         bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
         bool dropMimeData(const QMimeData *mimeData, Qt::DropAction action, int row, int column, const QModelIndex &index);
         bool insertRows(int row, int count, const QModelIndex &index = QModelIndex());
         bool removeRows(int row, int count, const QModelIndex &index = QModelIndex());
+        bool isReadOnly() const;
+
+    public slots:
+        void clear();
+        void shuffle();
+
+    protected:
+        QMediaPlaylist* playlist();
 
     protected slots:
         void addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int index, bool play);
@@ -70,6 +82,8 @@ class PlaylistModel : public QAbstractTableModel
     signals:
         void needsSaving();
         void itemChanged(QModelIndex index);
+
+    friend class Player;
 };
 
 }
