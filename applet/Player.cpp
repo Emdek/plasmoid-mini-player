@@ -224,6 +224,7 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
     connect(m_hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
     connect(m_saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
+    connect(this, SIGNAL(audioAvailableChanged(bool)), this, SLOT(volumeChanged()));
     connect(this, SIGNAL(destroyed()), m_videoWidget, SLOT(deleteLater()));
 }
 
@@ -329,6 +330,7 @@ void Player::stateChanged(Phonon::State state)
     }
 
     emit translateState(state);
+    emit audioAvailableChanged(this->state() != StoppedState);
 }
 
 void Player::changeAspectRatio(QAction *action)
