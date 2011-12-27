@@ -235,6 +235,7 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         m_dialog->setContentsMargins(0, 0, 0, 0);
         m_dialog->adjustSize();
+        m_dialog->setMouseTracking(true);
         m_dialog->installEventFilter(m_player->parent());
 
         m_videoWidget = new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()));
