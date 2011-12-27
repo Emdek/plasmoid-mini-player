@@ -28,6 +28,8 @@
 namespace MiniPlayer
 {
 
+class Player;
+
 class VideoWidget : public QGraphicsWidget
 {
     Q_OBJECT
@@ -35,17 +37,18 @@ class VideoWidget : public QGraphicsWidget
     public:
         VideoWidget(QGraphicsWidget *parent);
 
-        QGraphicsVideoItem* videoItem();
-
     public slots:
         void showVideo(bool show);
 
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
+        QGraphicsVideoItem* videoItem();
 
     private:
         QGraphicsVideoItem *m_videoItem;
         QGraphicsPixmapItem *m_pixmapItem;
+
+    friend class Player;
 };
 
 }

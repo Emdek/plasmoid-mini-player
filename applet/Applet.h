@@ -90,7 +90,6 @@ class Applet : public Plasma::Applet
         void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
         void keyPressEvent(QKeyEvent *event);
         void timerEvent(QTimerEvent *event);
-        void updateVideoWidgets();
 
     private:
         Player *m_player;
@@ -112,7 +111,6 @@ class Applet : public Plasma::Applet
         int m_hideToolTip;
         int m_stopSleepCookie;
         bool m_updateToolTip;
-        bool m_videoMode;
         Ui::general m_generalUi;
         Ui::controls m_controlsUi;
         Ui::jumpToPosition m_jumpToPositionUi;

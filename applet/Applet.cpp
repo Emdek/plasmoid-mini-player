@@ -74,8 +74,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_hideFullScreenControls(0),
     m_showPlaylist(0),
     m_hideToolTip(0),
-    m_updateToolTip(false),
-    m_videoMode(false)
+    m_updateToolTip(false)
 {
     KGlobal::locale()->insertCatalog("miniplayer");
 
@@ -85,6 +84,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     setAcceptDrops(true);
 
     m_videoWidget->installEventFilter(this);
+
+    m_player->registerAppletVideoWidget(m_videoWidget);
 
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical, this);
     mainLayout->setSpacing(0);
@@ -267,7 +268,6 @@ void Applet::init()
         playMedia = false;
     }
 
-//     m_player->setVideoOutput(m_videoWidget->videoItem());
     m_player->setVolume(config().readEntry("volume", 50));
     m_player->setAudioMuted(config().readEntry("muted", false));
 
@@ -475,9 +475,7 @@ void Applet::configReset()
     m_controlsWidget->setVisible(visible);
     m_controlsWidget->setMaximumHeight(visible?-1:0);
 
-    m_videoMode = (!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
-
-    updateVideoWidgets();
+    m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
 
     m_player->setPlaybackMode(static_cast<PlaybackMode>(configuration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
     m_player->setAspectRatio(static_cast<AspectRatio>(configuration.readEntry("apectRatio", static_cast<int>(AutomaticRatio))));
@@ -520,11 +518,9 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 
 void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-    m_videoMode = (!m_controlsWidget->isVisible() || (event->newSize().height() - m_controlsWidget->size().height()) > 50);
+    m_player->setVideoMode(!m_controlsWidget->isVisible() || (event->newSize().height() - m_controlsWidget->size().height()) > 50);
 
     Plasma::Applet::resizeEvent(event);
-
-    updateVideoWidgets();
 }
 
 void Applet::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
@@ -693,8 +689,6 @@ void Applet::stateChanged(PlayerState state)
 
 void Applet::videoAvailableChanged(bool videoAvailable)
 {
-    updateVideoWidgets();
-
     if (!videoAvailable && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
     {
         toggleFullScreen();
@@ -848,6 +842,8 @@ void Applet::toggleFullScreen()
         m_fullScreenUi.fullScreenButton->setDefaultAction(m_player->action(FullScreenAction));
         m_fullScreenUi.videoOutputWidget->installEventFilter(this);
 
+        m_player->registerFullScreenVideoWidget(m_fullScreenUi.videoWidget);
+
         connect(this, SIGNAL(titleChanged(QString)), m_fullScreenUi.titleLabel, SLOT(setText(QString)));
         connect(this, SIGNAL(destroyed()), m_fullScreenWidget, SLOT(deleteLater()));
     }
@@ -856,6 +852,8 @@ void Applet::toggleFullScreen()
     {
         killTimer(m_hideFullScreenControls);
 
+        m_player->setFullScreen(false);
+
         m_fullScreenWidget->showNormal();
         m_fullScreenWidget->hide();
 
@@ -863,14 +861,12 @@ void Applet::toggleFullScreen()
         m_player->action(FullScreenAction)->setText(i18n("Full Screen Mode"));
 
         m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
-
-        updateVideoWidgets();
     }
     else
     {
         Plasma::ToolTipManager::self()->hide(this);
 
-//        m_player->setVideoOutput(m_fullScreenUi.videoWidget);
+        m_player->setFullScreen(true);
 
         m_fullScreenWidget->showFullScreen();
         m_fullScreenWidget->setWindowTitle(m_title);
@@ -898,25 +894,6 @@ void Applet::togglePlaylistDialog()
         m_playlistManager->setSplitterState(config().readEntry("playlistSplitter", QByteArray()));
         m_playlistManager->setHeaderState(config().readEntry("headerState", QByteArray()));
         m_playlistManager->showDialog(containment()->corona()->popupPosition(this, m_playlistManager->dialogSize(), Qt::AlignCenter));
-    }
-}
-
-void Applet::updateVideoWidgets()
-{
-    m_videoWidget->showVideo(m_videoMode && m_player->isVideoAvailable());
-
-    if (m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
-    {
-        return;
-    }
-
-    if (m_videoMode)
-    {
-//        m_player->setVideoOutput(m_videoWidget->videoItem());
-    }
-    else
-    {
-//        m_player->setVideoOutput(m_playlistUi.videoWidget);
     }
 }
 

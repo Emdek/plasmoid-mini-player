@@ -24,6 +24,7 @@
 #include <QtCore/QObject>
 #include <QtGui/QAction>
 #include <QtMultimediaKit/QMediaPlayer>
+#include <QtMultimediaKit/QVideoWidget>
 #include <QtMultimediaKit/QMediaPlaylist>
 
 #include <KUrl>
@@ -38,6 +39,7 @@ enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio =
 
 class MetaDataManager;
 class PlaylistModel;
+class VideoWidget;
 
 class Player : public QObject
 {
@@ -46,6 +48,9 @@ class Player : public QObject
     public:
         Player(QObject *parent = 0);
 
+        void registerAppletVideoWidget(VideoWidget *videoWidget);
+        void registerDialogVideoWidget(VideoWidget *videoWidget);
+        void registerFullScreenVideoWidget(QVideoWidget *videoWidget);
         QString errorString() const;
         QString title() const;
         MetaDataManager* metaDataManager();
@@ -81,6 +86,8 @@ class Player : public QObject
         void setAudioMuted(bool muted);
         void setPlaybackMode(PlaybackMode mode);
         void setAspectRatio(AspectRatio ratio);
+        void setVideoMode(bool mode);
+        void setFullScreen(bool enable);
 
     protected:
         PlayerState translateState(QMediaPlayer::State state) const;
@@ -97,9 +104,14 @@ class Player : public QObject
         QMediaPlayer *m_player;
         MetaDataManager *m_metaDataManager;
         PlaylistModel *m_playlist;
+        VideoWidget *m_appletVideoWidget;
+        VideoWidget *m_dialogVideoWidget;
+        QVideoWidget *m_fullScreenVideoWidget;
         QHash<PlayerAction, QAction*> m_actions;
         PlaybackMode m_playbackMode;
         AspectRatio m_aspectRatio;
+        bool m_videoMode;
+        bool m_fullScreenMode;
 
     signals:
         void configNeedsSaving();

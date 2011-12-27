@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "MetaDataManager.h"
 #include "PlaylistModel.h"
+#include "VideoWidget.h"
 
 #include <QtGui/QActionGroup>
 
@@ -36,8 +37,13 @@ Player::Player(QObject *parent) : QObject(parent),
     m_player(new QMediaPlayer(this)),
     m_metaDataManager(new MetaDataManager(this)),
     m_playlist(NULL),
+    m_appletVideoWidget(NULL),
+    m_dialogVideoWidget(NULL),
+    m_fullScreenVideoWidget(NULL),
     m_playbackMode(),
-    m_aspectRatio(AutomaticRatio)
+    m_aspectRatio(AutomaticRatio),
+    m_videoMode(false),
+    m_fullScreenMode(false)
 {
     m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
     m_actions[OpenMenuAction]->setMenu(new KMenu());
@@ -106,6 +112,7 @@ Player::Player(QObject *parent) : QObject(parent),
 
     m_actions[VideoMenuAction]->menu()->addSeparator();
     m_actions[FullScreenAction] = m_actions[VideoMenuAction]->menu()->addAction(KIcon("view-fullscreen"), i18n("Full Screen Mode"));
+    m_actions[FullScreenAction]->setEnabled(false);
     m_actions[FullScreenAction]->setShortcut(QKeySequence(Qt::Key_F));
 
     m_actions[PlaybackModeMenuAction] = new QAction(KIcon("edit-redo"), i18n("Playback Mode"), this);
@@ -228,6 +235,21 @@ void Player::changeAspectRatio(QAction *action)
 void Player::changePlaybackMode(QAction *action)
 {
     setPlaybackMode(static_cast<PlaybackMode>(action->data().toInt()));
+}
+
+void Player::registerAppletVideoWidget(VideoWidget *videoWidget)
+{
+    m_appletVideoWidget = videoWidget;
+}
+
+void Player::registerDialogVideoWidget(VideoWidget *videoWidget)
+{
+    m_dialogVideoWidget = videoWidget;
+}
+
+void Player::registerFullScreenVideoWidget(QVideoWidget *videoWidget)
+{
+    m_fullScreenVideoWidget = videoWidget;
 }
 
 void Player::seekBackward()
@@ -393,6 +415,52 @@ void Player::setAspectRatio(AspectRatio ratio)
     m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(ratio))->setChecked(true);
 
     emit configNeedsSaving();
+}
+
+void Player::setVideoMode(bool mode)
+{
+    m_videoMode = mode;
+
+    if (m_fullScreenMode && m_fullScreenVideoWidget)
+    {
+        m_player->setVideoOutput(m_fullScreenVideoWidget);
+
+        m_appletVideoWidget->showVideo(false);
+
+        if (m_dialogVideoWidget)
+        {
+            m_dialogVideoWidget->showVideo(true);
+        }
+    }
+    else
+    {
+        if (m_videoMode)
+        {
+            m_player->setVideoOutput(m_appletVideoWidget->videoItem());
+
+            m_appletVideoWidget->showVideo(true);
+
+            if (m_dialogVideoWidget)
+            {
+                m_dialogVideoWidget->showVideo(false);
+            }
+        }
+        else if (m_dialogVideoWidget)
+        {
+            m_player->setVideoOutput(m_dialogVideoWidget->videoItem());
+
+            m_appletVideoWidget->showVideo(false);
+
+            m_dialogVideoWidget->showVideo(true);
+        }
+    }
+}
+
+void Player::setFullScreen(bool enable)
+{
+    m_fullScreenMode = enable;
+
+    setVideoMode(m_videoMode);
 }
 
 QString Player::errorString() const

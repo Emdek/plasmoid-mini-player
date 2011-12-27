@@ -242,6 +242,8 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_videoWidget = new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()));
         m_videoWidget->showVideo(false);
 
+        m_player->registerDialogVideoWidget(m_videoWidget);
+
         m_playlistUi.graphicsView->setScene(new QGraphicsScene(this));
         m_playlistUi.graphicsView->scene()->addItem(m_videoWidget);
         m_playlistUi.graphicsView->centerOn(m_videoWidget);
@@ -590,8 +592,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
             menu.addSeparator();
 
-///FIXME use index
-            if (url == m_player->url())
+            if (m_playlists[visiblePlaylist()] == m_player->playlist() && index.row() == m_playlists[visiblePlaylist()]->currentTrack())
             {
                 menu.addAction(m_player->action(PlayPauseAction));
                 menu.addAction(m_player->action(StopAction));
