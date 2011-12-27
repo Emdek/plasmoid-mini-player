@@ -172,6 +172,21 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
     emit needsSaving();
 }
 
+void PlaylistModel::next()
+{
+    m_playlist->next();
+}
+
+void PlaylistModel::previous()
+{
+    m_playlist->previous();
+}
+
+void PlaylistModel::setCurrentTrack(int track)
+{
+    m_playlist->setCurrentIndex(track);
+}
+
 void PlaylistModel::setTitle(const QString &title)
 {
     m_title = title;

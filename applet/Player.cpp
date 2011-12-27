@@ -224,7 +224,7 @@ void Player::mediaChanged()
 {
     const PlayerState state = this->state();
     const bool playingOrPaused = (state == PlayingState || state == PausedState);
-    const bool hasTracks = (m_player->playlist() && m_player->playlist()->mediaCount());
+    const bool hasTracks = (m_playlist && m_playlist->trackCount());
 
     m_actions[PlayPauseAction]->setIcon(KIcon((state == PlayingState)?"media-playback-pause":"media-playback-start"));
     m_actions[PlayPauseAction]->setText((state == PlayingState)?i18n("Pause"):i18n("Play"));
@@ -312,9 +312,9 @@ void Player::play()
 
 void Player::play(int index)
 {
-    if (m_player->playlist())
+    if (m_playlist)
     {
-        m_player->playlist()->setCurrentIndex(index);
+        m_playlist->setCurrentTrack(index);
 
         m_player->play();
     }
@@ -344,9 +344,9 @@ void Player::stop()
 
 void Player::playPrevious()
 {
-    if (m_player->playlist())
+    if (m_playlist)
     {
-        m_player->playlist()->previous();
+        m_playlist->previous();
 
         play();
     }
@@ -354,9 +354,9 @@ void Player::playPrevious()
 
 void Player::playNext()
 {
-    if (m_player->playlist())
+    if (m_playlist)
     {
-        m_player->playlist()->next();
+        m_playlist->next();
 
         play();
     }
@@ -404,7 +404,7 @@ void Player::setPlaybackMode(PlaybackMode mode)
 
     m_actions[PlaybackModeMenuAction]->menu()->actions().at(static_cast<int>(mode))->setChecked(true);
 
-    if (m_player->playlist())
+    if (m_playlist)
     {
         switch (mode)
         {

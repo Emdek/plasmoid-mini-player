@@ -67,6 +67,9 @@ class PlaylistModel : public QAbstractTableModel
     public slots:
         void clear();
         void shuffle();
+        void next();
+        void previous();
+        void setCurrentTrack(int track);
 
     protected:
         QMediaPlaylist* playlist();
