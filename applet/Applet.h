@@ -22,7 +22,6 @@
 #define MINIPLAYERAPPLET_HEADER
 
 #include <QtCore/QTimerEvent>
-#include <QtCore/QVariantMap>
 #include <QtGui/QKeyEvent>
 
 #include <KDialog>

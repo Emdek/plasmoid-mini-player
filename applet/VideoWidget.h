@@ -22,7 +22,7 @@
 #define MINIPLAYERVIDEOWIDGET_HEADER
 
 #include <QtGui/QGraphicsWidget>
-
+#include <QtGui/QGraphicsPixmapItem>
 #include <QtMultimediaKit/QGraphicsVideoItem>
 
 namespace MiniPlayer
@@ -37,11 +37,15 @@ class VideoWidget : public QGraphicsWidget
 
         QGraphicsVideoItem* videoItem();
 
+    public slots:
+        void showVideo(bool show);
+
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
 
     private:
         QGraphicsVideoItem *m_videoItem;
+        QGraphicsPixmapItem *m_pixmapItem;
 };
 
 }

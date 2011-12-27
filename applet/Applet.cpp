@@ -702,8 +702,7 @@ void Applet::stateChanged(PlayerState state)
 
 void Applet::videoAvailableChanged(bool videoAvailable)
 {
-///FIXME switcher for signal in videoWidget (label)
-//     m_videoWidget->update();
+    updateVideoWidgets();
 
     if (!videoAvailable && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
     {
@@ -913,27 +912,20 @@ void Applet::togglePlaylistDialog()
 
 void Applet::updateVideoWidgets()
 {
-    m_videoWidget->setVisible(m_videoMode);
+    m_videoWidget->showVideo(m_videoMode && m_player->isVideoAvailable());
 
     if (m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
     {
         return;
     }
 
-//     m_playlistUi.blankLabel->hide();
-//     m_playlistUi.videoWidget->hide();
-
     if (m_videoMode)
     {
 //        m_player->setVideoOutput(m_videoWidget->videoItem());
-
-//         m_playlistUi.blankLabel->show();
     }
     else
     {
 //        m_player->setVideoOutput(m_playlistUi.videoWidget);
-
-//         m_playlistUi.videoWidget->show();
     }
 }
 

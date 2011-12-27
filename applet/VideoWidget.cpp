@@ -22,21 +22,48 @@
 
 #include <QtGui/QGraphicsSceneResizeEvent>
 
+#include <KIcon>
+#include <KIconLoader>
+
 namespace MiniPlayer
 {
 
-VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsWidget(parent)
+VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsWidget(parent),
+   m_videoItem(new QGraphicsVideoItem(this)),
+   m_pixmapItem(new QGraphicsPixmapItem(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous), this))
 {
-    m_videoItem = new QGraphicsVideoItem(this);
     m_videoItem->setPos(14, 14);
     m_videoItem->setSize(size());
 
-    setGraphicsItem(m_videoItem);
+    m_pixmapItem->setTransformationMode(Qt::SmoothTransformation);
+
+    showVideo(true);
 }
 
 void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     m_videoItem->setSize(event->newSize());
+
+    qreal scale = qMin(event->newSize().width(), event->newSize().height()) / m_pixmapItem->pixmap().width();
+
+    m_pixmapItem->setScale(scale);
+    m_pixmapItem->setPos(((event->newSize().width() - (m_pixmapItem->boundingRect().width() * scale)) / 2), ((event->newSize().height() - (m_pixmapItem->boundingRect().height() * scale)) / 2));
+}
+
+void VideoWidget::showVideo(bool show)
+{
+    m_videoItem->setVisible(show);
+
+    m_pixmapItem->setVisible(!show);
+
+    if (show)
+    {
+        setGraphicsItem(m_videoItem);
+    }
+    else
+    {
+        setGraphicsItem(m_pixmapItem);
+    }
 }
 
 QGraphicsVideoItem* VideoWidget::videoItem()
