@@ -266,9 +266,6 @@ void Applet::init()
         playMedia = false;
     }
 
-    m_player->setVolume(config().readEntry("volume", 50));
-    m_player->setAudioMuted(config().readEntry("muted", false));
-
     if (m_player->playlist() && m_player->playlist()->trackCount())
     {
         KUrl currentTrack;
@@ -403,6 +400,10 @@ void Applet::configSave()
     configuration.writeEntry("apectRatio", static_cast<int>(m_player->aspectRatio()));
     configuration.writeEntry("mute", m_player->isAudioMuted());
     configuration.writeEntry("volume", m_player->volume());
+    configuration.writeEntry("brightness", m_player->brightness());
+    configuration.writeEntry("contrast", m_player->contrast());
+    configuration.writeEntry("hue", m_player->hue());
+    configuration.writeEntry("saturation", m_player->saturation());
 
     if (m_playlistManager->isDialogVisible())
     {
@@ -474,11 +475,14 @@ void Applet::configReset()
     m_controlsWidget->setMaximumHeight(visible?-1:0);
 
     m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
-
     m_player->setPlaybackMode(static_cast<PlaybackMode>(configuration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
     m_player->setAspectRatio(static_cast<AspectRatio>(configuration.readEntry("apectRatio", static_cast<int>(AutomaticRatio))));
     m_player->setAudioMuted(configuration.readEntry("mute", false));
     m_player->setVolume(configuration.readEntry("volume", 50));
+    m_player->setBrightness(configuration.readEntry("brightness", 50));
+    m_player->setContrast(configuration.readEntry("contrast", 50));
+    m_player->setHue(configuration.readEntry("hue", 50));
+    m_player->setSaturation(configuration.readEntry("saturation", 50));
 
     if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
     {

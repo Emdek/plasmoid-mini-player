@@ -35,7 +35,7 @@
 namespace MiniPlayer
 {
 
-enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VolumeAction, AudioMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, AspectRatioMenuAction, FullScreenAction, PlaybackModeMenuAction };
+enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, NavigationMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VolumeAction, AudioMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, VideoPropepertiesMenu, AspectRatioMenuAction, FullScreenAction, PlaybackModeMenuAction };
 enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
 enum PlaybackMode { SequentialMode = 0, LoopTrackMode = 1, LoopPlaylistMode = 2, RandomMode = 3 };
 enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio = 3 };
@@ -66,6 +66,10 @@ class Player : public QObject
         PlaybackMode playbackMode() const;
         AspectRatio aspectRatio() const;
         int volume() const;
+        int brightness() const;
+        int contrast() const;
+        int hue() const;
+        int saturation() const;
         bool isAudioMuted() const;
         bool isAudioAvailable() const;
         bool isVideoAvailable() const;
@@ -92,6 +96,10 @@ class Player : public QObject
         void setAspectRatio(AspectRatio ratio);
         void setVideoMode(bool mode);
         void setFullScreen(bool enable);
+        void setBrightness(int value);
+        void setContrast(int value);
+        void setHue(int value);
+        void setSaturation(int value);
 
     protected:
         PlayerState translateState(Phonon::State state) const;
@@ -105,6 +113,7 @@ class Player : public QObject
         void changePlaybackMode(QAction *action);
         void changeAspectRatio(QAction *action);
         void trackFinished();
+        void updateSliders();
 
     private:
         Phonon::MediaObject *m_mediaObject;

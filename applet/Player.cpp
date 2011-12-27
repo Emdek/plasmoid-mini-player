@@ -25,7 +25,9 @@
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QLayout>
+#include <QtGui/QSlider>
 #include <QtGui/QActionGroup>
+#include <QtGui/QWidgetAction>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
 #include <KIcon>
@@ -98,6 +100,46 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[VideoMenuAction] = new QAction(i18n("Video"), this);
     m_actions[VideoMenuAction]->setMenu(new KMenu());
     m_actions[VideoMenuAction]->setEnabled(false);
+    m_actions[VideoPropepertiesMenu] = m_actions[VideoMenuAction]->menu()->addAction(i18n("Properties"));
+    m_actions[VideoPropepertiesMenu]->setMenu(new KMenu());
+
+    QSlider *brightnessSlider = new QSlider;
+    brightnessSlider->setOrientation(Qt::Horizontal);
+    brightnessSlider->setRange(0, 100);
+    brightnessSlider->setValue(50);
+
+    QWidgetAction *brightnessAction = new QWidgetAction(this);
+    brightnessAction->setDefaultWidget(brightnessSlider);
+
+    QSlider *contrastSlider = new QSlider;
+    contrastSlider->setOrientation(Qt::Horizontal);
+    contrastSlider->setRange(0, 100);
+    contrastSlider->setValue(50);
+
+    QWidgetAction *contrastAction = new QWidgetAction(this);
+    contrastAction->setDefaultWidget(contrastSlider);
+
+    QSlider *hueSlider = new QSlider;
+    hueSlider->setOrientation(Qt::Horizontal);
+    hueSlider->setRange(0, 100);
+    hueSlider->setValue(50);
+
+    QWidgetAction *hueAction = new QWidgetAction(this);
+    hueAction->setDefaultWidget(hueSlider);
+
+    QSlider *saturationSlider = new QSlider;
+    saturationSlider->setOrientation(Qt::Horizontal);
+    saturationSlider->setRange(0, 100);
+    saturationSlider->setValue(50);
+
+    QWidgetAction *saturationAction = new QWidgetAction(this);
+    saturationAction->setDefaultWidget(saturationSlider);
+
+    m_actions[VideoPropepertiesMenu]->menu()->addAction(brightnessAction);
+    m_actions[VideoPropepertiesMenu]->menu()->addAction(contrastAction);
+    m_actions[VideoPropepertiesMenu]->menu()->addAction(hueAction);
+    m_actions[VideoPropepertiesMenu]->menu()->addAction(saturationAction);
+
     m_actions[AspectRatioMenuAction] = m_actions[VideoMenuAction]->menu()->addAction(i18n("Aspect Ratio"));
     m_actions[AspectRatioMenuAction]->setMenu(new KMenu());
 
@@ -174,6 +216,10 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged()));
     connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SIGNAL(audioMutedChanged(bool)));
     connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(volumeChanged()));
+    connect(brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
+    connect(contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
+    connect(hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
+    connect(saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
     connect(this, SIGNAL(destroyed()), m_videoWidget, SLOT(deleteLater()));
 }
 
@@ -299,6 +345,11 @@ void Player::trackFinished()
     {
         m_playlist->setCurrentTrack(m_playlist->nextTrack(), true);
     }
+}
+
+void Player::updateSliders()
+{
+
 }
 
 void Player::registerAppletVideoWidget(VideoWidget *videoWidget)
@@ -524,6 +575,34 @@ void Player::setFullScreen(bool enable)
     setVideoMode(m_videoMode);
 }
 
+void Player::setBrightness(int value)
+{
+    m_videoWidget->setBrightness((value > 0)?(((qreal) value / 50) - 1):-1);
+
+    emit configNeedsSaving();
+}
+
+void Player::setContrast(int value)
+{
+    m_videoWidget->setContrast((value > 0)?(((qreal) value / 50) - 1):-1);
+
+    emit configNeedsSaving();
+}
+
+void Player::setHue(int value)
+{
+    m_videoWidget->setHue((value > 0)?(((qreal) value / 50) - 1):-1);
+
+    emit configNeedsSaving();
+}
+
+void Player::setSaturation(int value)
+{
+    m_videoWidget->setSaturation((value > 0)?(((qreal) value / 50) - 1):-1);
+
+    emit configNeedsSaving();
+}
+
 QString Player::errorString() const
 {
     return m_mediaObject->errorString();
@@ -607,6 +686,26 @@ PlayerState Player::state() const
 int Player::volume() const
 {
     return (m_audioOutput->volume() * 100);
+}
+
+int Player::brightness() const
+{
+    return (m_videoWidget->brightness() * 100);
+}
+
+int Player::contrast() const
+{
+    return (m_videoWidget->contrast() * 100);
+}
+
+int Player::hue() const
+{
+    return (m_videoWidget->hue() * 100);
+}
+
+int Player::saturation() const
+{
+    return (m_videoWidget->saturation() * 100);
 }
 
 bool Player::isAudioMuted() const
