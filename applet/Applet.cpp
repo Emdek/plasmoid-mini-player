@@ -34,7 +34,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 #include <QtGui/QGraphicsLinearLayout>
-#include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsSceneResizeEvent>
 #include <QtGui/QGraphicsSceneDragDropEvent>
 #include <QtDBus/QDBusConnection>
@@ -83,9 +82,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     setHasConfigurationInterface(true);
     setAcceptDrops(true);
 
-    m_videoWidget->installEventFilter(this);
-
     m_player->registerAppletVideoWidget(m_videoWidget);
+    m_player->setVideoMode(false);
 
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical, this);
     mainLayout->setSpacing(0);
@@ -205,6 +203,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(videoAvailableChanged(bool)));
     connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(metaDataChanged()));
     connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(metaDataChanged()));
+    connect(m_player, SIGNAL(requestMenu(QPoint)), this, SLOT(showMenu(QPoint)));
     connect(m_player->metaDataManager(), SIGNAL(urlChanged(KUrl)), this, SIGNAL(resetModel()));
     connect(m_player->action(OpenFileAction), SIGNAL(triggered()), this, SLOT(openFiles()));
     connect(m_player->action(OpenUrlAction), SIGNAL(triggered()), this, SLOT(openUrl()));
@@ -832,6 +831,7 @@ void Applet::toggleFullScreen()
     if (!m_fullScreenWidget)
     {
         m_fullScreenWidget = new QWidget;
+        m_fullScreenWidget->installEventFilter(this);
 
         m_fullScreenUi.setupUi(m_fullScreenWidget);
         m_fullScreenUi.playPauseButton->setDefaultAction(m_player->action(PlayPauseAction));
@@ -840,7 +840,6 @@ void Applet::toggleFullScreen()
         m_fullScreenUi.muteButton->setDefaultAction(m_player->action(MuteAction));
         m_fullScreenUi.volumeSlider->setPlayer(m_player);
         m_fullScreenUi.fullScreenButton->setDefaultAction(m_player->action(FullScreenAction));
-        m_fullScreenUi.videoOutputWidget->installEventFilter(this);
 
         m_player->registerFullScreenVideoWidget(m_fullScreenUi.videoWidget);
 
@@ -945,6 +944,15 @@ void Applet::toolTipHidden()
     Plasma::ToolTipManager::self()->clearContent(this);
 }
 
+void Applet::showMenu(const QPoint &position)
+{
+    KMenu menu;
+    menu.addActions(m_actions);
+    menu.addSeparator();
+    menu.addAction(KIcon("configure"), i18n("Settings"), this, SLOT(showConfigurationInterface()));
+    menu.exec(position);
+}
+
 QList<QAction*> Applet::contextualActions()
 {
     return m_actions;
@@ -969,42 +977,11 @@ bool Applet::eventFilter(QObject *object, QEvent *event)
 
         return true;
     }
-    else if (object == m_videoWidget)
+    else if (event->type() == QEvent::KeyPress)
     {
-        if (event->type() == QEvent::ContextMenu)
-        {
-            KMenu menu;
-            menu.addActions(m_actions);
-            menu.addSeparator();
-            menu.addAction(KIcon("configure"), i18n("Settings"), this, SLOT(showConfigurationInterface()));
-            menu.exec(QCursor::pos());
+        keyPressEvent(static_cast<QKeyEvent*>(event));
 
-            return true;
-        }
-        else if ((event->type() == QEvent::MouseButtonDblClick && static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton) || (event->type() == QEvent::GraphicsSceneMouseDoubleClick && static_cast<QGraphicsSceneMouseEvent*>(event)->button() == Qt::LeftButton))
-        {
-            toggleFullScreen();
-
-            return true;
-        }
-        else if (event->type() == QEvent::KeyPress)
-        {
-            keyPressEvent(static_cast<QKeyEvent*>(event));
-
-            return true;
-        }
-        else if (event->type() == QEvent::DragEnter)
-        {
-            static_cast<QDragEnterEvent*>(event)->acceptProposedAction();
-
-            return true;
-        }
-        else if (event->type() == QEvent::Drop)
-        {
-            m_playlistManager->addTracks(KUrl::List::fromMimeData(static_cast<QDropEvent*>(event)->mimeData()), -1, true);
-
-            return true;
-        }
+        return true;
     }
 
     return QObject::eventFilter(object, event);

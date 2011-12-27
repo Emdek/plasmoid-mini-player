@@ -24,6 +24,7 @@
 #include "VideoWidget.h"
 
 #include <QtGui/QActionGroup>
+#include <QtGui/QGraphicsSceneMouseEvent>
 
 #include <KIcon>
 #include <KMenu>
@@ -240,16 +241,21 @@ void Player::changePlaybackMode(QAction *action)
 void Player::registerAppletVideoWidget(VideoWidget *videoWidget)
 {
     m_appletVideoWidget = videoWidget;
+    m_appletVideoWidget->installEventFilter(this);
 }
 
 void Player::registerDialogVideoWidget(VideoWidget *videoWidget)
 {
     m_dialogVideoWidget = videoWidget;
+    m_dialogVideoWidget->installEventFilter(this);
+
+    setVideoMode(m_videoMode);
 }
 
 void Player::registerFullScreenVideoWidget(QVideoWidget *videoWidget)
 {
     m_fullScreenVideoWidget = videoWidget;
+    m_fullScreenVideoWidget->installEventFilter(this);
 }
 
 void Player::seekBackward()
@@ -557,6 +563,36 @@ bool Player::isVideoAvailable() const
 bool Player::isSeekable() const
 {
     return m_player->isSeekable();
+}
+
+bool Player::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::ContextMenu || event->type() == QEvent::GraphicsSceneContextMenu)
+    {
+        emit requestMenu(QCursor::pos());
+
+        return true;
+    }
+    else if ((event->type() == QEvent::MouseButtonDblClick && static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton) || (event->type() == QEvent::GraphicsSceneMouseDoubleClick && static_cast<QGraphicsSceneMouseEvent*>(event)->button() == Qt::LeftButton))
+    {
+        m_actions[FullScreenAction]->trigger();
+
+        return true;
+    }
+    else if (event->type() == QEvent::DragEnter)
+    {
+        static_cast<QDragEnterEvent*>(event)->acceptProposedAction();
+
+        return true;
+    }
+    else if (event->type() == QEvent::Drop && m_playlist)
+    {
+        m_playlist->addTracks(KUrl::List::fromMimeData(static_cast<QDropEvent*>(event)->mimeData()), -1, true);
+
+        return true;
+    }
+
+    return QObject::eventFilter(object, event);
 }
 
 }

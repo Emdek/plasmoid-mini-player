@@ -79,6 +79,7 @@ class Applet : public Plasma::Applet
         void updateToolTip();
         void toolTipAboutToShow();
         void toolTipHidden();
+        void showMenu(const QPoint &position);
 
     protected:
         void createConfigurationInterface(KConfigDialog *parent);

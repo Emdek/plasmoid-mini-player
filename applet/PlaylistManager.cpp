@@ -238,9 +238,9 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         m_dialog->setContentsMargins(0, 0, 0, 0);
         m_dialog->adjustSize();
+        m_dialog->installEventFilter(m_player->parent());
 
         m_videoWidget = new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()));
-        m_videoWidget->showVideo(false);
 
         m_player->registerDialogVideoWidget(m_videoWidget);
 
@@ -249,7 +249,6 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.graphicsView->centerOn(m_videoWidget);
         m_playlistUi.graphicsView->installEventFilter(this);
 
-        m_videoWidget->installEventFilter(this);
         m_videoWidget->resize(m_playlistUi.graphicsView->size());
 
         m_playlistUi.playlistView->installEventFilter(this);

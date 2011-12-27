@@ -37,7 +37,7 @@ class VideoWidget : public QGraphicsWidget
     public:
         VideoWidget(QGraphicsWidget *parent);
 
-    public slots:
+    protected slots:
         void showVideo(bool show);
 
     protected:

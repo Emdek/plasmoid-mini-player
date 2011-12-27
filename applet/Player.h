@@ -46,7 +46,7 @@ class Player : public QObject
     Q_OBJECT
 
     public:
-        Player(QObject *parent = 0);
+        Player(QObject *parent);
 
         void registerAppletVideoWidget(VideoWidget *videoWidget);
         void registerDialogVideoWidget(VideoWidget *videoWidget);
@@ -67,6 +67,7 @@ class Player : public QObject
         bool isAudioAvailable() const;
         bool isVideoAvailable() const;
         bool isSeekable() const;
+        bool eventFilter(QObject *object, QEvent *event);
 
     public slots:
         void seekBackward();
@@ -124,6 +125,7 @@ class Player : public QObject
         void seekableChanged(bool seekable);
         void stateChanged(PlayerState state);
         void errorOccured(QString error);
+        void requestMenu(QPoint position);
 };
 
 }
