@@ -381,6 +381,11 @@ PlaybackMode PlaylistModel::playbackMode() const
     return m_playbackMode;
 }
 
+PlaylistSource PlaylistModel::source() const
+{
+    return m_source;
+}
+
 int PlaylistModel::randomTrack() const
 {
     if (trackCount() < 2)

@@ -36,6 +36,7 @@
 #include <KFileDialog>
 #include <KInputDialog>
 
+#include <Solid/Block>
 #include <Solid/Device>
 #include <Solid/OpticalDisc>
 #include <Solid/DeviceNotifier>
@@ -55,8 +56,22 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
         deviceAdded(device.udi());
     }
 
+    connect(m_player, SIGNAL(createDevicePlaylist(QString,KUrl::List)), this, SLOT(createDevicePlaylist(QString,KUrl::List)));
+    connect(m_player->action(OpenMenuAction)->menu(), SIGNAL(triggered(QAction*)), this, SLOT(openDisc(QAction*)));
     connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceAdded(QString)), this, SLOT(deviceAdded(QString)));
     connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceRemoved(QString)), this, SLOT(deviceRemoved(QString)));
+}
+
+void PlaylistManager::openDisc(QAction *action)
+{
+    const QString udi = action->data().toString();
+
+    if (!m_discActions.contains(udi))
+    {
+        return;
+    }
+
+    m_player->openDisc(m_discActions[udi].second["device"].toString(), static_cast<PlaylistSource>(m_discActions[udi].second["source"].toInt()));
 }
 
 void PlaylistManager::deviceAdded(const QString &udi)
@@ -68,7 +83,7 @@ void PlaylistManager::deviceAdded(const QString &udi)
         return;
     }
 
-    Solid::OpticalDisc *opticalDisc = static_cast<Solid::OpticalDisc*>(device.asDeviceInterface(Solid::DeviceInterface::OpticalDisc));
+    const Solid::OpticalDisc *opticalDisc = device.as<const Solid::OpticalDisc>();
     QString title = opticalDisc->label().replace('_', ' ');
     QString label;
     KIcon icon;
@@ -106,9 +121,11 @@ void PlaylistManager::deviceAdded(const QString &udi)
     description["title"] = title;
     description["source"] = source;
     description["udi"] = udi;
+    description["device"] = device.as<const Solid::Block>()->device();
+    description["playlist"] = -1;
 
-    m_discActions[udi] = m_player->action(OpenMenuAction)->menu()->addAction(icon, label);
-    m_discActions[udi]->setData(description);
+    m_discActions[udi] = qMakePair(m_player->action(OpenMenuAction)->menu()->addAction(icon, label), description);
+    m_discActions[udi].first->setData(udi);
 }
 
 void PlaylistManager::deviceRemoved(const QString &udi)
@@ -118,8 +135,28 @@ void PlaylistManager::deviceRemoved(const QString &udi)
         return;
     }
 
-    m_discActions[udi]->deleteLater();
+    if (m_discActions[udi].second["playlist"].toInt() >= 0)
+    {
+        removePlaylist(m_discActions[udi].second["playlist"].toInt());
+    }
+
+    m_discActions[udi].first->deleteLater();
     m_discActions.remove(udi);
+}
+
+void PlaylistManager::createDevicePlaylist(const QString &udi, const KUrl::List &tracks)
+{
+    if (!m_discActions.contains(udi) || tracks.isEmpty() || m_discActions[udi].second["playlist"].toInt() >= 0)
+    {
+        return;
+    }
+
+    m_discActions[udi].second["playlist"] = createPlaylist(m_discActions[udi].second["title"].toString(), tracks, static_cast<PlaylistSource>(m_discActions[udi].second["source"].toInt()));
+
+    setCurrentPlaylist(m_discActions[udi].second["playlist"].toInt());
+
+    m_player->setPlaylist(m_playlists[m_discActions[udi].second["playlist"].toInt()]);
+    m_player->play();
 }
 
 void PlaylistManager::addTracks(const KUrl::List &tracks, int index, bool play)
@@ -565,9 +602,9 @@ QByteArray PlaylistManager::headerState() const
     return (m_dialog?m_playlistUi.playlistView->horizontalHeader()->saveState():QByteArray());
 }
 
-int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks)
+int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks, PlaylistSource source)
 {
-    PlaylistModel *playlist = new PlaylistModel(m_player, title);
+    PlaylistModel *playlist = new PlaylistModel(m_player, title, source);
     int position = (visiblePlaylist() + 1);
 
     m_playlists.insert(position, playlist);

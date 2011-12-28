@@ -58,6 +58,7 @@ class PlaylistModel : public QAbstractTableModel
         Qt::DropActions supportedDropActions() const;
         KUrl track(int position) const;
         PlaybackMode playbackMode() const;
+        PlaylistSource source() const;
         int currentTrack() const;
         int nextTrack() const;
         int trackCount() const;

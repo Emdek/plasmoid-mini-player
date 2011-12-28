@@ -48,7 +48,7 @@ class PlaylistManager : public QObject
         QSize dialogSize() const;
         QByteArray splitterState() const;
         QByteArray headerState() const;
-        int createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List());
+        int createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List(), PlaylistSource source = LocalSource);
         int currentPlaylist() const;
         int visiblePlaylist() const;
         bool isDialogVisible() const;
@@ -72,8 +72,10 @@ class PlaylistManager : public QObject
         void closeDialog();
 
     protected slots:
+        void openDisc(QAction *action);
         void deviceAdded(const QString &udi);
         void deviceRemoved(const QString &udi);
+        void createDevicePlaylist(const QString &udi, const KUrl::List &tracks);
 
     public slots:
         void trackPressed();
@@ -89,7 +91,7 @@ class PlaylistManager : public QObject
         Player *m_player;
         Plasma::Dialog *m_dialog;
         VideoWidget *m_videoWidget;
-        QHash<QString, QAction*> m_discActions;
+        QHash<QString, QPair<QAction*, QHash<QString, QVariant> > > m_discActions;
         QList<PlaylistModel*> m_playlists;
         int m_currentPlaylist;
         bool m_editorActive;

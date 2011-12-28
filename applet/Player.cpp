@@ -246,6 +246,7 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_mediaController, SIGNAL(availableAudioChannelsChanged()), this, SLOT(availableAudioChannelsChanged()));
     connect(m_mediaController, SIGNAL(availableSubtitlesChanged()), this, SLOT(availableSubtitlesChanged()));
     connect(m_mediaController, SIGNAL(availableAnglesChanged(int)), this, SLOT(availableAnglesChanged()));
+    connect(m_mediaController, SIGNAL(availableTitlesChanged(int)), this, SLOT(availableTitlesChanged()));
     connect(m_brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
     connect(m_contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
     connect(m_hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
@@ -422,6 +423,23 @@ void Player::availableAnglesChanged()
     }
 }
 
+void Player::availableTitlesChanged()
+{
+    const QString udi = m_mediaObject->currentSource().deviceName();
+    KUrl::List tracks;
+
+    for (int i = 1; i <= m_mediaController->availableTitles(); ++i)
+    {
+        KUrl url = KUrl(QString("disc:/%1/%2").arg(udi).arg(i));
+
+        tracks.append(url);
+
+        m_metaDataManager->setMetaData(url, i18n("Track %1", i), -1);
+    }
+
+    emit createDevicePlaylist(udi, tracks);
+}
+
 void Player::currentTrackChanged(int track, bool play)
 {
     if (m_playlist)
@@ -568,6 +586,35 @@ void Player::increaseVolume()
 void Player::decreaseVolume()
 {
     setVolume(qMax(0, (volume() - 10)));
+}
+
+void Player::openDisc(const QString &device, PlaylistSource type)
+{
+    Phonon::DiscType discType;
+
+    switch (type)
+    {
+        case DvdSource:
+            discType = Phonon::Dvd;
+        break;
+        case VcdSource:
+            discType = Phonon::Vcd;
+        break;
+        case CdSource:
+            discType = Phonon::Cd;
+        break;
+        default:
+            discType = Phonon::NoDisc;
+        break;
+    }
+
+    m_mediaObject->setCurrentSource(Phonon::MediaSource(discType, device));
+    m_mediaObject->play();
+
+    if (m_mediaController->availableTitles())
+    {
+        availableTitlesChanged();
+    }
 }
 
 void Player::play()

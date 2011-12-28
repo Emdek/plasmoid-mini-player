@@ -81,6 +81,7 @@ class Player : public QObject
         void seekForward();
         void increaseVolume();
         void decreaseVolume();
+        void openDisc(const QString &device, PlaylistSource type);
         void play();
         void play(int index);
         void playPause();
@@ -111,6 +112,7 @@ class Player : public QObject
         void availableAudioChannelsChanged();
         void availableSubtitlesChanged();
         void availableAnglesChanged();
+        void availableTitlesChanged();
         void currentTrackChanged(int track, bool play = false);
         void stateChanged(Phonon::State state);
         void changePlaybackMode(QAction *action);
@@ -159,6 +161,7 @@ class Player : public QObject
         void stateChanged(PlayerState state);
         void errorOccured(QString error);
         void requestMenu(QPoint position);
+        void createDevicePlaylist(QString udi, KUrl::List tracks);
 };
 
 }
