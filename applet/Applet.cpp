@@ -212,7 +212,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
     connect(m_player->action(VolumeAction), SIGNAL(triggered()), this, SLOT(toggleVolumeDialog()));
     connect(playlistAction, SIGNAL(triggered()), this, SLOT(togglePlaylistDialog()));
-    connect(MetaDataManager::instance(), SIGNAL(urlChanged(KUrl)), this, SIGNAL(resetModel()));
 }
 
 Applet::~Applet()
@@ -270,8 +269,6 @@ void Applet::init()
     {
         m_player->play();
     }
-
-    videoAvailableChanged(false);
 
     m_player->setAspectRatio(static_cast<AspectRatio>(config().readEntry("apectRatio", static_cast<int>(AutomaticRatio))));
     m_player->setAudioMuted(config().readEntry("mute", false));
@@ -647,8 +644,6 @@ void Applet::stateChanged(PlayerState state)
 
         emit titleChanged(QString());
     }
-
-    emit resetModel();
 }
 
 void Applet::videoAvailableChanged(bool videoAvailable)
@@ -666,8 +661,6 @@ void Applet::metaDataChanged()
     if (!m_player->title().isEmpty() && !MetaDataManager::available(url))
     {
         MetaDataManager::setMetaData(url, m_player->title(), m_player->duration());
-
-        emit resetModel();
 
         configSave();
     }

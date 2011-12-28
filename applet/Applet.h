@@ -115,7 +115,6 @@ class Applet : public Plasma::Applet
         Ui::volume m_volumeUi;
 
     signals:
-        void resetModel();
         void titleChanged(QString title);
 };
 

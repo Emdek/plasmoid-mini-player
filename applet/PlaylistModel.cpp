@@ -43,7 +43,7 @@ PlaylistModel::PlaylistModel(Player *parent, const QString &title, PlaylistSourc
     setPlaybackMode(m_playbackMode);
 
     connect(this, SIGNAL(needsSaving()), this, SIGNAL(layoutChanged()));
-    connect(m_player->parent(), SIGNAL(resetModel()), this, SIGNAL(layoutChanged()));
+    connect(MetaDataManager::instance(), SIGNAL(urlChanged(KUrl)), this, SIGNAL(layoutChanged()));
 }
 
 void PlaylistModel::addTrack(int position, const KUrl &url)
