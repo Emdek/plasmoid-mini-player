@@ -42,7 +42,6 @@ PlaylistModel::PlaylistModel(Player *parent, const QString &title, PlaylistSourc
     setSupportedDragActions(Qt::MoveAction);
     setPlaybackMode(m_playbackMode);
 
-    connect(m_player->parent(), SIGNAL(resetModel()), this, SIGNAL(layoutChanged()));
     connect(this, SIGNAL(needsSaving()), this, SIGNAL(layoutChanged()));
 }
 

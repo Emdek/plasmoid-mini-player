@@ -630,6 +630,7 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
 
     emit configNeedsSaving();
 
+    connect(m_player->parent(), SIGNAL(resetModel()), playlist, SIGNAL(layoutChanged()));
     connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(configNeedsSaving()));
     connect(playlist, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
 
@@ -707,12 +708,19 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             return true;
         }
     }
-    else if (object == m_playlistUi.graphicsView && event->type() == QEvent::Resize)
+    else if (object == m_playlistUi.graphicsView)
     {
-        m_videoWidget->resize(m_playlistUi.graphicsView->size());
+        if (event->type() == QEvent::Resize)
+        {
+            m_videoWidget->resize(m_playlistUi.graphicsView->size());
 
-        m_playlistUi.graphicsView->centerOn(m_videoWidget);
-        m_playlistUi.graphicsView->scene()->setSceneRect(m_playlistUi.graphicsView->rect());
+            m_playlistUi.graphicsView->centerOn(m_videoWidget);
+            m_playlistUi.graphicsView->scene()->setSceneRect(m_playlistUi.graphicsView->rect());
+        }
+        else if (event->type() == QEvent::GraphicsSceneWheel)
+        {
+            return false;
+        }
     }
 
     return QObject::eventFilter(object, event);

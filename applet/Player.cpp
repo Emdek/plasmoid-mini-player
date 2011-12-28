@@ -760,16 +760,12 @@ void Player::setVideoMode(bool mode)
                 }
 
                 m_appletVideoWidget->setVideoWidget(m_videoWidget);
-
-                m_videoWidget->show();
             }
             else if (m_dialogVideoWidget)
             {
                 m_appletVideoWidget->setVideoWidget(NULL);
 
                 m_dialogVideoWidget->setVideoWidget(m_videoWidget);
-
-                m_videoWidget->show();
             }
         }
     }

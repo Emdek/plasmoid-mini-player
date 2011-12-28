@@ -66,6 +66,7 @@ void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget)
         setGraphicsItem(NULL);
         setWidget(videoWidget);
 
+        videoWidget->show();
         videoWidget->resize(size().toSize());
     }
     else
