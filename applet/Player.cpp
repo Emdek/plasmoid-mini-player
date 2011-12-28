@@ -35,6 +35,9 @@
 
 #include <Solid/PowerManagement>
 
+
+#include <QDebug>
+
 namespace MiniPlayer
 {
 
@@ -517,6 +520,8 @@ void Player::trackFinished()
     {
         m_playlist->setCurrentTrack(m_playlist->nextTrack(), true);
     }
+
+    m_videoWidget->update();
 }
 
 void Player::updateSliders()
@@ -547,8 +552,6 @@ void Player::registerDialogVideoWidget(VideoWidget *videoWidget)
 {
     m_dialogVideoWidget = videoWidget;
     m_dialogVideoWidget->installEventFilter(this);
-
-    setVideoMode(m_videoMode);
 }
 
 void Player::registerFullScreenVideoWidget(QWidget *videoWidget)
@@ -736,15 +739,12 @@ void Player::setVideoMode(bool mode)
     m_videoWidget->setParent(NULL);
     m_videoWidget->hide();
 
-    m_appletVideoWidget->setVideoWidget(NULL);
-
-    if (m_dialogVideoWidget)
-    {
-        m_dialogVideoWidget->setVideoWidget(NULL);
-    }
-
     if (m_fullScreenMode && m_fullScreenVideoWidget)
     {
+        m_appletVideoWidget->setVideoWidget(NULL);
+
+        m_dialogVideoWidget->setVideoWidget(NULL);
+
         m_fullScreenVideoWidget->layout()->addWidget(m_videoWidget);
 
         m_videoWidget->show();
@@ -756,23 +756,19 @@ void Player::setVideoMode(bool mode)
             m_fullScreenVideoWidget->layout()->removeWidget(m_videoWidget);
         }
 
-        if (state() != StoppedState && isVideoAvailable())
+        const bool mode = (state() != StoppedState && isVideoAvailable());
+
+        if (m_videoMode)
         {
-            if (m_videoMode)
-            {
-                if (m_dialogVideoWidget)
-                {
-                    m_dialogVideoWidget->setVideoWidget(NULL);
-                }
+            m_dialogVideoWidget->setVideoWidget(NULL);
 
-                m_appletVideoWidget->setVideoWidget(m_videoWidget);
-            }
-            else if (m_dialogVideoWidget)
-            {
-                m_appletVideoWidget->setVideoWidget(NULL);
+            m_appletVideoWidget->setVideoWidget(m_videoWidget, mode);
+        }
+        else
+        {
+            m_appletVideoWidget->setVideoWidget(NULL);
 
-                m_dialogVideoWidget->setVideoWidget(m_videoWidget);
-            }
+            m_dialogVideoWidget->setVideoWidget(m_videoWidget, mode);
         }
     }
 

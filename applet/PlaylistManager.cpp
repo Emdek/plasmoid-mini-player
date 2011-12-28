@@ -47,10 +47,14 @@ namespace MiniPlayer
 PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_player(parent),
     m_dialog(NULL),
-    m_videoWidget(NULL),
+    m_videoWidget(new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()))),
     m_currentPlaylist(0),
     m_editorActive(false)
 {
+    m_videoWidget->hide();
+
+    m_player->registerDialogVideoWidget(m_videoWidget);
+
     foreach (Solid::Device device, Solid::Device::listFromType(Solid::DeviceInterface::OpticalDisc, QString()))
     {
         deviceAdded(device.udi());
@@ -359,10 +363,6 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         m_playlistUi.setupUi(m_dialog);
 
-        m_videoWidget = new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()));
-
-        m_player->registerDialogVideoWidget(m_videoWidget);
-
         m_playlistUi.graphicsView->setScene(new QGraphicsScene(this));
         m_playlistUi.graphicsView->scene()->addItem(m_videoWidget);
         m_playlistUi.graphicsView->installEventFilter(this);
@@ -401,6 +401,8 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
 
         visiblePlaylistChanged(m_currentPlaylist);
+
+        m_videoWidget->show();
 
         m_dialog->setContentsMargins(0, 0, 0, 0);
         m_dialog->adjustSize();

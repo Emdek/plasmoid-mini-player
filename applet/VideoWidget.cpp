@@ -29,7 +29,8 @@ namespace MiniPlayer
 {
 
 VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsProxyWidget(parent),
-   m_pixmapItem(new QGraphicsPixmapItem(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous), this))
+   m_pixmapItem(new QGraphicsPixmapItem(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous), this)),
+   m_backgroundWidget(new QGraphicsWidget(this))
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Window, Qt::black);
@@ -42,6 +43,12 @@ VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsProxyWidget(parent)
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     m_pixmapItem->setTransformationMode(Qt::SmoothTransformation);
+    m_pixmapItem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
+    m_pixmapItem->setZValue(100);
+
+    m_backgroundWidget->setPalette(palette);
+    m_backgroundWidget->setAutoFillBackground(true);
+    m_backgroundWidget->setZValue(50);
 }
 
 void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
@@ -55,17 +62,17 @@ void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 
     m_pixmapItem->setScale(scale);
     m_pixmapItem->setPos((geometry().left() + ((event->newSize().width() - (m_pixmapItem->boundingRect().width() * scale)) / 2)), (geometry().top() + ((event->newSize().height() - (m_pixmapItem->boundingRect().height() * scale)) / 2)));
+
+    m_backgroundWidget->resize(event->newSize());
+    m_backgroundWidget->setPos(geometry().left(), geometry().top());
 }
 
-void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget)
+void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode)
 {
-    m_pixmapItem->setVisible(videoWidget == NULL);
-
     if (videoWidget)
     {
         const QSize size = this->size().toSize();
 
-        setGraphicsItem(NULL);
         setWidget(videoWidget);
 
         videoWidget->show();
@@ -74,8 +81,11 @@ void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget)
     else
     {
         setWidget(NULL);
-        setGraphicsItem(m_pixmapItem);
     }
+
+    m_pixmapItem->setVisible(!mode);
+
+    m_backgroundWidget->setVisible(!mode);
 }
 
 }

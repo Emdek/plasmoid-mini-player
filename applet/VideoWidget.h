@@ -39,13 +39,14 @@ class VideoWidget : public QGraphicsProxyWidget
         VideoWidget(QGraphicsWidget *parent);
 
     protected slots:
-        void setVideoWidget(Phonon::VideoWidget *videoWidget);
+        void setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode = false);
 
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
 
     private:
         QGraphicsPixmapItem *m_pixmapItem;
+        QGraphicsWidget *m_backgroundWidget;
 
     friend class Player;
 };
