@@ -162,28 +162,21 @@ void SeekSlider::mediaChanged()
         return;
     }
 
+    killTimer(m_updatePosition);
+
     if (m_player->isSeekable())
     {
         setEnabled(true);
         setSingleStep(qMin((qint64) 1, m_player->duration() / 300000));
         setPageStep(qMin((qint64) 1, m_player->duration() / 30000));
 
-        if (m_player->state() != StoppedState)
-        {
-            m_updatePosition = startTimer(250);
-        }
-        else
-        {
-            killTimer(m_updatePosition);
-        }
+        m_updatePosition = startTimer(250);
     }
     else
     {
         setEnabled(false);
         setToolTip(QString());
         triggerAction(QAbstractSlider::SliderToMinimum);
-
-        killTimer(m_updatePosition);
     }
 }
 
