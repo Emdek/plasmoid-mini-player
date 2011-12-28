@@ -231,7 +231,14 @@ void PlaylistManager::playTrack(QModelIndex index)
         setCurrentPlaylist(visiblePlaylist());
     }
 
-    m_player->play(index.row());
+    if (m_playlists[visiblePlaylist()] == m_player->playlist() && index.row() == m_playlists[visiblePlaylist()]->currentTrack())
+    {
+        m_player->playPause();
+    }
+    else
+    {
+        m_player->play(index.row());
+    }
 }
 
 void PlaylistManager::editTrackTitle()
@@ -665,13 +672,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
 
             return true;
         }
-        else if (event->type() == QEvent::MouseButtonDblClick && !m_editorActive)
-        {
-            playTrack(m_playlistUi.playlistView->selectionModel()->selectedIndexes().first());
-
-            return true;
-        }
-        else if (event->type() == QEvent::ContextMenu)
+        else if (event->type() == QEvent::ContextMenu && !m_editorActive)
         {
             QPoint point = static_cast<QContextMenuEvent*>(event)->pos();
             point.setY(point.y() - m_playlistUi.playlistView->horizontalHeader()->height());
