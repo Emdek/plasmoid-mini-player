@@ -630,6 +630,12 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
 
             return true;
         }
+        else if (event->type() == QEvent::MouseButtonDblClick && !m_editorActive)
+        {
+            playTrack(m_playlistUi.playlistView->selectionModel()->selectedIndexes().first());
+
+            return true;
+        }
         else if (event->type() == QEvent::ContextMenu)
         {
             QPoint point = static_cast<QContextMenuEvent*>(event)->pos();
