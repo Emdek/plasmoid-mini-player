@@ -27,6 +27,7 @@
 #include <QtGui/QActionGroup>
 
 #include <KUrl>
+#include <KNotificationRestrictions>
 
 #include <Phonon/AudioOutput>
 #include <Phonon/MediaObject>
@@ -131,6 +132,7 @@ class Player : public QObject
         Phonon::VideoWidget *m_videoWidget;
         MetaDataManager *m_metaDataManager;
         PlaylistModel *m_playlist;
+        KNotificationRestrictions *m_notificationRestrictions;
         VideoWidget *m_appletVideoWidget;
         VideoWidget *m_dialogVideoWidget;
         QWidget *m_fullScreenVideoWidget;
@@ -144,6 +146,7 @@ class Player : public QObject
         QActionGroup *m_anglesGroup;
         QHash<PlayerAction, QAction*> m_actions;
         AspectRatio m_aspectRatio;
+        int m_stopSleepCookie;
         bool m_videoMode;
         bool m_fullScreenMode;
 

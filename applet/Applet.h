@@ -25,7 +25,6 @@
 #include <QtGui/QKeyEvent>
 
 #include <KDialog>
-#include <KNotificationRestrictions>
 
 #include <Plasma/Applet>
 #include <Plasma/Dialog>
@@ -105,11 +104,9 @@ class Applet : public Plasma::Applet
         QGraphicsWidget *m_controlsWidget;
         QWidget *m_fullScreenWidget;
         KDialog *m_jumpToPositionDialog;
-        KNotificationRestrictions *m_notificationRestrictions;
         int m_hideFullScreenControls;
         int m_showPlaylist;
         int m_hideToolTip;
-        int m_stopSleepCookie;
         bool m_updateToolTip;
         Ui::general m_generalUi;
         Ui::controls m_controlsUi;

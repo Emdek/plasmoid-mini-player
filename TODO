@@ -1,8 +1,9 @@
 - add playlist statusbar (total length, current time etc.) (?);
 - dynamic playlist with most often played tracks (?);
-- add music library functionality (?);
 - display more information in playlist (?);
+- add audio analyzer (?);
 - visualizations for audio files (?);
+- add music library functionality (?);
 - Last.fm scrobbler support (?);
 - load videos from YouTube etc. (?);
 - alarm clock like functionality - play selected playlist on selected hour or every hour etc. (?).

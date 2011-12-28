@@ -50,8 +50,6 @@
 #include <Plasma/Containment>
 #include <Plasma/ToolTipManager>
 
-#include <Solid/PowerManagement>
-
 K_EXPORT_PLASMA_APPLET(miniplayer, MiniPlayer::Applet)
 
 namespace MiniPlayer
@@ -68,7 +66,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_controlsWidget(new QGraphicsWidget(this)),
     m_fullScreenWidget(NULL),
     m_jumpToPositionDialog(NULL),
-    m_notificationRestrictions(NULL),
     m_hideFullScreenControls(0),
     m_showPlaylist(0),
     m_hideToolTip(0),
@@ -662,24 +659,6 @@ void Applet::stateChanged(PlayerState state)
     if (state == PlayingState)
     {
         QTimer::singleShot(500, this, SLOT(showToolTip()));
-    }
-
-    if (m_player->isVideoAvailable() && state == PlayingState)
-    {
-        m_stopSleepCookie = Solid::PowerManagement::beginSuppressingSleep("Plasma MiniPlayerApplet: playing video");
-
-        if (!m_notificationRestrictions)
-        {
-            m_notificationRestrictions = new KNotificationRestrictions(KNotificationRestrictions::NonCriticalServices, this);
-        }
-    }
-    else if (m_notificationRestrictions)
-    {
-        Solid::PowerManagement::stopSuppressingSleep(m_stopSleepCookie);
-
-        delete m_notificationRestrictions;
-
-        m_notificationRestrictions = NULL;
     }
 
     if (state == StoppedState)

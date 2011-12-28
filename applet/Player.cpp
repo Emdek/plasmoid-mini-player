@@ -33,6 +33,8 @@
 #include <KLocale>
 #include <KMessageBox>
 
+#include <Solid/PowerManagement>
+
 namespace MiniPlayer
 {
 
@@ -43,6 +45,7 @@ Player::Player(QObject *parent) : QObject(parent),
     m_videoWidget(new Phonon::VideoWidget()),
     m_metaDataManager(new MetaDataManager(this)),
     m_playlist(NULL),
+    m_notificationRestrictions(NULL),
     m_appletVideoWidget(NULL),
     m_dialogVideoWidget(NULL),
     m_fullScreenVideoWidget(NULL),
@@ -51,6 +54,7 @@ Player::Player(QObject *parent) : QObject(parent),
     m_subtitlesGroup(new QActionGroup(this)),
     m_anglesGroup(new QActionGroup(this)),
     m_aspectRatio(AutomaticRatio),
+    m_stopSleepCookie(0),
     m_videoMode(false),
     m_fullScreenMode(false)
 {
@@ -435,6 +439,24 @@ void Player::stateChanged(Phonon::State state)
 {
     mediaChanged();
     videoChanged();
+
+    if (isVideoAvailable() && this->state() == PlayingState)
+    {
+        m_stopSleepCookie = Solid::PowerManagement::beginSuppressingSleep("Plasma MiniPlayerApplet: playing video");
+
+        if (!m_notificationRestrictions)
+        {
+            m_notificationRestrictions = new KNotificationRestrictions(KNotificationRestrictions::NonCriticalServices, this);
+        }
+    }
+    else if (m_notificationRestrictions)
+    {
+        Solid::PowerManagement::stopSuppressingSleep(m_stopSleepCookie);
+
+        delete m_notificationRestrictions;
+
+        m_notificationRestrictions = NULL;
+    }
 
     if (state == Phonon::ErrorState && m_mediaObject->errorType() != Phonon::NoError)
     {

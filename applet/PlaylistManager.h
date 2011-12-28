@@ -31,6 +31,7 @@ namespace MiniPlayer
 {
 
 enum PlaylistType { None = 0, PLS, M3U, XSPF, ASX };
+enum PlaylistSource { Local = 0, Cd, Vcd, Dvd };
 
 class Player;
 class PlaylistModel;
@@ -71,6 +72,10 @@ class PlaylistManager : public QObject
         void showDialog(const QPoint &position);
         void closeDialog();
 
+    protected slots:
+        void deviceAdded(const QString &udi);
+        void deviceRemoved(const QString &udi);
+
     public slots:
         void trackPressed();
         void trackChanged();
@@ -85,6 +90,7 @@ class PlaylistManager : public QObject
         Player *m_player;
         Plasma::Dialog *m_dialog;
         VideoWidget *m_videoWidget;
+        QHash<QString, QAction*> m_discActions;
         QList<PlaylistModel*> m_playlists;
         int m_currentPlaylist;
         bool m_editorActive;

@@ -36,6 +36,10 @@
 #include <KFileDialog>
 #include <KInputDialog>
 
+#include <Solid/Device>
+#include <Solid/OpticalDisc>
+#include <Solid/DeviceNotifier>
+
 namespace MiniPlayer
 {
 
@@ -46,6 +50,76 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_currentPlaylist(0),
     m_editorActive(false)
 {
+    foreach (Solid::Device device, Solid::Device::listFromType(Solid::DeviceInterface::OpticalDisc, QString()))
+    {
+        deviceAdded(device.udi());
+    }
+
+    connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceAdded(QString)), this, SLOT(deviceAdded(QString)));
+    connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceRemoved(QString)), this, SLOT(deviceRemoved(QString)));
+}
+
+void PlaylistManager::deviceAdded(const QString &udi)
+{
+    Solid::Device device = Solid::Device(udi);
+
+    if (!device.isDeviceInterface(Solid::DeviceInterface::OpticalDisc))
+    {
+        return;
+    }
+
+    Solid::OpticalDisc *opticalDisc = static_cast<Solid::OpticalDisc*>(device.asDeviceInterface(Solid::DeviceInterface::OpticalDisc));
+    QString title = opticalDisc->label().replace('_', ' ');
+    QString label;
+    KIcon icon;
+    PlaylistSource source;
+
+    if (title.isEmpty())
+    {
+        title = i18n("Disc %1", (m_discActions.count() + 1));
+    }
+
+    if (opticalDisc->availableContent() & Solid::OpticalDisc::VideoDvd)
+    {
+        icon = KIcon("media-optical");
+        label = i18n("Open DVD: %1", title);
+        source = Dvd;
+    }
+    else if (opticalDisc->availableContent() & Solid::OpticalDisc::VideoCd || opticalDisc->availableContent() & Solid::OpticalDisc::SuperVideoCd)
+    {
+        icon = KIcon("media-optical");
+        label = i18n("Open VCD: %1", title);
+        source = Vcd;
+    }
+    else if (opticalDisc->availableContent() & Solid::OpticalDisc::Audio)
+    {
+        icon = KIcon("media-optical-audio");
+        label = i18n("Open Audio CD: %1", title);
+        source = Cd;
+    }
+    else
+    {
+        return;
+    }
+
+    QHash<QString, QVariant> description;
+    description["title"] = title;
+    description["source"] = source;
+    description["udi"] = udi;
+
+    m_discActions[udi] = m_player->action(OpenMenuAction)->menu()->addAction(icon, label);
+    m_discActions[udi]->setData(description);
+}
+
+void PlaylistManager::deviceRemoved(const QString &udi)
+{
+    if (!m_discActions.contains(udi))
+    {
+        return;
+    }
+
+    m_discActions[udi]->deleteLater();
+    m_discActions.remove(udi);
 }
 
 void PlaylistManager::addTracks(const KUrl::List &tracks, int index, bool play)
