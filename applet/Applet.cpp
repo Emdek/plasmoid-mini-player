@@ -422,6 +422,11 @@ void Applet::configSave()
 
     for (int i = 0; i < playlists.count(); ++i)
     {
+        if (playlists[i]->isReadOnly())
+        {
+            continue;
+        }
+
         for (int j = 0; j < playlists[i]->trackCount(); ++j)
         {
             if (m_player->metaDataManager()->available(playlists[i]->track(j)))

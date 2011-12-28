@@ -81,21 +81,21 @@ void PlaylistManager::deviceAdded(const QString &udi)
 
     if (opticalDisc->availableContent() & Solid::OpticalDisc::VideoDvd)
     {
-        icon = KIcon("media-optical");
+        icon = KIcon("media-optical-dvd");
         label = i18n("Open DVD: %1", title);
-        source = Dvd;
+        source = DvdSource;
     }
     else if (opticalDisc->availableContent() & Solid::OpticalDisc::VideoCd || opticalDisc->availableContent() & Solid::OpticalDisc::SuperVideoCd)
     {
         icon = KIcon("media-optical");
         label = i18n("Open VCD: %1", title);
-        source = Vcd;
+        source = VcdSource;
     }
     else if (opticalDisc->availableContent() & Solid::OpticalDisc::Audio)
     {
         icon = KIcon("media-optical-audio");
         label = i18n("Open Audio CD: %1", title);
-        source = Cd;
+        source = CdSource;
     }
     else
     {
@@ -582,7 +582,7 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
     if (m_dialog)
     {
         m_playlistUi.tabBar->show();
-        m_playlistUi.tabBar->insertTab((position + 1), KIcon("view-media-playlist"), title);
+        m_playlistUi.tabBar->insertTab((position + 1), playlist->icon(), title);
         m_playlistUi.tabBar->setCurrentIndex(position + 1);
     }
 

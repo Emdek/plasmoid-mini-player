@@ -25,7 +25,6 @@
 
 #include <QtCore/QDateTime>
 
-#include <KIcon>
 #include <KLocale>
 #include <KMimeType>
 #include <KRandomSequence>
@@ -33,12 +32,12 @@
 namespace MiniPlayer
 {
 
-PlaylistModel::PlaylistModel(Player *parent, const QString &title) : QAbstractTableModel(parent),
+PlaylistModel::PlaylistModel(Player *parent, const QString &title, PlaylistSource source) : QAbstractTableModel(parent),
     m_player(parent),
     m_title(title),
     m_playbackMode(SequentialMode),
-    m_currentTrack(-1),
-    m_isReadOnly(false)
+    m_source(source),
+    m_currentTrack(-1)
 {
     setSupportedDragActions(Qt::MoveAction);
     setPlaybackMode(m_playbackMode);
@@ -257,6 +256,23 @@ QString PlaylistModel::title() const
     return m_title;
 }
 
+KIcon PlaylistModel::icon() const
+{
+    switch (m_source)
+    {
+        case DvdSource:
+            return KIcon("media-optical-dvd");
+        case VcdSource:
+            return KIcon("media-optical");
+        case CdSource:
+            return KIcon("media-optical-audio");
+        default:
+            return KIcon("view-media-playlist");
+    }
+
+    return KIcon("view-media-playlist");
+}
+
 QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || (index.row() >= m_tracks.count()))
@@ -471,7 +487,7 @@ bool PlaylistModel::dropMimeData(const QMimeData *mimeData, Qt::DropAction actio
         return true;
     }
 
-    if (!mimeData->hasUrls())
+    if (isReadOnly() || !mimeData->hasUrls())
     {
         return false;
     }
@@ -541,7 +557,7 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
 
 bool PlaylistModel::isReadOnly() const
 {
-    return m_isReadOnly;
+    return (m_source != LocalSource);
 }
 
 }

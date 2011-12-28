@@ -29,7 +29,7 @@ enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
 enum PlaybackMode { SequentialMode = 0, LoopTrackMode = 1, LoopPlaylistMode = 2, RandomMode = 3 };
 enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio = 3 };
 enum PlaylistType { None = 0, PLS, M3U, XSPF, ASX };
-enum PlaylistSource { Local = 0, Cd, Vcd, Dvd };
+enum PlaylistSource { LocalSource = 0, CdSource, VcdSource, DvdSource };
 
 }
 

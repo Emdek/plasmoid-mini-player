@@ -27,6 +27,7 @@
 #include <QtCore/QAbstractTableModel>
 
 #include <KUrl>
+#include <KIcon>
 
 #include "Constants.h"
 
@@ -40,7 +41,7 @@ class PlaylistModel : public QAbstractTableModel
     Q_OBJECT
 
     public:
-        PlaylistModel(Player *parent, const QString &title);
+        PlaylistModel(Player *parent, const QString &title, PlaylistSource source = LocalSource);
 
         void addTrack(int position, const KUrl &url);
         void removeTrack(int position);
@@ -49,6 +50,7 @@ class PlaylistModel : public QAbstractTableModel
         void setTitle(const QString &title);
         QStringList mimeTypes() const;
         QString title() const;
+        KIcon icon() const;
         QVariant data(const QModelIndex &index, int role) const;
         QVariant headerData(int section, Qt::Orientation orientation, int role) const;
         QMimeData* mimeData(const QModelIndexList &indexes) const;
@@ -86,8 +88,8 @@ class PlaylistModel : public QAbstractTableModel
         KUrl::List m_tracks;
         QString m_title;
         PlaybackMode m_playbackMode;
+        PlaylistSource m_source;
         int m_currentTrack;
-        bool m_isReadOnly;
 
     signals:
         void needsSaving();
