@@ -57,6 +57,20 @@ void PlaylistModel::removeTrack(int position)
 {
     m_tracks.removeAt(position);
 
+    if (position == m_currentTrack && (m_manager->state() != StoppedState && m_manager->playlists().value(m_manager->currentPlaylist()) == this))
+    {
+        if (m_tracks.isEmpty() || m_currentTrack > (m_tracks.count() - 2))
+        {
+            m_currentTrack = qMax(0, (m_tracks.count() - 1));
+        }
+
+        emit currentTrackChanged(m_currentTrack, false);
+    }
+    else if (position < m_currentTrack)
+    {
+        --m_currentTrack;
+    }
+
     emit needsSaving();
 }
 

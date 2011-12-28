@@ -35,9 +35,6 @@
 
 #include <Solid/PowerManagement>
 
-
-#include <QDebug>
-
 namespace MiniPlayer
 {
 
@@ -440,8 +437,16 @@ void Player::currentTrackChanged(int track, bool play)
         {
             this->play();
         }
+        else
+        {
+            stop();
+        }
 
         emit trackChanged();
+    }
+    else if (m_mediaObject->currentSource().type() != Phonon::MediaSource::Disc)
+    {
+        stop();
     }
 }
 
