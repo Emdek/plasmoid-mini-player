@@ -157,7 +157,7 @@ DBusStatus PlayerDBusHandler::GetStatus()
 
 QVariantMap PlayerDBusHandler::GetMetadata()
 {
-    return m_player->metaDataManager()->metaData(m_player->url());
+    return MiniPlayer::MetaDataManager::metaData(m_player->url());
 }
 
 int PlayerDBusHandler::GetCaps()

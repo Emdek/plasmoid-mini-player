@@ -494,10 +494,10 @@ void PlaylistManager::exportPlaylist()
 
         for (int i = 0; i < m_playlists[visiblePlaylist()]->trackCount(); ++i)
         {
-            available = m_player->metaDataManager()->available(url);
+            available = MetaDataManager::available(url);
             url = m_playlists[visiblePlaylist()]->track(i);
-            title = (available?m_player->metaDataManager()->title(url):QString());
-            duration = (available?QString::number(m_player->metaDataManager()->duration(url) / 1000):QString("-1"));
+            title = (available?MetaDataManager::title(url):QString());
+            duration = (available?QString::number(MetaDataManager::duration(url) / 1000):QString("-1"));
 
             if (type == PlsFormat)
             {
@@ -625,7 +625,7 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
     {
         m_playlists[position]->addTracks(tracks);
 
-        m_player->metaDataManager()->addTracks(tracks);
+        MetaDataManager::addTracks(tracks);
     }
 
     if (m_dialog)

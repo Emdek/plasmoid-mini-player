@@ -80,14 +80,14 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<
         }
     }
 
-    m_player->metaDataManager()->addTracks(tracks);
+    MetaDataManager::addTracks(tracks);
 
     if (trackCount())
     {
         setCurrentTrack(position, play);
     }
 
-    m_player->metaDataManager()->setMetaData(metaData);
+    MetaDataManager::setMetaData(metaData);
 
     emit needsSaving();
 }
@@ -125,7 +125,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
         case 1:
             for (int i = 0; i < m_tracks.count(); ++i)
             {
-                titleMap.insert(m_player->metaDataManager()->title(m_tracks.at(i)), m_tracks.at(i));
+                titleMap.insert(MetaDataManager::title(m_tracks.at(i)), m_tracks.at(i));
             }
 
             tracks = titleMap.values();
@@ -133,7 +133,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
         case 2:
             for (int i = 0; i < m_tracks.count(); ++i)
             {
-                lengthMap.insert(m_player->metaDataManager()->duration(m_tracks.at(i)), m_tracks.at(i));
+                lengthMap.insert(MetaDataManager::duration(m_tracks.at(i)), m_tracks.at(i));
             }
 
             tracks = lengthMap.values();
@@ -271,16 +271,16 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole && index.column() == 0 && url.isValid())
     {
-        return ((m_player->playlist() == this && index.row() == m_currentTrack)?KIcon((m_player->state() == StoppedState)?"arrow-right":"media-playback-start"):m_player->metaDataManager()->icon(url));
+        return ((m_player->playlist() == this && index.row() == m_currentTrack)?KIcon((m_player->state() == StoppedState)?"arrow-right":"media-playback-start"):MetaDataManager::icon(url));
     }
     else if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
         switch (index.column())
         {
             case 1:
-                return m_player->metaDataManager()->title(url);
+                return MetaDataManager::title(url);
             case 2:
-                return MetaDataManager::timeToString(m_player->metaDataManager()->duration(url));
+                return MetaDataManager::timeToString(MetaDataManager::duration(url));
         }
     }
     else if (role == Qt::ToolTipRole)
@@ -448,7 +448,7 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
 
     if (role == Qt::EditRole)
     {
-        m_player->metaDataManager()->setMetaData(m_tracks.at(index.row()), value.toString(), -1);
+        MetaDataManager::setMetaData(m_tracks.at(index.row()), value.toString(), -1);
     }
     else
     {

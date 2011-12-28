@@ -40,7 +40,6 @@
 namespace MiniPlayer
 {
 
-class MetaDataManager;
 class PlaylistModel;
 class VideoWidget;
 
@@ -56,7 +55,6 @@ class Player : public QObject
         void registerFullScreenVideoWidget(QWidget *videoWidget);
         QString errorString() const;
         QString title() const;
-        MetaDataManager* metaDataManager();
         PlaylistModel* playlist() const;
         QAction* action(PlayerAction action) const;
         KUrl url() const;
@@ -129,7 +127,6 @@ class Player : public QObject
         Phonon::MediaController *m_mediaController;
         Phonon::AudioOutput *m_audioOutput;
         Phonon::VideoWidget *m_videoWidget;
-        MetaDataManager *m_metaDataManager;
         PlaylistModel *m_playlist;
         KNotificationRestrictions *m_notificationRestrictions;
         VideoWidget *m_appletVideoWidget;

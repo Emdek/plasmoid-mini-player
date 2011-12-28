@@ -83,7 +83,7 @@ QVariantMap TrackListDBusHandler::GetMetadata(int position)
         return QVariantMap();
     }
 
-    return m_player->metaDataManager()->metaData(m_player->playlist()->track(position));
+    return MiniPlayer::MetaDataManager::metaData(m_player->playlist()->track(position));
 }
 
 void TrackListDBusHandler::SetLoop(bool enable)

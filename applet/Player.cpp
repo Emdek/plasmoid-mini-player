@@ -43,7 +43,6 @@ Player::Player(QObject *parent) : QObject(parent),
     m_mediaController(new Phonon::MediaController(m_mediaObject)),
     m_audioOutput(new Phonon::AudioOutput(this)),
     m_videoWidget(new Phonon::VideoWidget()),
-    m_metaDataManager(new MetaDataManager(this)),
     m_playlist(NULL),
     m_notificationRestrictions(NULL),
     m_appletVideoWidget(NULL),
@@ -422,7 +421,7 @@ void Player::availableTitlesChanged()
 
         tracks.append(url);
 
-        m_metaDataManager->setMetaData(url, i18n("Track %1", i), -1);
+        MetaDataManager::setMetaData(url, i18n("Track %1", i), -1);
     }
 
     emit createDevicePlaylist(udi, tracks);
@@ -840,11 +839,6 @@ QString Player::title() const
     {
         return titles.first();
     }
-}
-
-MetaDataManager* Player::metaDataManager()
-{
-    return m_metaDataManager;
 }
 
 PlaylistModel* Player::playlist() const

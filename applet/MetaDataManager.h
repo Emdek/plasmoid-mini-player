@@ -37,30 +37,36 @@ class MetaDataManager : public QObject
     Q_OBJECT
 
     public:
-        MetaDataManager(QObject *parent);
-
+        static void createInstance(QObject *parent = NULL);
+        static MetaDataManager* instance();
         static QString timeToString(qint64 time);
-        QVariantMap metaData(const KUrl &url);
-        QString title(const KUrl &url) const;
-        KIcon icon(const KUrl &url) const;
-        qint64 duration(const KUrl &url) const;
-        bool available(const KUrl &url) const;
-
-    public slots:
-        void addTracks(const KUrl::List &urls);
-        void setMetaData(const KUrl &url, const QString &title, qint64 duration);
-        void setMetaData(const QHash<KUrl, QPair<QString, qint64> > &metaData);
-        void resolveMetaData();
+        static QVariantMap metaData(const KUrl &url);
+        static QString title(const KUrl &url);
+        static KIcon icon(const KUrl &url);
+        static qint64 duration(const KUrl &url);
+        static bool available(const KUrl &url);
+        static void addTracks(const KUrl::List &urls);
+        static void setMetaData(const KUrl &url, const QString &title, qint64 duration);
+        static void setMetaData(const QHash<KUrl, QPair<QString, qint64> > &metaData);
 
     protected:
+        MetaDataManager(QObject *parent);
+
         void timerEvent(QTimerEvent *event);
+        void addUrls(const KUrl::List &urls);
+        void setUrlMetaData(const KUrl &url, const QString &title, qint64 duration);
+
+    protected slots:
+        void resolveMetaData();
 
     private:
         Phonon::MediaObject *m_mediaObject;
-        QHash<KUrl, QPair<QString, qint64> > m_tracks;
         QQueue<QPair<KUrl, int> > m_queue;
         int m_resolveMedia;
         int m_attempts;
+
+        static QHash<KUrl, QPair<QString, qint64> > m_tracks;
+        static MetaDataManager *m_instance;
 
     signals:
         void urlChanged(KUrl url);

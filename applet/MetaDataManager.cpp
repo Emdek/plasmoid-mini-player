@@ -27,11 +27,19 @@
 namespace MiniPlayer
 {
 
+QHash<KUrl, QPair<QString, qint64> > MetaDataManager::m_tracks;
+MetaDataManager* MetaDataManager::m_instance = NULL;
+
 MetaDataManager::MetaDataManager(QObject *parent) : QObject(parent),
     m_mediaObject(new Phonon::MediaObject(this)),
     m_resolveMedia(0),
     m_attempts(0)
 {
+}
+
+void MetaDataManager::createInstance(QObject *parent)
+{
+    m_instance = new MetaDataManager(parent);
 }
 
 void MetaDataManager::timerEvent(QTimerEvent *event)
@@ -105,6 +113,11 @@ void MetaDataManager::resolveMetaData()
 
 void MetaDataManager::addTracks(const KUrl::List &urls)
 {
+    m_instance->addUrls(urls);
+}
+
+void MetaDataManager::addUrls(const KUrl::List &urls)
+{
     for (int i = 0; i < urls.count(); ++i)
     {
         m_queue.append(qMakePair(urls.at(i), 0));
@@ -118,12 +131,7 @@ void MetaDataManager::addTracks(const KUrl::List &urls)
 
 void MetaDataManager::setMetaData(const KUrl &url, const QString &title, qint64 duration)
 {
-    if (duration < 1 && m_tracks.contains(url))
-    {
-        duration = m_tracks[url].second;
-    }
-
-    m_tracks[url] = qMakePair(title, duration);
+    m_instance->setUrlMetaData(url, title, duration);
 }
 
 void MetaDataManager::setMetaData(const QHash<KUrl, QPair<QString, qint64> > &metaData)
@@ -132,22 +140,37 @@ void MetaDataManager::setMetaData(const QHash<KUrl, QPair<QString, qint64> > &me
 
     for (iterator = metaData.begin(); iterator != metaData.end(); ++iterator)
     {
-        if (!available(iterator.key()))
-        {
-            m_tracks[iterator.key()] = iterator.value();
-
-            emit urlChanged(iterator.key());
-        }
+        m_instance->setUrlMetaData(iterator.key(), iterator.value().first, iterator.value().second);
     }
+}
+
+void MetaDataManager::setUrlMetaData(const KUrl &url, const QString &title, qint64 duration)
+{
+    if (!available(url))
+    {
+        emit urlChanged(url);
+    }
+
+    if (duration < 1 && m_tracks.contains(url))
+    {
+        duration = m_tracks[url].second;
+    }
+
+    m_tracks[url] = qMakePair(title, duration);
+}
+
+MetaDataManager* MetaDataManager::instance()
+{
+    return m_instance;
 }
 
 QVariantMap MetaDataManager::metaData(const KUrl &url)
 {
-    Phonon::MediaObject *mediaObject = new Phonon::MediaObject(this);
-    mediaObject->setCurrentSource(Phonon::MediaSource(url));
+    Phonon::MediaObject mediaObject;
+    mediaObject.setCurrentSource(Phonon::MediaSource(url));
 
     QVariantMap metaData;
-    QMultiMap<QString, QString> stringMap = mediaObject->metaData();
+    QMultiMap<QString, QString> stringMap = mediaObject.metaData();
     QMultiMap<QString, QString>::const_iterator i = stringMap.constBegin();
 
     while (i != stringMap.constEnd())
@@ -167,10 +190,8 @@ QVariantMap MetaDataManager::metaData(const KUrl &url)
         ++i;
     }
 
-    metaData["time"] = ((mediaObject->totalTime() > 0)?(mediaObject->totalTime() / 1000):-1);
+    metaData["time"] = ((mediaObject.totalTime() > 0)?(mediaObject.totalTime() / 1000):-1);
     metaData["location"] = url.pathOrUrl();
-
-    mediaObject->deleteLater();
 
     return metaData;
 }
@@ -212,7 +233,7 @@ QString MetaDataManager::timeToString(qint64 time)
     return string;
 }
 
-QString MetaDataManager::title(const KUrl &url) const
+QString MetaDataManager::title(const KUrl &url)
 {
     QString title;
 
@@ -228,7 +249,7 @@ QString MetaDataManager::title(const KUrl &url) const
     return title;
 }
 
-KIcon MetaDataManager::icon(const KUrl &url) const
+KIcon MetaDataManager::icon(const KUrl &url)
 {
     if (url.isValid())
     {
@@ -240,7 +261,7 @@ KIcon MetaDataManager::icon(const KUrl &url) const
     }
 }
 
-qint64 MetaDataManager::duration(const KUrl &url) const
+qint64 MetaDataManager::duration(const KUrl &url)
 {
     if (m_tracks.contains(url))
     {
@@ -250,7 +271,7 @@ qint64 MetaDataManager::duration(const KUrl &url) const
     return -1;
 }
 
-bool MetaDataManager::available(const KUrl &url) const
+bool MetaDataManager::available(const KUrl &url)
 {
     return (!m_tracks.contains(url) || m_tracks[url].first.isEmpty() || m_tracks[url].second < 1);
 }

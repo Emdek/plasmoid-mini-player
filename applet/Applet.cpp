@@ -74,6 +74,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 {
     KGlobal::locale()->insertCatalog("miniplayer");
 
+    MetaDataManager::createInstance(this);
+
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     setAspectRatioMode(Plasma::IgnoreAspectRatio);
     setHasConfigurationInterface(true);
@@ -204,13 +206,13 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(metaDataChanged()));
     connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(metaDataChanged()));
     connect(m_player, SIGNAL(requestMenu(QPoint)), this, SLOT(showMenu(QPoint)));
-    connect(m_player->metaDataManager(), SIGNAL(urlChanged(KUrl)), this, SIGNAL(resetModel()));
     connect(m_player->action(OpenFileAction), SIGNAL(triggered()), this, SLOT(openFiles()));
     connect(m_player->action(OpenUrlAction), SIGNAL(triggered()), this, SLOT(openUrl()));
     connect(m_player->action(SeekToAction), SIGNAL(triggered()), this, SLOT(toggleJumpToPosition()));
     connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
     connect(m_player->action(VolumeAction), SIGNAL(triggered()), this, SLOT(toggleVolumeDialog()));
     connect(playlistAction, SIGNAL(triggered()), this, SLOT(togglePlaylistDialog()));
+    connect(MetaDataManager::instance(), SIGNAL(urlChanged(KUrl)), this, SIGNAL(resetModel()));
 }
 
 Applet::~Applet()
@@ -248,7 +250,7 @@ void Applet::init()
                 continue;
             }
 
-            m_player->metaDataManager()->setMetaData(tracks.at(j), titles.value(j, QString()), duration);
+            MetaDataManager::setMetaData(tracks.at(j), titles.value(j, QString()), duration);
         }
 
         int playlist = m_playlistManager->createPlaylist(playlistConfiguration.readEntry("title", i18n("Default")), tracks);
@@ -398,10 +400,10 @@ void Applet::configSave()
 
         for (int j = 0; j < playlists[i]->trackCount(); ++j)
         {
-            if (m_player->metaDataManager()->available(playlists[i]->track(j)))
+            if (MetaDataManager::available(playlists[i]->track(j)))
             {
-                titles.append(m_player->metaDataManager()->title(playlists[i]->track(j)));
-                durations.append(QString::number(m_player->metaDataManager()->duration(playlists[i]->track(j))));
+                titles.append(MetaDataManager::title(playlists[i]->track(j)));
+                durations.append(QString::number(MetaDataManager::duration(playlists[i]->track(j))));
             }
             else
             {
@@ -661,9 +663,9 @@ void Applet::metaDataChanged()
 {
     KUrl url = m_player->url();
 
-    if (!m_player->title().isEmpty() && !m_player->metaDataManager()->available(url))
+    if (!m_player->title().isEmpty() && !MetaDataManager::available(url))
     {
-        m_player->metaDataManager()->setMetaData(url, m_player->title(), m_player->duration());
+        MetaDataManager::setMetaData(url, m_player->title(), m_player->duration());
 
         emit resetModel();
 
@@ -882,7 +884,7 @@ void Applet::updateToolTip()
     {
         data.setMainText(m_player->title());
         data.setSubText((m_player->duration() > 0)?i18n("Position: %1 / %2", MetaDataManager::timeToString(m_player->position()), MetaDataManager::timeToString(m_player->duration())):"");
-        data.setImage(m_player->metaDataManager()->icon(m_player->url()).pixmap(IconSize(KIconLoader::Desktop)));
+        data.setImage(MetaDataManager::icon(m_player->url()).pixmap(IconSize(KIconLoader::Desktop)));
         data.setAutohide(true);
     }
 
