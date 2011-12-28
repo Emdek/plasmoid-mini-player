@@ -299,19 +299,7 @@ void Player::volumeChanged(qreal volume)
 
 void Player::videoChanged()
 {
-    if (isVideoAvailable() && state() != StoppedState)
-    {
-        setVideoMode(m_videoMode);
-    }
-    else
-    {
-        m_appletVideoWidget->setVideoWidget(NULL);
-
-        if (m_dialogVideoWidget)
-        {
-            m_dialogVideoWidget->setVideoWidget(NULL);
-        }
-    }
+    setVideoMode(m_videoMode);
 }
 
 void Player::mediaChanged()
@@ -742,53 +730,51 @@ void Player::setVideoMode(bool mode)
     m_videoWidget->setParent(NULL);
     m_videoWidget->hide();
 
+    m_appletVideoWidget->setVideoWidget(NULL);
+
+    if (m_dialogVideoWidget)
+    {
+        m_dialogVideoWidget->setVideoWidget(NULL);
+    }
+
     if (m_fullScreenMode && m_fullScreenVideoWidget)
     {
-        m_appletVideoWidget->setVideoWidget(NULL);
-
-        if (m_dialogVideoWidget)
-        {
-            m_dialogVideoWidget->setVideoWidget(NULL);
-        }
-
         m_fullScreenVideoWidget->layout()->addWidget(m_videoWidget);
 
         m_videoWidget->show();
     }
-    else if (state() != StoppedState)
+    else
     {
         if (m_fullScreenVideoWidget)
         {
             m_fullScreenVideoWidget->layout()->removeWidget(m_videoWidget);
         }
 
-        if (m_videoMode)
+        if (state() != StoppedState && isVideoAvailable())
         {
-            if (m_dialogVideoWidget)
+            if (m_videoMode)
             {
-                m_dialogVideoWidget->setVideoWidget(NULL);
+                if (m_dialogVideoWidget)
+                {
+                    m_dialogVideoWidget->setVideoWidget(NULL);
+                }
+
+                m_appletVideoWidget->setVideoWidget(m_videoWidget);
+
+                m_videoWidget->show();
             }
+            else if (m_dialogVideoWidget)
+            {
+                m_appletVideoWidget->setVideoWidget(NULL);
 
-            m_appletVideoWidget->setVideoWidget(m_videoWidget);
+                m_dialogVideoWidget->setVideoWidget(m_videoWidget);
 
-            m_videoWidget->show();
-        }
-        else if (m_dialogVideoWidget)
-        {
-            m_appletVideoWidget->setVideoWidget(NULL);
-
-            m_dialogVideoWidget->setVideoWidget(m_videoWidget);
-
-            m_videoWidget->show();
+                m_videoWidget->show();
+            }
         }
     }
 
     m_videoWidget->update();
-
-    if (!isVideoAvailable())
-    {
-        videoChanged();
-    }
 }
 
 void Player::setFullScreen(bool enable)
