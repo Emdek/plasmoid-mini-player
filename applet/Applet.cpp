@@ -930,8 +930,6 @@ bool Applet::eventFilter(QObject *object, QEvent *event)
         m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
         m_fullScreenUi.titleLabel->show();
         m_fullScreenUi.controlsWidget->show();
-
-        return true;
     }
     else if (event->type() == QEvent::KeyPress)
     {
