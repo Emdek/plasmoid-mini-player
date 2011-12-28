@@ -429,7 +429,7 @@ void Player::availableTitlesChanged()
 
 void Player::currentTrackChanged(int track, bool play)
 {
-    if (m_playlist)
+    if (m_playlist && m_playlist->trackCount())
     {
         m_mediaObject->setCurrentSource(Phonon::MediaSource(m_playlist->track(track)));
 
