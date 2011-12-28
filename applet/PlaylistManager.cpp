@@ -395,7 +395,7 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         for (int i = 0; i < m_playlists.count(); ++i)
         {
-            m_playlistUi.tabBar->addTab(KIcon((m_currentPlaylist == i)?"media-playback-start":"view-media-playlist"), m_playlists.at(i)->title());
+            m_playlistUi.tabBar->addTab(((m_currentPlaylist == i)?KIcon("media-playback-start"):m_playlists.at(i)->icon()), m_playlists.at(i)->title());
         }
 
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
@@ -560,7 +560,7 @@ void PlaylistManager::setCurrentPlaylist(int position)
     {
         for (int i = 0; i < m_playlistUi.tabBar->count(); ++i)
         {
-            m_playlistUi.tabBar->setTabIcon(i, KIcon((position == i)?"media-playback-start":"view-media-playlist"));
+            m_playlistUi.tabBar->setTabIcon(i, ((m_currentPlaylist == i)?KIcon("media-playback-start"):m_playlists.at(i)->icon()));
         }
     }
 
