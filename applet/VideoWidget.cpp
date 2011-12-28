@@ -47,6 +47,11 @@ void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     qreal scale = qMin(event->newSize().width(), event->newSize().height()) / m_pixmapItem->pixmap().width();
 
+    if (widget())
+    {
+        widget()->resize(event->newSize().toSize());
+    }
+
     m_pixmapItem->setScale(scale);
     m_pixmapItem->setPos(((event->newSize().width() - (m_pixmapItem->boundingRect().width() * scale)) / 2), ((event->newSize().height() - (m_pixmapItem->boundingRect().height() * scale)) / 2));
 }
@@ -59,6 +64,8 @@ void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget)
     {
         setGraphicsItem(NULL);
         setWidget(videoWidget);
+
+        videoWidget->resize(size().toSize());
     }
     else
     {
