@@ -645,6 +645,8 @@ void Applet::stateChanged(PlayerState state)
 
         emit titleChanged(QString());
     }
+
+    emit resetModel();
 }
 
 void Applet::videoAvailableChanged(bool videoAvailable)
