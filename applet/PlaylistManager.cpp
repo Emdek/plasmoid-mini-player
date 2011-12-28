@@ -309,6 +309,8 @@ void PlaylistManager::removePlaylist(int position)
 
     if (m_currentPlaylist == position)
     {
+        m_player->stop();
+
         setCurrentPlaylist(qMax(0, (position - 1)));
     }
 

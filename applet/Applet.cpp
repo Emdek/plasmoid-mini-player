@@ -657,7 +657,7 @@ void Applet::metaDataChanged()
         configSave();
     }
 
-    if (m_player->position() < 3 && m_hideToolTip == 0)
+    if (m_player->position() < 150 && m_hideToolTip == 0)
     {
         updateToolTip();
 

@@ -54,7 +54,7 @@ void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
     }
 
     m_pixmapItem->setScale(scale);
-    m_pixmapItem->setPos(((event->newSize().width() - (m_pixmapItem->boundingRect().width() * scale)) / 2), ((event->newSize().height() - (m_pixmapItem->boundingRect().height() * scale)) / 2));
+    m_pixmapItem->setPos((14 + ((event->newSize().width() - (m_pixmapItem->boundingRect().width() * scale)) / 2)), (14 + ((event->newSize().height() - (m_pixmapItem->boundingRect().height() * scale)) / 2)));
 }
 
 void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget)
