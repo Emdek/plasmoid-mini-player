@@ -20,9 +20,10 @@
 
 #include "TrackListDBusHandler.h"
 #include "TrackListAdaptor.h"
-#include "Player.h"
 #include "MetaDataManager.h"
 #include "PlaylistModel.h"
+#include "Player.h"
+#include "Constants.h"
 
 #include <QtCore/QList>
 

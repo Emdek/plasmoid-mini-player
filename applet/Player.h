@@ -35,13 +35,10 @@
 #include <Phonon/VideoWidget>
 #include <Phonon/MediaController>
 
+#include "Constants.h"
+
 namespace MiniPlayer
 {
-
-enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, NavigationMenuAction, ChapterMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, VolumeAction, AudioMenuAction, AudioChannelMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, VideoPropepertiesMenu, AspectRatioMenuAction, SubtitleMenuAction, AngleMenuAction, FullScreenAction, PlaybackModeMenuAction };
-enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
-enum PlaybackMode { SequentialMode = 0, LoopTrackMode = 1, LoopPlaylistMode = 2, RandomMode = 3 };
-enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio = 3 };
 
 class MetaDataManager;
 class PlaylistModel;

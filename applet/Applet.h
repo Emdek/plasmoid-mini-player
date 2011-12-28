@@ -29,7 +29,7 @@
 #include <Plasma/Applet>
 #include <Plasma/Dialog>
 
-#include "Player.h"
+#include "Constants.h"
 
 #include "ui_general.h"
 #include "ui_controls.h"

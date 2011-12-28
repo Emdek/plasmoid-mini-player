@@ -23,6 +23,8 @@
 #include "Player.h"
 #include "MetaDataManager.h"
 
+#include <QtCore/QDateTime>
+
 #include <KIcon>
 #include <KLocale>
 #include <KMimeType>

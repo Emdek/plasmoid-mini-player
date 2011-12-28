@@ -22,6 +22,8 @@
 #include "PlayerAdaptor.h"
 #include "PlaylistModel.h"
 #include "MetaDataManager.h"
+#include "Player.h"
+#include "Constants.h"
 
 #include <QtDBus/QDBusConnection>
 

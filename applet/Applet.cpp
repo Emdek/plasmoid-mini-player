@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "Applet.h"
+#include "Player.h"
 #include "VideoWidget.h"
 #include "MetaDataManager.h"
 #include "PlaylistManager.h"

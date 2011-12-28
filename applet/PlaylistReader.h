@@ -27,7 +27,7 @@
 #include <KIO/Job>
 #include <KIO/NetAccess>
 
-#include "PlaylistManager.h"
+#include "Constants.h"
 
 namespace MiniPlayer
 {

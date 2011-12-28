@@ -25,13 +25,12 @@
 
 #include <Plasma/Dialog>
 
+#include "Constants.h"
+
 #include "ui_playlist.h"
 
 namespace MiniPlayer
 {
-
-enum PlaylistType { None = 0, PLS, M3U, XSPF, ASX };
-enum PlaylistSource { Local = 0, Cd, Vcd, Dvd };
 
 class Player;
 class PlaylistModel;

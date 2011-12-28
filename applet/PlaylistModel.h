@@ -28,7 +28,7 @@
 
 #include <KUrl>
 
-#include "Player.h"
+#include "Constants.h"
 
 namespace MiniPlayer
 {
