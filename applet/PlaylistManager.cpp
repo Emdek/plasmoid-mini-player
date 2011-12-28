@@ -317,7 +317,7 @@ void PlaylistManager::visiblePlaylistChanged(int position)
         filterPlaylist(m_playlistUi.playlistViewFilter->text());
     }
 
-    if (m_player->state() != PlayingState && m_player->state() != PausedState)
+    if (m_player->state() == StoppedState)
     {
         setCurrentPlaylist(position);
     }

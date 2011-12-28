@@ -305,8 +305,8 @@ void Player::videoChanged()
 void Player::mediaChanged()
 {
     const PlayerState state = this->state();
-    const bool playingOrPaused = (state == PlayingState || state == PausedState);
-    const bool hasTracks = (m_playlist && m_playlist->trackCount());
+    const bool playingOrPaused = (state != StoppedState);
+    const bool hasTracks = ((m_playlist && m_playlist->trackCount()) || m_mediaObject->currentSource().type() == Phonon::MediaSource::Disc);
 
     m_actions[PlayPauseAction]->setIcon(KIcon((state == PlayingState)?"media-playback-pause":"media-playback-start"));
     m_actions[PlayPauseAction]->setText((state == PlayingState)?i18n("Pause"):i18n("Play"));

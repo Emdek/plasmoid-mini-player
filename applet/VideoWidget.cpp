@@ -33,6 +33,7 @@ VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsProxyWidget(parent)
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Window, Qt::black);
+    palette.setColor(QPalette::Base, Qt::black);
 
     setPalette(palette);
     setAcceptDrops(true);
