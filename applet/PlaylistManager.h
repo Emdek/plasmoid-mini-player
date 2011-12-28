@@ -76,6 +76,7 @@ class PlaylistManager : public QObject
         void deviceAdded(const QString &udi);
         void deviceRemoved(const QString &udi);
         void createDevicePlaylist(const QString &udi, const KUrl::List &tracks);
+        void updateVideoView();
 
     public slots:
         void trackPressed();

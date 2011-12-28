@@ -63,11 +63,13 @@ void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget)
 
     if (videoWidget)
     {
+        const QSize size = this->size().toSize();
+
         setGraphicsItem(NULL);
         setWidget(videoWidget);
 
         videoWidget->show();
-        videoWidget->resize(size().toSize());
+        videoWidget->resize(size);
     }
     else
     {

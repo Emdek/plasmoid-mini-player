@@ -159,6 +159,14 @@ void PlaylistManager::createDevicePlaylist(const QString &udi, const KUrl::List 
     m_player->play();
 }
 
+void PlaylistManager::updateVideoView()
+{
+    m_videoWidget->resize(m_playlistUi.graphicsView->size());
+
+    m_playlistUi.graphicsView->centerOn(m_videoWidget);
+    m_playlistUi.graphicsView->scene()->setSceneRect(m_playlistUi.graphicsView->rect());
+}
+
 void PlaylistManager::addTracks(const KUrl::List &tracks, int index, bool play)
 {
     m_playlists[visiblePlaylist()]->addTracks(tracks, index, play);
@@ -349,22 +357,13 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         m_playlistUi.setupUi(m_dialog);
 
-        m_dialog->setContentsMargins(0, 0, 0, 0);
-        m_dialog->adjustSize();
-        m_dialog->setMouseTracking(true);
-        m_dialog->installEventFilter(m_player->parent());
-
         m_videoWidget = new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()));
 
         m_player->registerDialogVideoWidget(m_videoWidget);
 
         m_playlistUi.graphicsView->setScene(new QGraphicsScene(this));
         m_playlistUi.graphicsView->scene()->addItem(m_videoWidget);
-        m_playlistUi.graphicsView->centerOn(m_videoWidget);
         m_playlistUi.graphicsView->installEventFilter(this);
-
-        m_videoWidget->resize(m_playlistUi.graphicsView->size());
-
         m_playlistUi.playlistView->installEventFilter(this);
         m_playlistUi.closeButton->setIcon(KIcon("window-close"));
         m_playlistUi.addButton->setIcon(KIcon("list-add"));
@@ -399,8 +398,12 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
 
-        trackPressed();
         visiblePlaylistChanged(m_currentPlaylist);
+
+        m_dialog->setContentsMargins(0, 0, 0, 0);
+        m_dialog->adjustSize();
+        m_dialog->setMouseTracking(true);
+        m_dialog->installEventFilter(m_player->parent());
 
         connect(m_dialog, SIGNAL(dialogResized()), this, SIGNAL(configNeedsSaving()));
         connect(m_playlistUi.splitter, SIGNAL(splitterMoved(int,int)), this, SIGNAL(configNeedsSaving()));
@@ -423,6 +426,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.playlistView, SIGNAL(activated(QModelIndex)), this, SLOT(playTrack(QModelIndex)));
         connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
         connect(m_player->parent(), SIGNAL(titleChanged(QString)), m_playlistUi.titleLabel, SLOT(setText(QString)));
+        connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(updateVideoView()));
         connect(this, SIGNAL(destroyed()), m_dialog, SLOT(deleteLater()));
     }
 
@@ -430,6 +434,7 @@ void PlaylistManager::showDialog(const QPoint &position)
     m_dialog->show();
 
     trackPressed();
+    updateVideoView();
 }
 
 void PlaylistManager::closeDialog()
@@ -712,10 +717,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
     {
         if (event->type() == QEvent::Resize)
         {
-            m_videoWidget->resize(m_playlistUi.graphicsView->size());
-
-            m_playlistUi.graphicsView->centerOn(m_videoWidget);
-            m_playlistUi.graphicsView->scene()->setSceneRect(m_playlistUi.graphicsView->rect());
+            updateVideoView();
         }
         else if (event->type() == QEvent::GraphicsSceneWheel)
         {
