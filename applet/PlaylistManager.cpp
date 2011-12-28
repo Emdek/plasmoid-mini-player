@@ -287,8 +287,6 @@ void PlaylistManager::removePlaylist(int position)
         return;
     }
 
-    QString oldTitle = KGlobal::locale()->removeAcceleratorMarker(m_playlistUi.tabBar->tabText(position));
-
     m_playlistUi.tabBar->removeTab(position);
 
     m_playlists[position]->deleteLater();

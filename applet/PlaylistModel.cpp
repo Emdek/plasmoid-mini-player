@@ -43,13 +43,13 @@ PlaylistModel::PlaylistModel(Player *parent, const QString &title, PlaylistSourc
     setPlaybackMode(m_playbackMode);
 
     connect(m_player->parent(), SIGNAL(resetModel()), this, SIGNAL(layoutChanged()));
+    connect(this, SIGNAL(needsSaving()), this, SIGNAL(layoutChanged()));
 }
 
 void PlaylistModel::addTrack(int position, const KUrl &url)
 {
     m_tracks.insert(position, url);
 
-    emit layoutChanged();
     emit needsSaving();
 }
 
@@ -57,24 +57,21 @@ void PlaylistModel::removeTrack(int position)
 {
     m_tracks.removeAt(position);
 
-    emit layoutChanged();
     emit needsSaving();
 }
 
 void PlaylistModel::addTracks(const KUrl::List &tracks, int position, bool play)
 {
-    new PlaylistReader(this, tracks, position, play);
-}
-
-void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, bool play)
-{
-    KUrl::List items;
-
     if (position == -1)
     {
         position = m_tracks.count();
     }
 
+    new PlaylistReader(this, tracks, position, play);
+}
+
+void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, bool play)
+{
     for (int i = (tracks.count() - 1); i >= 0; --i)
     {
         if (tracks.at(i).isValid())
@@ -85,20 +82,13 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<
 
     m_player->metaDataManager()->addTracks(tracks);
 
-    if (play && tracks.count())
+    if (trackCount())
     {
-        setCurrentTrack(position);
-
-        m_player->play();
-    }
-    else if (m_tracks.count())
-    {
-        setCurrentTrack(0);
+        setCurrentTrack(position, play);
     }
 
     m_player->metaDataManager()->setMetaData(metaData);
 
-    emit layoutChanged();
     emit needsSaving();
 }
 
@@ -106,7 +96,6 @@ void PlaylistModel::clear()
 {
     m_tracks.clear();
 
-    emit layoutChanged();
     emit needsSaving();
 }
 
@@ -114,7 +103,6 @@ void PlaylistModel::shuffle()
 {
     KRandomSequence().randomize(m_tracks);
 
-    emit layoutChanged();
     emit needsSaving();
 }
 
@@ -174,7 +162,6 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
 
     m_tracks = tracks;
 
-    emit layoutChanged();
     emit needsSaving();
 }
 
@@ -444,22 +431,12 @@ int PlaylistModel::trackCount() const
 
 int PlaylistModel::columnCount(const QModelIndex &index) const
 {
-    if (index.isValid())
-    {
-        return 0;
-    }
-
-    return 3;
+    return (index.isValid()?0:3);
 }
 
 int PlaylistModel::rowCount(const QModelIndex &index) const
 {
-    if (index.isValid())
-    {
-        return 0;
-    }
-
-    return m_tracks.count();
+    return (index.isValid()?0:m_tracks.count());
 }
 
 bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -554,7 +531,6 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
 
     endRemoveRows();
 
-    emit layoutChanged();
     emit needsSaving();
 
     return true;
