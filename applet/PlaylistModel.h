@@ -34,14 +34,14 @@
 namespace MiniPlayer
 {
 
-class Player;
+class PlaylistManager;
 
 class PlaylistModel : public QAbstractTableModel
 {
     Q_OBJECT
 
     public:
-        PlaylistModel(Player *parent, const QString &title, PlaylistSource source = LocalSource);
+        PlaylistModel(PlaylistManager *parent, const QString &title, PlaylistSource source = LocalSource);
 
         void addTrack(int position, const KUrl &url);
         void removeTrack(int position);
@@ -85,7 +85,7 @@ class PlaylistModel : public QAbstractTableModel
         void addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, bool play);
 
     private:
-        Player *m_player;
+        PlaylistManager *m_manager;
         KUrl::List m_tracks;
         QString m_title;
         PlaybackMode m_playbackMode;

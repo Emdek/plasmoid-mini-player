@@ -614,9 +614,14 @@ QByteArray PlaylistManager::headerState() const
     return (m_dialog?m_playlistUi.playlistView->horizontalHeader()->saveState():QByteArray());
 }
 
+PlayerState PlaylistManager::state() const
+{
+    return m_player->state();
+}
+
 int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks, PlaylistSource source)
 {
-    PlaylistModel *playlist = new PlaylistModel(m_player, title, source);
+    PlaylistModel *playlist = new PlaylistModel(this, title, source);
     int position = (visiblePlaylist() + 1);
 
     m_playlists.insert(position, playlist);

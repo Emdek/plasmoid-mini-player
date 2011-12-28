@@ -48,6 +48,7 @@ class PlaylistManager : public QObject
         QSize dialogSize() const;
         QByteArray splitterState() const;
         QByteArray headerState() const;
+        PlayerState state() const;
         int createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List(), PlaylistSource source = LocalSource);
         int currentPlaylist() const;
         int visiblePlaylist() const;

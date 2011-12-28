@@ -20,7 +20,7 @@
 
 #include "PlaylistModel.h"
 #include "PlaylistReader.h"
-#include "Player.h"
+#include "PlaylistManager.h"
 #include "MetaDataManager.h"
 
 #include <QtCore/QDateTime>
@@ -32,8 +32,8 @@
 namespace MiniPlayer
 {
 
-PlaylistModel::PlaylistModel(Player *parent, const QString &title, PlaylistSource source) : QAbstractTableModel(parent),
-    m_player(parent),
+PlaylistModel::PlaylistModel(PlaylistManager *parent, const QString &title, PlaylistSource source) : QAbstractTableModel(parent),
+    m_manager(parent),
     m_title(title),
     m_playbackMode(SequentialMode),
     m_source(source),
@@ -271,7 +271,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole && index.column() == 0 && url.isValid())
     {
-        return ((m_player->playlist() == this && index.row() == m_currentTrack)?KIcon((m_player->state() == StoppedState)?"arrow-right":"media-playback-start"):MetaDataManager::icon(url));
+        return ((m_manager->playlists().value(m_manager->currentPlaylist()) == this && index.row() == m_currentTrack)?KIcon((m_manager->state() == StoppedState)?"arrow-right":"media-playback-start"):MetaDataManager::icon(url));
     }
     else if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
