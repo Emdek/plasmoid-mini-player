@@ -227,7 +227,6 @@ void Applet::init()
     KUrl::List tracks;
     QStringList titles;
     QStringList durations;
-    bool playMedia = true;
 
     for (int i = 0; i < playlists.count(); ++i)
     {
@@ -260,51 +259,11 @@ void Applet::init()
         m_playlistManager->createPlaylist(i18n("Default"), KUrl::List());
     }
 
-    m_playlistManager->setCurrentPlaylist(playlistsConfiguration.readEntry("current", 0));
+    m_playlistManager->setCurrentPlaylist(playlistsConfiguration.readEntry("currentPlaylist", 0));
 
-    if (!config().readEntry("playOnStartup", false))
+    if (config().readEntry("playOnStartup", false) && m_player->playlist() && m_player->playlist()->trackCount())
     {
-        playMedia = false;
-    }
-
-    if (m_player->playlist() && m_player->playlist()->trackCount())
-    {
-        KUrl currentTrack;
-
-        currentTrack = config().readEntry("currentTrack", KUrl());
-
-        if (playMedia)
-        {
-            if (!currentTrack.isValid())
-            {
-                currentTrack = m_player->playlist()->track(0);
-            }
-
-            int index = -1;
-
-            for (int i = 0; i < m_player->playlist()->trackCount(); ++i)
-            {
-                if (currentTrack == m_player->playlist()->track(i))
-                {
-                    index = i;
-
-                    break;
-                }
-            }
-
-            config().writeEntry("currentTrack", currentTrack);
-
-            emit configNeedsSaving();
-
-            if (index < 0)
-            {
-                m_playlistManager->addTracks(KUrl::List(currentTrack), -1, true);
-            }
-            else
-            {
-                m_player->play(index);
-            }
-        }
+        m_player->play();
     }
 
     videoAvailableChanged(false);
@@ -452,7 +411,7 @@ void Applet::configSave()
         configuration.writeEntry("currentTrack", playlists[i]->currentTrack());
     }
 
-    playlistsConfiguration.writeEntry("current", m_playlistManager->currentPlaylist());
+    playlistsConfiguration.writeEntry("currentPlaylist", m_playlistManager->currentPlaylist());
 
     emit configNeedsSaving();
 }
