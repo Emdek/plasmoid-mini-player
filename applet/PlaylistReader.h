@@ -47,7 +47,7 @@ class PlaylistReader : public QObject
 
     protected:
         void addUrls(const KUrl::List &items, int level = 0);
-        void importPlaylist(const KUrl &url, PlaylistType type);
+        void importPlaylist(const KUrl &url, PlaylistFormat type);
         void readM3u(QTextStream &stream);
         void readPls(QTextStream &stream);
         void readXspf(QByteArray &data);
@@ -56,7 +56,7 @@ class PlaylistReader : public QObject
 
     private:
         QHash<KJob*, QByteArray> m_remotePlaylistsData;
-        QHash<KJob*, PlaylistType> m_remotePlaylistsType;
+        QHash<KJob*, PlaylistFormat> m_remotePlaylistsType;
         QHash<KUrl, QPair<QString, qint64> > m_metaData;
         KUrl::List m_tracks;
         int m_imports;

@@ -430,10 +430,10 @@ void PlaylistManager::exportPlaylist()
         QString title;
         QString duration;
         KUrl url;
-        PlaylistType type = (dialog.selectedUrl().toLocalFile().endsWith(".pls")?PLS:M3U);
+        PlaylistFormat type = (dialog.selectedUrl().toLocalFile().endsWith(".pls")?PlsFormat:M3uFormat);
         bool available;
 
-        if (type == PLS)
+        if (type == PlsFormat)
         {
             out << "[playlist]\n";
             out << "NumberOfEntries=" << m_playlists[visiblePlaylist()]->trackCount() << "\n\n";
@@ -450,7 +450,7 @@ void PlaylistManager::exportPlaylist()
             title = (available?m_player->metaDataManager()->title(url):QString());
             duration = (available?QString::number(m_player->metaDataManager()->duration(url) / 1000):QString("-1"));
 
-            if (type == PLS)
+            if (type == PlsFormat)
             {
                 out << "File" << QString::number(i + 1) << "=";
             }
@@ -461,14 +461,14 @@ void PlaylistManager::exportPlaylist()
 
             out << url.pathOrUrl() << '\n';
 
-            if (type == PLS)
+            if (type == PlsFormat)
             {
                 out << "Title" << QString::number(i + 1) << "=" << title << '\n';
                 out << "Length" << QString::number(i + 1) << "=" << duration << "\n\n";
             }
         }
 
-        if (type == PLS)
+        if (type == PlsFormat)
         {
             out << "Version=2";
         }

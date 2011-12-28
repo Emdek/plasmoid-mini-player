@@ -51,7 +51,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 
     foreach (const KUrl &url, items)
     {
-        PlaylistType type = None;
+        PlaylistFormat type = None;
 
         if (url.isLocalFile())
         {
@@ -65,19 +65,19 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
             }
             else if (mimeType->is("audio/x-scpls"))
             {
-                type = PLS;
+                type = PlsFormat;
             }
             else if (mimeType->is("audio/x-mpegurl"))
             {
-                type = M3U;
+                type = M3uFormat;
             }
             else if (mimeType->is("application/xspf+xml"))
             {
-                type = XSPF;
+                type = XspfFormat;
             }
             else if (mimeType->is("audio/x-ms-asx"))
             {
-                type = ASX;
+                type = AsxFormat;
             }
 
             if (type != None)
@@ -98,19 +98,19 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
         {
             if (url.pathOrUrl().endsWith(QString(".pls"), Qt::CaseInsensitive))
             {
-                type = PLS;
+                type = PlsFormat;
             }
             else if (url.pathOrUrl().endsWith(QString(".m3u"), Qt::CaseInsensitive))
             {
-                type = M3U;
+                type = M3uFormat;
             }
             else if (url.pathOrUrl().endsWith(QString(".xpsf"), Qt::CaseInsensitive))
             {
-                type = XSPF;
+                type = XspfFormat;
             }
             else if (url.pathOrUrl().endsWith(QString(".asx"), Qt::CaseInsensitive))
             {
-                type = ASX;
+                type = AsxFormat;
             }
 
             if (type != None)
@@ -142,7 +142,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
     }
 }
 
-void PlaylistReader::importPlaylist(const KUrl &url, PlaylistType type)
+void PlaylistReader::importPlaylist(const KUrl &url, PlaylistFormat type)
 {
     KUrl::List items;
     QFileInfo currentLocation(url.pathOrUrl());
@@ -153,13 +153,13 @@ void PlaylistReader::importPlaylist(const KUrl &url, PlaylistType type)
 
     if (data.open(QFile::ReadOnly))
     {
-        if (type == XSPF)
+        if (type == XspfFormat)
         {
             QByteArray byteArray = data.readAll();
 
             readXspf(byteArray);
         }
-        else if (type == ASX)
+        else if (type == AsxFormat)
         {
             QByteArray byteArray = data.readAll();
 
@@ -169,7 +169,7 @@ void PlaylistReader::importPlaylist(const KUrl &url, PlaylistType type)
         {
             QTextStream stream(&data);
 
-            if (type == PLS)
+            if (type == PlsFormat)
             {
                 readPls(stream);
             }
@@ -196,11 +196,11 @@ void PlaylistReader::importData(KIO::Job* job, const QByteArray &data)
 
 void PlaylistReader::importResult(KJob* job)
 {
-    if (m_remotePlaylistsType[job] == XSPF)
+    if (m_remotePlaylistsType[job] == XspfFormat)
     {
         readXspf(m_remotePlaylistsData[job]);
     }
-    else if (m_remotePlaylistsType[job] == ASX)
+    else if (m_remotePlaylistsType[job] == AsxFormat)
     {
         readAsx(m_remotePlaylistsData[job]);
     }
@@ -208,7 +208,7 @@ void PlaylistReader::importResult(KJob* job)
     {
         QTextStream stream(m_remotePlaylistsData[job]);
 
-        if (m_remotePlaylistsType[job] == PLS)
+        if (m_remotePlaylistsType[job] == PlsFormat)
         {
             readPls(stream);
         }
