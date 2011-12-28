@@ -105,9 +105,9 @@ class Applet : public Plasma::Applet
         QWidget *m_fullScreenWidget;
         KDialog *m_jumpToPositionDialog;
         int m_hideFullScreenControls;
-        int m_showPlaylist;
+        int m_togglePlaylist;
         int m_hideToolTip;
-        bool m_updateToolTip;
+        int m_updateToolTip;
         Ui::general m_generalUi;
         Ui::controls m_controlsUi;
         Ui::jumpToPosition m_jumpToPositionUi;

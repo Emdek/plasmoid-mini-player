@@ -68,9 +68,9 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_fullScreenWidget(NULL),
     m_jumpToPositionDialog(NULL),
     m_hideFullScreenControls(0),
-    m_showPlaylist(0),
+    m_togglePlaylist(0),
     m_hideToolTip(0),
-    m_updateToolTip(false)
+    m_updateToolTip(0)
 {
     KGlobal::locale()->insertCatalog("miniplayer");
 
@@ -190,12 +190,15 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
         m_playlistManager->createPlaylist(i18n("Default"), tracks);
     }
 
+    Plasma::ToolTipManager::self()->registerWidget(this);
+
     setMinimumWidth(150);
     resize(250, 50);
 
     connect(this, SIGNAL(activate()), this, SLOT(togglePlaylistDialog()));
     connect(m_playlistManager, SIGNAL(configNeedsSaving()), this, SLOT(configSave()));
     connect(m_player, SIGNAL(configNeedsSaving()), this, SLOT(configSave()));
+    connect(m_player, SIGNAL(trackChanged()), this, SLOT(showToolTip()));
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(stateChanged(PlayerState)));
     connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(videoAvailableChanged(bool)));
     connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(metaDataChanged()));
@@ -268,6 +271,14 @@ void Applet::init()
 
     videoAvailableChanged(false);
 
+    m_player->setAspectRatio(static_cast<AspectRatio>(config().readEntry("apectRatio", static_cast<int>(AutomaticRatio))));
+    m_player->setAudioMuted(config().readEntry("mute", false));
+    m_player->setVolume(config().readEntry("volume", 50));
+    m_player->setBrightness(config().readEntry("brightness", 50));
+    m_player->setContrast(config().readEntry("contrast", 50));
+    m_player->setHue(config().readEntry("hue", 50));
+    m_player->setSaturation(config().readEntry("saturation", 50));
+
     QTimer::singleShot(100, this, SLOT(configReset()));
 }
 
@@ -300,7 +311,6 @@ void Applet::createConfigurationInterface(KConfigDialog *parent)
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(configAccepted()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(configAccepted()));
-    connect(parent, SIGNAL(finished()), this, SLOT(configReset()));
 }
 
 void Applet::configAccepted()
@@ -441,13 +451,6 @@ void Applet::configReset()
     m_controlsWidget->setMaximumHeight(visible?-1:0);
 
     m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
-    m_player->setAspectRatio(static_cast<AspectRatio>(configuration.readEntry("apectRatio", static_cast<int>(AutomaticRatio))));
-    m_player->setAudioMuted(configuration.readEntry("mute", false));
-    m_player->setVolume(configuration.readEntry("volume", 50));
-    m_player->setBrightness(configuration.readEntry("brightness", 50));
-    m_player->setContrast(configuration.readEntry("contrast", 50));
-    m_player->setHue(configuration.readEntry("hue", 50));
-    m_player->setSaturation(configuration.readEntry("saturation", 50));
 
     if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
     {
@@ -501,7 +504,7 @@ void Applet::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 
     if (!m_playlistManager->isDialogVisible())
     {
-        m_showPlaylist = startTimer(500);
+        m_togglePlaylist = startTimer(500);
     }
 }
 
@@ -509,12 +512,12 @@ void Applet::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
 {
     Q_UNUSED(event)
 
-    killTimer(m_showPlaylist);
+    killTimer(m_togglePlaylist);
 }
 
 void Applet::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
-    killTimer(m_showPlaylist);
+    killTimer(m_togglePlaylist);
 
     m_playlistManager->addTracks(KUrl::List::fromMimeData(event->mimeData()), -1, true);
 }
@@ -601,22 +604,30 @@ void Applet::timerEvent(QTimerEvent *event)
         m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::BlankCursor));
         m_fullScreenUi.titleLabel->hide();
         m_fullScreenUi.controlsWidget->hide();
+
+        killTimer(event->timerId());
     }
-    else if (event->timerId() == m_showPlaylist)
+    else if (event->timerId() == m_togglePlaylist)
     {
         togglePlaylistDialog();
+
+        killTimer(event->timerId());
     }
     else if (event->timerId() == m_hideToolTip)
     {
         if (!isUnderMouse())
         {
             Plasma::ToolTipManager::self()->hide(this);
+
+            m_hideToolTip = 0;
+
+            killTimer(event->timerId());
         }
-
-        m_hideToolTip = 0;
     }
-
-    killTimer(event->timerId());
+    else if (event->timerId() == m_updateToolTip)
+    {
+        updateToolTip();
+    }
 }
 
 void Applet::stateChanged(PlayerState state)
@@ -865,7 +876,7 @@ void Applet::updateToolTip()
 
     Plasma::ToolTipContent data;
 
-    if (m_player->state() == PlayingState || m_player->state() == PausedState)
+    if (m_player->state() != StoppedState)
     {
         data.setMainText(m_player->title());
         data.setSubText((m_player->duration() > 0)?i18n("Position: %1 / %2", MetaDataManager::timeToString(m_player->position()), MetaDataManager::timeToString(m_player->duration())):"");
@@ -878,16 +889,18 @@ void Applet::updateToolTip()
 
 void Applet::toolTipAboutToShow()
 {
-    m_updateToolTip = true;
+    m_updateToolTip = startTimer(1000);
 
     updateToolTip();
-
-    m_updateToolTip = false;
 }
 
 void Applet::toolTipHidden()
 {
     Plasma::ToolTipManager::self()->clearContent(this);
+
+    killTimer(m_updateToolTip);
+
+    m_updateToolTip = 0;
 }
 
 void Applet::showMenu(const QPoint &position)

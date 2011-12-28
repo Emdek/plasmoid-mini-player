@@ -152,6 +152,7 @@ class Player : public QObject
     signals:
         void configNeedsSaving();
         void metaDataChanged();
+        void trackChanged();
         void durationChanged(qint64 duration);
         void volumeChanged(int volume);
         void audioMutedChanged(bool muted);

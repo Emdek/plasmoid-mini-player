@@ -438,6 +438,8 @@ void Player::currentTrackChanged(int track, bool play)
         {
             this->play();
         }
+
+        emit trackChanged();
     }
 }
 
@@ -599,6 +601,8 @@ void Player::openDisc(const QString &device, PlaylistSource type)
     m_mediaObject->setCurrentSource(Phonon::MediaSource(discType, device));
     m_mediaObject->play();
 
+    emit trackChanged();
+
     if (m_mediaController->availableTitles())
     {
         availableTitlesChanged();
@@ -607,6 +611,11 @@ void Player::openDisc(const QString &device, PlaylistSource type)
 
 void Player::play()
 {
+    if (state() == StoppedState)
+    {
+        emit trackChanged();
+    }
+
     m_mediaObject->play();
 }
 
@@ -614,9 +623,7 @@ void Player::play(int index)
 {
     if (m_playlist)
     {
-        m_playlist->setCurrentTrack(index);
-
-        m_mediaObject->play();
+        m_playlist->setCurrentTrack(index, true);
     }
 }
 

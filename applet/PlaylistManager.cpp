@@ -637,7 +637,6 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
 
     emit configNeedsSaving();
 
-    connect(m_player->parent(), SIGNAL(resetModel()), playlist, SIGNAL(layoutChanged()));
     connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(configNeedsSaving()));
     connect(playlist, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
 

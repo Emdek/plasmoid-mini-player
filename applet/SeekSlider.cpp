@@ -120,6 +120,7 @@ void SeekSlider::setPlayer(Player *player)
 {
     if (m_player)
     {
+        disconnect(m_player, SIGNAL(trackChanged()), this, SLOT(mediaChanged()));
         disconnect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(mediaChanged()));
         disconnect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(mediaChanged()));
     }
@@ -137,6 +138,7 @@ void SeekSlider::setPlayer(Player *player)
 
     mediaChanged();
 
+    connect(m_player, SIGNAL(trackChanged()), this, SLOT(mediaChanged()));
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(mediaChanged()));
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(mediaChanged()));
 }
@@ -166,7 +168,7 @@ void SeekSlider::mediaChanged()
         setSingleStep(qMin((qint64) 1, m_player->duration() / 300000));
         setPageStep(qMin((qint64) 1, m_player->duration() / 30000));
 
-        if (m_player->state() == PlayingState || m_player->state() == PausedState)
+        if (m_player->state() != StoppedState)
         {
             m_updatePosition = startTimer(250);
         }
