@@ -838,7 +838,7 @@ void Applet::togglePlaylistDialog()
         m_playlistManager->setDialogSize(config().readEntry("playlistSize", m_playlistManager->dialogSize()));
         m_playlistManager->setSplitterState(config().readEntry("playlistSplitter", QByteArray()));
         m_playlistManager->setHeaderState(config().readEntry("headerState", QByteArray()));
-        m_playlistManager->showDialog(containment()->corona()->popupPosition(this, m_playlistManager->dialogSize(), Qt::AlignCenter));
+        m_playlistManager->showDialog(containment()->corona()->popupPosition(this, config().readEntry("playlistSize", m_playlistManager->dialogSize()), Qt::AlignCenter));
     }
 }
 
