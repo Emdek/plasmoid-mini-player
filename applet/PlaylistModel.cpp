@@ -271,7 +271,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole && index.column() == 0 && url.isValid())
     {
-        return ((m_manager->playlists().value(m_manager->currentPlaylist()) == this && index.row() == m_currentTrack)?KIcon((m_manager->state() == StoppedState)?"arrow-right":"media-playback-start"):MetaDataManager::icon(url));
+        return ((index.row() == m_currentTrack)?KIcon((m_manager->state() != StoppedState && m_manager->playlists().value(m_manager->currentPlaylist()) == this)?"media-playback-start":"arrow-right"):MetaDataManager::icon(url));
     }
     else if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
