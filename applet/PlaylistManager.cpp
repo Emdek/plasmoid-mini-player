@@ -351,9 +351,9 @@ void PlaylistManager::visiblePlaylistChanged(int position)
     filterPlaylist(m_playlistUi.playlistViewFilter->text());
 
     m_playlistUi.playlistView->setModel(m_playlists[visiblePlaylist()]);
+    m_playlistUi.playlistView->horizontalHeader()->setMovable(true);
     m_playlistUi.playlistView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
     m_playlistUi.playlistView->horizontalHeader()->resizeSection(0, 22);
-    m_playlistUi.playlistView->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
 
     emit needsSaving();
 }
