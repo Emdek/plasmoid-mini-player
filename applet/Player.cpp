@@ -635,7 +635,14 @@ void Player::play()
         emit trackChanged();
     }
 
-    m_mediaObject->play();
+    if ((m_mediaObject->currentSource().type() == Phonon::MediaSource::Invalid || !m_mediaObject->currentSource().url().isValid()) && m_playlist)
+    {
+        currentTrackChanged(m_playlist->currentTrack(), PlayReaction);
+    }
+    else
+    {
+        m_mediaObject->play();
+    }
 }
 
 void Player::play(int index)
@@ -666,6 +673,7 @@ void Player::pause()
 void Player::stop()
 {
     m_mediaObject->stop();
+    m_mediaObject->setCurrentSource(Phonon::MediaSource());
 }
 
 void Player::playPrevious()

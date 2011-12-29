@@ -244,7 +244,7 @@ void PlaylistManager::playTrack(QModelIndex index)
         setCurrentPlaylist(visiblePlaylist());
     }
 
-    if (m_playlists[visiblePlaylist()] == m_player->playlist() && index.row() == m_playlists[visiblePlaylist()]->currentTrack())
+    if (m_playlists[visiblePlaylist()] == m_player->playlist() && index.row() == m_playlists[visiblePlaylist()]->currentTrack() && m_player->state() != StoppedState)
     {
         m_player->playPause();
     }

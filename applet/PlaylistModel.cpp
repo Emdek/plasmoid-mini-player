@@ -186,49 +186,35 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
     emit needsSaving();
 }
 
-void PlaylistModel::next()
+void PlaylistModel::next(PlayerReaction reaction)
 {
     if (m_tracks.count() < 2)
     {
-        setCurrentTrack(0);
+        setCurrentTrack(0, reaction);
     }
     else if (m_playbackMode == RandomMode)
     {
-        setCurrentTrack(randomTrack());
+        setCurrentTrack(randomTrack(), reaction);
     }
     else
     {
-        if (m_currentTrack >= (m_tracks.count() - 1))
-        {
-            setCurrentTrack(0);
-        }
-        else
-        {
-            setCurrentTrack(m_currentTrack + 1);
-        }
+        setCurrentTrack(((m_currentTrack >= (m_tracks.count() - 1))?0:(m_currentTrack + 1)), reaction);
     }
 }
 
-void PlaylistModel::previous()
+void PlaylistModel::previous(PlayerReaction reaction)
 {
     if (m_tracks.count() < 2)
     {
-        setCurrentTrack(0);
+        setCurrentTrack(0, reaction);
     }
     else if (m_playbackMode == RandomMode)
     {
-        setCurrentTrack(randomTrack());
+        setCurrentTrack(randomTrack(), reaction);
     }
     else
     {
-        if (m_currentTrack == 0)
-        {
-            setCurrentTrack(m_tracks.count() - 1);
-        }
-        else
-        {
-            setCurrentTrack(m_currentTrack - 1);
-        }
+        setCurrentTrack(((m_currentTrack == 0)?(m_tracks.count() - 1):(m_currentTrack - 1)), reaction);
     }
 }
 

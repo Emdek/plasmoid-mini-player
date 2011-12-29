@@ -74,8 +74,8 @@ class PlaylistModel : public QAbstractTableModel
     public slots:
         void clear();
         void shuffle();
-        void next();
-        void previous();
+        void next(PlayerReaction reaction = NoReaction);
+        void previous(PlayerReaction reaction = NoReaction);
         void setCurrentTrack(int track, PlayerReaction reaction = NoReaction);
         void setPlaybackMode(PlaybackMode mode);
 
