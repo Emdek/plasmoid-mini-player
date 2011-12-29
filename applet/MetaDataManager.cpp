@@ -35,6 +35,7 @@ MetaDataManager::MetaDataManager(QObject *parent) : QObject(parent),
     m_resolveMedia(0),
     m_attempts(0)
 {
+    connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SLOT(resolveMetaData()));
 }
 
 void MetaDataManager::createInstance(QObject *parent)
@@ -46,9 +47,9 @@ void MetaDataManager::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event)
 
-    resolveMetaData();
-
     killTimer(m_resolveMedia);
+
+    resolveMetaData();
 }
 
 void MetaDataManager::resolveMetaData()
@@ -57,7 +58,7 @@ void MetaDataManager::resolveMetaData()
 
     killTimer(m_resolveMedia);
 
-    if (m_mediaObject->currentSource().type() != Phonon::MediaSource::Invalid)
+    if (m_mediaObject->currentSource().url().isValid())
     {
         const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
         const QString title = (titles.isEmpty()?QString():titles.first());
@@ -74,15 +75,11 @@ void MetaDataManager::resolveMetaData()
         else
         {
             setMetaData(m_mediaObject->currentSource().url(), title, duration);
-
-            emit urlChanged(m_mediaObject->currentSource().url());
         }
     }
 
     m_mediaObject->deleteLater();
     m_mediaObject = new Phonon::MediaObject(this);
-
-    connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SLOT(resolveMetaData()));
 
     while (!m_queue.isEmpty())
     {
@@ -113,7 +110,7 @@ void MetaDataManager::addTracks(const KUrl::List &urls)
 
 void MetaDataManager::addUrls(const KUrl::List &urls)
 {
-    for (int i = 0; i < urls.count(); ++i)
+    for (int i = (urls.count() - 1); i >= 0 ; --i)
     {
         m_queue.prepend(qMakePair(urls.at(i), 0));
     }
