@@ -48,7 +48,6 @@ class PlaylistModel : public QAbstractTableModel
         void addTracks(const KUrl::List &tracks, int position = -1, bool play = false);
         void sort(int column, Qt::SortOrder order);
         void setTitle(const QString &title);
-        QStringList mimeTypes() const;
         QString title() const;
         KIcon icon() const;
         QVariant data(const QModelIndex &index, int role) const;
@@ -56,6 +55,8 @@ class PlaylistModel : public QAbstractTableModel
         QMimeData* mimeData(const QModelIndexList &indexes) const;
         Qt::ItemFlags flags(const QModelIndex &index) const;
         Qt::DropActions supportedDropActions() const;
+        QStringList mimeTypes() const;
+        KUrl::List tracks() const;
         KUrl track(int position) const;
         PlaybackMode playbackMode() const;
         PlaylistSource source() const;

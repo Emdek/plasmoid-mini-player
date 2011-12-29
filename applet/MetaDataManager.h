@@ -41,6 +41,7 @@ class MetaDataManager : public QObject
         static MetaDataManager* instance();
         static QString timeToString(qint64 time);
         static QVariantMap metaData(const KUrl &url);
+        static KUrl::List tracks();
         static QString title(const KUrl &url);
         static KIcon icon(const KUrl &url);
         static qint64 duration(const KUrl &url);

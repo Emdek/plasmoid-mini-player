@@ -624,7 +624,7 @@ PlayerState PlaylistManager::state() const
 int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks, PlaylistSource source)
 {
     PlaylistModel *playlist = new PlaylistModel(this, title, source);
-    int position = (visiblePlaylist() + 1);
+    int position = qMin(m_playlists.count(), visiblePlaylist() + 1);
 
     m_playlists.insert(position, playlist);
 

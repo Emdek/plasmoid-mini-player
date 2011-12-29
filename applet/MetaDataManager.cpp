@@ -233,6 +233,11 @@ QString MetaDataManager::timeToString(qint64 time)
     return string;
 }
 
+KUrl::List MetaDataManager::tracks()
+{
+    return m_tracks.keys();
+}
+
 QString MetaDataManager::title(const KUrl &url)
 {
     QString title;

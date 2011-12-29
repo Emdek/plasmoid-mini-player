@@ -167,9 +167,6 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="mouseTracking">
-       <bool>true</bool>
-      </property>
       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,3,0,0,0">
        <property name="margin">
         <number>0</number>

@@ -163,8 +163,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     resize(250, 50);
 
     connect(this, SIGNAL(activate()), this, SLOT(togglePlaylistDialog()));
-    connect(m_playlistManager, SIGNAL(configNeedsSaving()), this, SLOT(configSave()));
-    connect(m_player, SIGNAL(configNeedsSaving()), this, SLOT(configSave()));
     connect(m_player, SIGNAL(trackChanged()), this, SLOT(showToolTip()));
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(stateChanged(PlayerState)));
     connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(videoAvailableChanged(bool)));
@@ -192,35 +190,30 @@ Applet::~Applet()
 void Applet::init()
 {
     KConfigGroup playlistsConfiguration = config().group("playlists");
+    KConfigGroup metaDataConfiguration = config().group("metaData");
     QStringList playlists = playlistsConfiguration.groupList();
-    KUrl::List tracks;
-    QStringList titles;
-    QStringList durations;
+    QStringList tracks = metaDataConfiguration.groupList();
+    int currentPlaylist = 0;
+
+    for (int i = 0; i < tracks.count(); ++i)
+    {
+        KConfigGroup trackConfiguration = metaDataConfiguration.group(tracks.at(i));
+
+        MetaDataManager::setMetaData(KUrl(trackConfiguration.readEntry("url", QString())), trackConfiguration.readEntry("title", QString()), trackConfiguration.readEntry("duration", -1));
+    }
 
     for (int i = 0; i < playlists.count(); ++i)
     {
-        KConfigGroup playlistConfiguration = playlistsConfiguration.group(QString::number(i));
-
-        tracks = KUrl::List(playlistConfiguration.readEntry("tracks", QStringList()));
-        titles = playlistConfiguration.readEntry("titles", QStringList());
-        durations = playlistConfiguration.readEntry("durations", QStringList());
-
-        for (int j = 0; j < tracks.count(); ++j)
-        {
-            qint64 duration = durations.value(j, "-1").toLongLong();
-
-            if (titles.value(j, QString()).isEmpty() && duration < 1)
-            {
-                continue;
-            }
-
-            MetaDataManager::setMetaData(tracks.at(j), titles.value(j, QString()), duration);
-        }
-
-        int playlist = m_playlistManager->createPlaylist(playlistConfiguration.readEntry("title", i18n("Default")), tracks);
+        KConfigGroup playlistConfiguration = playlistsConfiguration.group(playlists.at(i));
+        int playlist = m_playlistManager->createPlaylist(playlistConfiguration.readEntry("title", i18n("Default")), KUrl::List(playlistConfiguration.readEntry("tracks", QStringList())));
 
         m_playlistManager->playlists().at(playlist)->setCurrentTrack(playlistConfiguration.readEntry("currentTrack", 0));
         m_playlistManager->playlists().at(playlist)->setPlaybackMode(static_cast<PlaybackMode>(playlistConfiguration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
+
+        if (playlistConfiguration.readEntry("isCurrent", false))
+        {
+            currentPlaylist = playlist;
+        }
     }
 
     if (!m_playlistManager->playlists().count())
@@ -228,7 +221,7 @@ void Applet::init()
         m_playlistManager->createPlaylist(i18n("Default"), KUrl::List());
     }
 
-    m_playlistManager->setCurrentPlaylist(playlistsConfiguration.readEntry("currentPlaylist", 0));
+    m_playlistManager->setCurrentPlaylist(currentPlaylist);
 
     if (config().readEntry("playOnStartup", false) && m_player->playlist() && m_player->playlist()->trackCount())
     {
@@ -242,9 +235,11 @@ void Applet::init()
     m_player->setContrast(config().readEntry("contrast", 50));
     m_player->setHue(config().readEntry("hue", 50));
     m_player->setSaturation(config().readEntry("saturation", 50));
-    m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
 
     QTimer::singleShot(100, this, SLOT(configReset()));
+
+    connect(m_player, SIGNAL(configNeedsSaving()), this, SLOT(configSave()));
+    connect(m_playlistManager, SIGNAL(configNeedsSaving()), this, SLOT(configSave()));
 }
 
 void Applet::createConfigurationInterface(KConfigDialog *parent)
@@ -347,12 +342,12 @@ void Applet::configSave()
     }
 
     configuration.deleteGroup("playlists");
+    configuration.deleteGroup("metaData");
 
     KConfigGroup playlistsConfiguration = configuration.group("playlists");
+    KConfigGroup metaDataConfiguration = configuration.group("metaData");
     QList<PlaylistModel*> playlists = m_playlistManager->playlists();
-    QStringList urls;
-    QStringList titles;
-    QStringList durations;
+    int index = 0;
 
     for (int i = 0; i < playlists.count(); ++i)
     {
@@ -361,32 +356,25 @@ void Applet::configSave()
             continue;
         }
 
-        for (int j = 0; j < playlists[i]->trackCount(); ++j)
-        {
-            if (MetaDataManager::available(playlists[i]->track(j)))
-            {
-                titles.append(MetaDataManager::title(playlists[i]->track(j)));
-                durations.append(QString::number(MetaDataManager::duration(playlists[i]->track(j))));
-            }
-            else
-            {
-                titles.append(QString());
-                durations.append(QString("-1"));
-            }
+        KConfigGroup playlistConfiguration = playlistsConfiguration.group(QString::number(index));
+        playlistConfiguration.writeEntry("tracks", playlists[i]->tracks().toStringList());
+        playlistConfiguration.writeEntry("title", playlists[i]->title());
+        playlistConfiguration.writeEntry("playbackMode", static_cast<int>(playlists[i]->playbackMode()));
+        playlistConfiguration.writeEntry("currentTrack", playlists[i]->currentTrack());
+        playlistConfiguration.writeEntry("isCurrent", (m_playlistManager->currentPlaylist() == i));
 
-            urls.append(playlists[i]->track(j).pathOrUrl());
-        }
-
-        KConfigGroup playlistConfiguration = playlistsConfiguration.group(QString::number(i));
-        configuration.writeEntry("tracks", urls);
-        configuration.writeEntry("titles", titles);
-        configuration.writeEntry("durations", durations);
-        configuration.writeEntry("title", playlists[i]->title());
-        configuration.writeEntry("playbackMode", static_cast<int>(playlists[i]->playbackMode()));
-        configuration.writeEntry("currentTrack", playlists[i]->currentTrack());
+        ++index;
     }
 
-    playlistsConfiguration.writeEntry("currentPlaylist", m_playlistManager->currentPlaylist());
+    const KUrl::List tracks = MetaDataManager::tracks();
+
+    for (int i = 0; i < tracks.count(); ++i)
+    {
+        KConfigGroup trackConfiguration = metaDataConfiguration.group(QString::number(i));
+        trackConfiguration.writeEntry("url", tracks.at(i));
+        trackConfiguration.writeEntry("title", MetaDataManager::title(tracks.at(i)));
+        trackConfiguration.writeEntry("duration", MetaDataManager::duration(tracks.at(i)));
+    }
 
     emit configNeedsSaving();
 }
@@ -439,6 +427,8 @@ void Applet::configReset()
         m_trackListDBusHandler = new TrackListDBusHandler(m_player);
         m_rootDBUSHandler = new RootDBusHandler(m_player);
     }
+
+    m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
 }
 
 void Applet::constraintsEvent(Plasma::Constraints constraints)

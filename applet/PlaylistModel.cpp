@@ -323,6 +323,24 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
     return QVariant();
 }
 
+QMimeData* PlaylistModel::mimeData(const QModelIndexList &indexes) const
+{
+    KUrl::List urls;
+
+    foreach (const QModelIndex &index, indexes)
+    {
+        if (index.isValid() && (index.column() == 0))
+        {
+            urls.append(KUrl(m_tracks.at(index.row())));
+        }
+    }
+
+    QMimeData *mimeData = new QMimeData();
+    urls.populateMimeData(mimeData);
+
+    return mimeData;
+}
+
 Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
@@ -349,27 +367,14 @@ Qt::DropActions PlaylistModel::supportedDropActions() const
     return (Qt::CopyAction | Qt::MoveAction);
 }
 
-QMimeData* PlaylistModel::mimeData(const QModelIndexList &indexes) const
-{
-    KUrl::List urls;
-
-    foreach (const QModelIndex &index, indexes)
-    {
-        if (index.isValid() && (index.column() == 0))
-        {
-            urls.append(KUrl(m_tracks.at(index.row())));
-        }
-    }
-
-    QMimeData *mimeData = new QMimeData();
-    urls.populateMimeData(mimeData);
-
-    return mimeData;
-}
-
 QStringList PlaylistModel::mimeTypes() const
 {
     return QStringList("text/uri-list");
+}
+
+KUrl::List PlaylistModel::tracks() const
+{
+    return m_tracks;
 }
 
 KUrl PlaylistModel::track(int position) const
