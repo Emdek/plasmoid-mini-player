@@ -146,10 +146,7 @@ void MetaDataManager::setUrlMetaData(const KUrl &url, const QString &title, qint
         return;
     }
 
-    if (!isAvailable(url))
-    {
-        emit urlChanged(url);
-    }
+    const bool available = isAvailable(url);
 
     if (duration < 1 && m_tracks.contains(url))
     {
@@ -157,6 +154,11 @@ void MetaDataManager::setUrlMetaData(const KUrl &url, const QString &title, qint
     }
 
     m_tracks[url] = qMakePair(title, duration);
+
+    if (!available)
+    {
+        emit urlChanged(url);
+    }
 }
 
 MetaDataManager* MetaDataManager::instance()
@@ -278,7 +280,7 @@ qint64 MetaDataManager::duration(const KUrl &url)
 
 bool MetaDataManager::isAvailable(const KUrl &url)
 {
-    return (!m_tracks.contains(url) || m_tracks[url].first.isEmpty() || m_tracks[url].second < 1);
+    return (m_tracks.contains(url) && !m_tracks[url].first.isEmpty());
 }
 
 }

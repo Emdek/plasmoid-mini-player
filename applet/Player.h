@@ -54,7 +54,7 @@ class Player : public QObject
         void registerDialogVideoWidget(VideoWidget *videoWidget);
         void registerFullScreenVideoWidget(QWidget *videoWidget);
         QString errorString() const;
-        QString title() const;
+        QString title(bool allowSubstitute = true) const;
         PlaylistModel* playlist() const;
         QAction* action(PlayerAction action) const;
         KUrl url() const;

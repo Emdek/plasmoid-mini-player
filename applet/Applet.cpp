@@ -614,24 +614,24 @@ void Applet::videoAvailableChanged(bool videoAvailable)
 
 void Applet::metaDataChanged()
 {
-    const KUrl url = m_player->url();
-
-    if (!MetaDataManager::isAvailable(url))
+    if (m_player->state() == StoppedState)
     {
-        MetaDataManager::setMetaData(url, m_player->title(), m_player->duration());
+        return;
     }
 
-    if (m_player->state() != StoppedState)
+    if (!MetaDataManager::isAvailable(m_player->url()))
     {
-        if (m_player->position() < 150 && m_hideToolTip == 0)
-        {
-            updateToolTip();
-
-            QTimer::singleShot(500, this, SLOT(showToolTip()));
-        }
-
-        emit titleChanged(m_player->title());
+        MetaDataManager::setMetaData(m_player->url(), m_player->title(false), m_player->duration());
     }
+
+    if (m_player->position() < 150 && m_hideToolTip == 0)
+    {
+        updateToolTip();
+
+        QTimer::singleShot(500, this, SLOT(showToolTip()));
+    }
+
+    emit titleChanged(m_player->title());
 }
 
 void Applet::openUrl()

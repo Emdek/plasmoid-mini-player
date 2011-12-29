@@ -630,11 +630,6 @@ void Player::openDisc(const QString &device, PlaylistSource type)
 
 void Player::play()
 {
-    if (state() == StoppedState)
-    {
-        emit trackChanged();
-    }
-
     if ((m_mediaObject->currentSource().type() == Phonon::MediaSource::Invalid || !m_mediaObject->currentSource().url().isValid()) && m_playlist)
     {
         currentTrackChanged(m_playlist->currentTrack(), PlayReaction);
@@ -848,13 +843,13 @@ QString Player::errorString() const
     return m_mediaObject->errorString();
 }
 
-QString Player::title() const
+QString Player::title(bool allowSubstitute) const
 {
     const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
 
     if (titles.isEmpty() || titles.first().isEmpty())
     {
-        return QFileInfo(m_mediaObject->currentSource().url().toString()).completeBaseName().replace("%20", " ");
+        return (allowSubstitute?QFileInfo(m_mediaObject->currentSource().url().toString()).completeBaseName().replace("%20", " "):QString());
     }
     else
     {
