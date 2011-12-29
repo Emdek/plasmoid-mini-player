@@ -28,7 +28,7 @@
 namespace MiniPlayer
 {
 
-QHash<KUrl, QPair<QString, qint64> > MetaDataManager::m_tracks;
+QHash<KUrl, Track> MetaDataManager::m_tracks;
 MetaDataManager* MetaDataManager::m_instance = NULL;
 
 MetaDataManager::MetaDataManager(QObject *parent) : QObject(parent),
@@ -85,7 +85,7 @@ void MetaDataManager::resolveMetaData()
     {
         track = m_queue.dequeue();
 
-        if (!track.first.isValid() || !track.first.isLocalFile() || (m_tracks.contains(track.first) && m_tracks[track.first].second > 0))
+        if (!track.first.isValid() || !track.first.isLocalFile() || (m_tracks.contains(track.first) && m_tracks[track.first].duration > 0))
         {
             continue;
         }
@@ -147,10 +147,14 @@ void MetaDataManager::setUrlMetaData(const KUrl &url, const QString &title, qint
 
     if (duration < 1 && m_tracks.contains(url))
     {
-        duration = m_tracks[url].second;
+        duration = m_tracks[url].duration;
     }
 
-    m_tracks[url] = qMakePair(title, duration);
+    Track track;
+    track.title = title;
+    track.duration = duration;
+
+    m_tracks[url] = track;
 
     if (!available)
     {
@@ -241,9 +245,9 @@ QString MetaDataManager::title(const KUrl &url)
 {
     QString title;
 
-    if (m_tracks.contains(url) && !m_tracks[url].first.isEmpty())
+    if (m_tracks.contains(url) && !m_tracks[url].title.isEmpty())
     {
-        title = m_tracks[url].first;
+        title = m_tracks[url].title;
     }
     else
     {
@@ -269,7 +273,7 @@ qint64 MetaDataManager::duration(const KUrl &url)
 {
     if (m_tracks.contains(url))
     {
-        return m_tracks[url].second;
+        return m_tracks[url].duration;
     }
 
     return -1;
@@ -277,7 +281,7 @@ qint64 MetaDataManager::duration(const KUrl &url)
 
 bool MetaDataManager::isAvailable(const KUrl &url)
 {
-    return (m_tracks.contains(url) && !m_tracks[url].first.isEmpty());
+    return (m_tracks.contains(url) && !m_tracks[url].title.isEmpty());
 }
 
 }

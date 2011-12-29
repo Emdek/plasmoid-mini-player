@@ -31,6 +31,13 @@
 namespace MiniPlayer
 {
 
+struct Track
+{
+    QString title;
+    QString artist;
+    qint64 duration;
+};
+
 class MetaDataManager : public QObject
 {
     Q_OBJECT
@@ -63,7 +70,7 @@ class MetaDataManager : public QObject
         int m_resolveMedia;
         int m_attempts;
 
-        static QHash<KUrl, QPair<QString, qint64> > m_tracks;
+        static QHash<KUrl, Track> m_tracks;
         static MetaDataManager *m_instance;
 
     signals:
