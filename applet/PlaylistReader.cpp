@@ -35,12 +35,12 @@
 namespace MiniPlayer
 {
 
-PlaylistReader::PlaylistReader(PlaylistModel *parent, const KUrl::List &urls, int index, bool play) : QObject(parent),
+PlaylistReader::PlaylistReader(PlaylistModel *parent, const KUrl::List &urls, int index, PlayerReaction reaction) : QObject(parent),
+    m_reaction(reaction),
     m_imports(0),
-    m_index(index),
-    m_play(play)
+    m_index(index)
 {
-    connect(this, SIGNAL(processedTracks(KUrl::List,QHash<KUrl,QPair<QString,qint64> >,int,bool)), parent, SLOT(addTracks(KUrl::List,QHash<KUrl,QPair<QString,qint64> >,int,bool)));
+    connect(this, SIGNAL(processedTracks(KUrl::List,QHash<KUrl,QPair<QString,qint64> >,int,PlayerReaction)), parent, SLOT(addTracks(KUrl::List,QHash<KUrl,QPair<QString,qint64> >,int,PlayerReaction)));
 
     addUrls(urls);
 }
@@ -136,7 +136,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 
     if (!m_imports)
     {
-        emit processedTracks(m_tracks, m_metaData, m_index, m_play);
+        emit processedTracks(m_tracks, m_metaData, m_index, m_reaction);
 
         deleteLater();
     }

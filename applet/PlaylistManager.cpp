@@ -171,9 +171,9 @@ void PlaylistManager::updateVideoView()
     m_playlistUi.graphicsView->scene()->setSceneRect(m_playlistUi.graphicsView->rect());
 }
 
-void PlaylistManager::addTracks(const KUrl::List &tracks, int index, bool play)
+void PlaylistManager::addTracks(const KUrl::List &tracks, int index, PlayerReaction reaction)
 {
-    m_playlists[visiblePlaylist()]->addTracks(tracks, index, play);
+    m_playlists[visiblePlaylist()]->addTracks(tracks, index, reaction);
 }
 
 void PlaylistManager::trackPressed()

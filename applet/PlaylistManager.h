@@ -43,7 +43,7 @@ class PlaylistManager : public QObject
     public:
         PlaylistManager(Player *parent);
 
-        void addTracks(const KUrl::List &tracks, int index = -1, bool play = false);
+        void addTracks(const KUrl::List &tracks, int index = -1, PlayerReaction reaction = NoReaction);
         QList<PlaylistModel*> playlists() const;
         QSize dialogSize() const;
         QByteArray splitterState() const;

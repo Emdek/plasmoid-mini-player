@@ -44,7 +44,7 @@ int TrackListDBusHandler::AddTrack(const QString &url, bool playImmediately)
 {
     if (KUrl(url).isValid())
     {
-        m_player->playlist()->addTracks(KUrl::List(KUrl(url)), -1, playImmediately);
+        m_player->playlist()->addTracks(KUrl::List(KUrl(url)), -1, (playImmediately?MiniPlayer::PlayReaction:MiniPlayer::NoReaction));
 
         emit TrackListChange(m_player->playlist()->trackCount());
 

@@ -45,7 +45,7 @@ class PlaylistModel : public QAbstractTableModel
 
         void addTrack(int position, const KUrl &url);
         void removeTrack(int position);
-        void addTracks(const KUrl::List &tracks, int position = -1, bool play = false);
+        void addTracks(const KUrl::List &tracks, int position = -1, PlayerReaction reaction = NoReaction);
         void sort(int column, Qt::SortOrder order);
         void setTitle(const QString &title);
         QString title() const;
@@ -76,14 +76,14 @@ class PlaylistModel : public QAbstractTableModel
         void shuffle();
         void next();
         void previous();
-        void setCurrentTrack(int track, bool play = false);
+        void setCurrentTrack(int track, PlayerReaction reaction = NoReaction);
         void setPlaybackMode(PlaybackMode mode);
 
     protected:
         int randomTrack() const;
 
     protected slots:
-        void addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, bool play);
+        void addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, PlayerReaction reaction = NoReaction);
 
     private:
         PlaylistManager *m_manager;
@@ -95,7 +95,7 @@ class PlaylistModel : public QAbstractTableModel
 
     signals:
         void needsSaving();
-        void currentTrackChanged(int track, bool play);
+        void currentTrackChanged(int track, PlayerReaction reaction);
 
     friend class Player;
 };

@@ -472,7 +472,7 @@ void Applet::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
     killTimer(m_togglePlaylist);
 
-    m_playlistManager->addTracks(KUrl::List::fromMimeData(event->mimeData()), -1, true);
+    m_playlistManager->addTracks(KUrl::List::fromMimeData(event->mimeData()), -1, PlayReaction);
 }
 
 void Applet::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
@@ -642,7 +642,7 @@ void Applet::openUrl()
 
     if (!url.isEmpty())
     {
-        m_playlistManager->addTracks(KUrl::List(url), -1, !m_playlistManager->isDialogVisible());
+        m_playlistManager->addTracks(KUrl::List(url), -1, (m_playlistManager->isDialogVisible()?NoReaction:PlayReaction));
     }
 }
 
@@ -664,7 +664,7 @@ void Applet::openFiles()
 
     config().writeEntry("directory", QFileInfo(urls.at(0).toLocalFile()).absolutePath());
 
-    m_playlistManager->addTracks(urls, -1, !m_playlistManager->isDialogVisible());
+    m_playlistManager->addTracks(urls, -1, (m_playlistManager->isDialogVisible()?NoReaction:PlayReaction));
 
     emit configNeedsSaving();
 }
@@ -864,7 +864,7 @@ void Applet::toolTipHidden()
 void Applet::showMenu(const QPoint &position)
 {
     KMenu menu;
-    menu.addActions(m_actions);
+    menu.addActions(contextualActions());
     menu.addSeparator();
     menu.addAction(KIcon("configure"), i18n("Settings"), this, SLOT(showConfigurationInterface()));
     menu.exec(position);

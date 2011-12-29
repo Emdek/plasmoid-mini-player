@@ -50,6 +50,11 @@ void PlaylistModel::addTrack(int position, const KUrl &url)
 {
     m_tracks.insert(position, url);
 
+    if (position <= m_currentTrack)
+    {
+        setCurrentTrack(qMin((position + 1), (m_tracks.count() - 1)));
+    }
+
     emit needsSaving();
 }
 
@@ -59,32 +64,27 @@ void PlaylistModel::removeTrack(int position)
 
     if (position == m_currentTrack && (m_manager->state() != StoppedState && m_manager->playlists().value(m_manager->currentPlaylist()) == this))
     {
-        if (m_tracks.isEmpty() || m_currentTrack > (m_tracks.count() - 2))
-        {
-            m_currentTrack = qMax(0, (m_tracks.count() - 1));
-        }
-
-        emit currentTrackChanged(m_currentTrack, false);
+        setCurrentTrack(qMax(0, (m_tracks.count() - 1)), StopReaction);
     }
     else if (position < m_currentTrack)
     {
-        --m_currentTrack;
+        setCurrentTrack(m_currentTrack - 1);
     }
 
     emit needsSaving();
 }
 
-void PlaylistModel::addTracks(const KUrl::List &tracks, int position, bool play)
+void PlaylistModel::addTracks(const KUrl::List &tracks, int position, PlayerReaction reaction)
 {
     if (position == -1)
     {
         position = m_tracks.count();
     }
 
-    new PlaylistReader(this, tracks, position, play);
+    new PlaylistReader(this, tracks, position, reaction);
 }
 
-void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, bool play)
+void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, PlayerReaction reaction)
 {
     for (int i = (tracks.count() - 1); i >= 0; --i)
     {
@@ -94,14 +94,17 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<
         }
     }
 
-    MetaDataManager::addTracks(tracks);
-
-    if (trackCount())
+    if (reaction == PlayReaction)
     {
-        setCurrentTrack(position, play);
+        setCurrentTrack(position, reaction);
+    }
+    else if (position <= m_currentTrack)
+    {
+        setCurrentTrack(qMin((m_currentTrack + tracks.count()), (m_tracks.count() - 1)), reaction);
     }
 
     MetaDataManager::setMetaData(metaData);
+    MetaDataManager::addTracks(tracks);
 
     emit needsSaving();
 }
@@ -225,19 +228,17 @@ void PlaylistModel::previous()
     }
 }
 
-void PlaylistModel::setCurrentTrack(int track, bool play)
+void PlaylistModel::setCurrentTrack(int track, PlayerReaction reaction)
 {
     if (track > m_tracks.count())
     {
         track = 0;
     }
 
-    if (m_currentTrack != track)
-    {
-        m_currentTrack = track;
+    m_currentTrack = track;
 
-        emit currentTrackChanged(m_currentTrack, play);
-    }
+    emit currentTrackChanged(m_currentTrack, reaction);
+    emit layoutChanged();
 }
 
 void PlaylistModel::setPlaybackMode(PlaybackMode mode)
@@ -504,7 +505,7 @@ bool PlaylistModel::dropMimeData(const QMimeData *mimeData, Qt::DropAction actio
         position = row;
     }
 
-    addTracks(KUrl::List::fromMimeData(mimeData), position, false);
+    addTracks(KUrl::List::fromMimeData(mimeData), position, NoReaction);
 
     return true;
 }

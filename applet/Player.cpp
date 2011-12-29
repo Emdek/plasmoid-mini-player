@@ -429,19 +429,28 @@ void Player::availableTitlesChanged()
     emit createDevicePlaylist(udi, tracks);
 }
 
-void Player::currentTrackChanged(int track, bool play)
+void Player::currentTrackChanged(int track, PlayerReaction reaction)
 {
     if (m_playlist && m_playlist->trackCount())
     {
-        m_mediaObject->setCurrentSource(Phonon::MediaSource(m_playlist->track(track)));
-
-        if (play)
+        if (reaction == PlayReaction || reaction == PauseReaction)
         {
-            this->play();
+            m_mediaObject->setCurrentSource(Phonon::MediaSource(m_playlist->track(track)));
         }
-        else
+
+        switch (reaction)
         {
-            stop();
+            case PlayReaction:
+                play();
+            break;
+            case PauseReaction:
+                pause();
+            break;
+            case StopReaction:
+                stop();
+            break;
+            default:
+            break;
         }
 
         emit trackChanged();
@@ -525,7 +534,7 @@ void Player::trackFinished()
 
     if (m_playlist)
     {
-        m_playlist->setCurrentTrack(m_playlist->nextTrack(), true);
+        m_playlist->setCurrentTrack(m_playlist->nextTrack(), PlayReaction);
     }
 
     m_videoWidget->update();
@@ -632,7 +641,7 @@ void Player::play(int index)
 {
     if (m_playlist)
     {
-        m_playlist->setCurrentTrack(index, true);
+        m_playlist->setCurrentTrack(index, PlayReaction);
     }
 }
 
@@ -683,18 +692,18 @@ void Player::setPlaylist(PlaylistModel *playlist)
     if (m_playlist)
     {
         disconnect(m_playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
-        disconnect(m_playlist, SIGNAL(currentTrackChanged(int,bool)), this, SLOT(currentTrackChanged(int,bool)));
+        disconnect(m_playlist, SIGNAL(currentTrackChanged(int,PlayerReaction)), this, SLOT(currentTrackChanged(int,PlayerReaction)));
     }
 
     m_playlist = playlist;
 
     m_actions[PlaybackModeMenuAction]->menu()->actions().at(static_cast<int>(m_playlist->playbackMode()))->setChecked(true);
 
-    currentTrackChanged(playlist->currentTrack(), (state() == PlayingState));
+    currentTrackChanged(playlist->currentTrack(), NoReaction);
     mediaChanged();
 
     connect(playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
-    connect(playlist, SIGNAL(currentTrackChanged(int,bool)), this, SLOT(currentTrackChanged(int,bool)));
+    connect(playlist, SIGNAL(currentTrackChanged(int,PlayerReaction)), this, SLOT(currentTrackChanged(int,PlayerReaction)));
 }
 
 void Player::setPosition(qint64 position)
@@ -962,7 +971,7 @@ bool Player::eventFilter(QObject *object, QEvent *event)
     }
     else if (event->type() == QEvent::Drop && m_playlist)
     {
-        m_playlist->addTracks(KUrl::List::fromMimeData(static_cast<QDropEvent*>(event)->mimeData()), -1, true);
+        m_playlist->addTracks(KUrl::List::fromMimeData(static_cast<QDropEvent*>(event)->mimeData()), -1, PlayReaction);
 
         return true;
     }

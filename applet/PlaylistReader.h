@@ -39,7 +39,7 @@ class PlaylistReader : public QObject
     Q_OBJECT
 
     public:
-        PlaylistReader(PlaylistModel *parent, const KUrl::List &urls, int index, bool play);
+        PlaylistReader(PlaylistModel *parent, const KUrl::List &urls, int index, PlayerReaction reaction);
 
     public slots:
         void importData(KIO::Job *job, const QByteArray &data);
@@ -59,12 +59,12 @@ class PlaylistReader : public QObject
         QHash<KJob*, PlaylistFormat> m_remotePlaylistsType;
         QHash<KUrl, QPair<QString, qint64> > m_metaData;
         KUrl::List m_tracks;
+        PlayerReaction m_reaction;
         int m_imports;
         int m_index;
-        bool m_play;
 
     signals:
-        void processedTracks(KUrl::List tracks, QHash<KUrl, QPair<QString, qint64> > metaData, int index, bool play);
+        void processedTracks(KUrl::List tracks, QHash<KUrl, QPair<QString, qint64> > metaData, int index, PlayerReaction reaction);
 };
 
 }

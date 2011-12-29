@@ -111,7 +111,7 @@ class Player : public QObject
         void availableSubtitlesChanged();
         void availableAnglesChanged();
         void availableTitlesChanged();
-        void currentTrackChanged(int track, bool play = false);
+        void currentTrackChanged(int track, PlayerReaction reaction = NoReaction);
         void stateChanged(Phonon::State state);
         void changePlaybackMode(QAction *action);
         void changeAspectRatio(QAction *action);
