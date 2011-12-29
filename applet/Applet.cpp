@@ -175,6 +175,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
     connect(m_player->action(VolumeToggleAction), SIGNAL(triggered()), this, SLOT(toggleVolumeDialog()));
     connect(m_player->action(PlaylistToggleAction), SIGNAL(triggered()), this, SLOT(togglePlaylistDialog()));
+    connect(m_playlistManager, SIGNAL(requestMenu(QPoint)), this, SLOT(showMenu(QPoint)));
 }
 
 Applet::~Applet()

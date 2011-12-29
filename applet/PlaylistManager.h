@@ -58,8 +58,8 @@ class PlaylistManager : public QObject
     public slots:
         void filterPlaylist(const QString &text);
         void movePlaylist(int from, int to);
-        void renamePlaylist(int position);
-        void removePlaylist(int position);
+        void renamePlaylist(int position = -1);
+        void removePlaylist(int position = -1);
         void visiblePlaylistChanged(int position);
         void exportPlaylist();
         void newPlaylist();
@@ -96,11 +96,13 @@ class PlaylistManager : public QObject
         QHash<QString, QPair<QAction*, QHash<QString, QVariant> > > m_discActions;
         QList<PlaylistModel*> m_playlists;
         int m_currentPlaylist;
+        int m_selectedPlaylist;
         bool m_editorActive;
         Ui::playlist m_playlistUi;
 
     signals:
         void configNeedsSaving();
+        void requestMenu(QPoint position);
 };
 
 }

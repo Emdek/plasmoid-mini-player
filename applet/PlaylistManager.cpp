@@ -49,6 +49,7 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_dialog(NULL),
     m_videoWidget(new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()))),
     m_currentPlaylist(0),
+    m_selectedPlaylist(-1),
     m_editorActive(false)
 {
     m_videoWidget->hide();
@@ -283,6 +284,11 @@ void PlaylistManager::movePlaylist(int from, int to)
 
 void PlaylistManager::renamePlaylist(int position)
 {
+    if (position < 0)
+    {
+        position = m_selectedPlaylist;
+    }
+
     QString oldTitle = KGlobal::locale()->removeAcceleratorMarker(m_playlistUi.tabBar->tabText(position));
     QString newTitle = KInputDialog::getText(i18n("Rename Playlist"), i18n("Enter name:"), oldTitle);
 
@@ -299,6 +305,11 @@ void PlaylistManager::renamePlaylist(int position)
 
 void PlaylistManager::removePlaylist(int position)
 {
+    if (position < 0)
+    {
+        position = m_selectedPlaylist;
+    }
+
     if (m_playlistUi.tabBar->count() == 1)
     {
         clearPlaylist();
@@ -407,6 +418,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_dialog->setContentsMargins(0, 0, 0, 0);
         m_dialog->adjustSize();
         m_dialog->setMouseTracking(true);
+        m_dialog->installEventFilter(this);
         m_dialog->installEventFilter(m_player->parent());
 
         connect(m_dialog, SIGNAL(dialogResized()), this, SIGNAL(configNeedsSaving()));
@@ -698,32 +710,30 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
 
             QModelIndex index = m_playlistUi.playlistView->indexAt(point);
 
-            if (index.data(Qt::DisplayRole).toString().isEmpty())
+            if (index.isValid())
             {
-                return false;
+                KUrl url = KUrl(index.data(Qt::ToolTipRole).toString());
+                KMenu menu;
+                menu.addAction(KIcon("document-edit"), i18n("Edit title"), this, SLOT(editTrackTitle()));
+                menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
+                menu.addSeparator();
+
+                if (m_playlists[visiblePlaylist()] == m_player->playlist() && index.row() == m_playlists[visiblePlaylist()]->currentTrack())
+                {
+                    menu.addAction(m_player->action(PlayPauseAction));
+                    menu.addAction(m_player->action(StopAction));
+                }
+                else
+                {
+                    menu.addAction(KIcon("media-playback-start"), i18n("Play"), this, SLOT(playTrack()));
+                }
+
+                menu.addSeparator();
+                menu.addAction(KIcon("list-remove"), i18n("Remove"), this, SLOT(removeTrack()));
+                menu.exec(QCursor::pos());
+
+                return true;
             }
-
-            KUrl url = KUrl(index.data(Qt::ToolTipRole).toString());
-            KMenu menu;
-            menu.addAction(KIcon("document-edit"), i18n("Edit title"), this, SLOT(editTrackTitle()));
-            menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
-            menu.addSeparator();
-
-            if (m_playlists[visiblePlaylist()] == m_player->playlist() && index.row() == m_playlists[visiblePlaylist()]->currentTrack())
-            {
-                menu.addAction(m_player->action(PlayPauseAction));
-                menu.addAction(m_player->action(StopAction));
-            }
-            else
-            {
-                menu.addAction(KIcon("media-playback-start"), i18n("Play"), this, SLOT(playTrack()));
-            }
-
-            menu.addSeparator();
-            menu.addAction(KIcon("list-remove"), i18n("Remove"), this, SLOT(removeTrack()));
-            menu.exec(QCursor::pos());
-
-            return true;
         }
     }
     else if (object == m_playlistUi.graphicsView)
@@ -735,6 +745,36 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
         else if (event->type() == QEvent::GraphicsSceneWheel)
         {
             return false;
+        }
+    }
+    else if (event->type() == QEvent::ContextMenu && m_dialog && !m_editorActive)
+    {
+        QPoint point = static_cast<QContextMenuEvent*>(event)->pos();
+
+        if (m_dialog->childAt(point) == m_playlistUi.tabBar)
+        {
+            m_selectedPlaylist = m_playlistUi.tabBar->tabAt(m_playlistUi.tabBar->mapFromGlobal(static_cast<QContextMenuEvent*>(event)->globalPos()));
+
+            KMenu menu;
+            menu.addAction(KIcon("document-new"), i18n("New playlist..."), this, SLOT(newPlaylist()));
+
+            if (m_selectedPlaylist >= 0)
+            {
+                menu.addSeparator();
+                menu.addAction(KIcon("edit-rename"), i18n("Rename playlist..."), this, SLOT(renamePlaylist()));
+                menu.addSeparator();
+                menu.addAction(KIcon("document-close"), i18n("Close playlist"), this, SLOT(removePlaylist()));
+            }
+
+            menu.exec(QCursor::pos());
+
+            return true;
+        }
+        else if (m_dialog->childAt(point) != m_playlistUi.playlistViewFilter)
+        {
+            emit requestMenu(QCursor::pos());
+
+        return true;
         }
     }
 

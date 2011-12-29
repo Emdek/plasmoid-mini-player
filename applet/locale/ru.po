@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_miniplayer\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2011-12-29 18:48+0100\n"
+"POT-Creation-Date: 2011-12-29 20:01+0100\n"
 "PO-Revision-Date: 2009-04-17 07:09+0400\n"
 "Last-Translator: Ritt K. <angry-kasyan@narod.ru>\n"
 "Language-Team: Russian <kde-i18n-ru@kde.org>\n"
@@ -14,50 +14,50 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: Applet.cpp:157 Applet.cpp:208 Applet.cpp:221
+#: Applet.cpp:157 Applet.cpp:209 Applet.cpp:222
 msgid "Default"
 msgstr ""
 
 #. i18n: file: ui/general.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, general)
-#: Applet.cpp:269 locale/rc.cpp:30 rc.cpp:30
+#: Applet.cpp:270 locale/rc.cpp:30 rc.cpp:30
 msgid "General"
 msgstr "Параметры"
 
 #. i18n: file: ui/controls.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, controls)
-#: Applet.cpp:270 locale/rc.cpp:3 rc.cpp:3
+#: Applet.cpp:271 locale/rc.cpp:3 rc.cpp:3
 msgid "Visible Controls"
 msgstr ""
 
-#: Applet.cpp:641
+#: Applet.cpp:642
 msgid "Open URL"
 msgstr ""
 
-#: Applet.cpp:641
+#: Applet.cpp:642
 msgid "Enter a URL:"
 msgstr ""
 
 #. i18n: file: ui/jumpToPosition.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, jumpToPosition)
-#: Applet.cpp:685 locale/rc.cpp:45 rc.cpp:45
+#: Applet.cpp:686 locale/rc.cpp:45 rc.cpp:45
 #, fuzzy
 msgid "Jump to Position"
 msgstr "Перейти к позиции"
 
-#: Applet.cpp:775 Player.cpp:191
+#: Applet.cpp:776 Player.cpp:191
 msgid "Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:793
+#: Applet.cpp:794
 msgid "Exit Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:840
+#: Applet.cpp:841
 msgid "Position: %1 / %2"
 msgstr "Позиция: %1 / %2"
 
-#: Applet.cpp:869
+#: Applet.cpp:870
 #, fuzzy
 msgid "Settings"
 msgstr "Настройки видео"
@@ -150,7 +150,7 @@ msgstr "ЧЧ:мм:сс"
 
 #. i18n: file: ui/playlist.ui:20
 #. i18n: ectx: property (windowTitle), widget (QWidget, playlist)
-#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:360 rc.cpp:54
+#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:371 rc.cpp:54
 #, fuzzy
 msgid "Playlist"
 msgstr "Список воспроизведения"
@@ -203,7 +203,7 @@ msgstr "Выше"
 
 #. i18n: file: ui/playlist.ui:400
 #. i18n: ectx: property (toolTip), widget (QToolButton, newButton)
-#: locale/rc.cpp:78 rc.cpp:78
+#: locale/rc.cpp:78 PlaylistManager.cpp:759 rc.cpp:78
 #, fuzzy
 msgid "New playlist..."
 msgstr "Список воспроизведения"
@@ -265,7 +265,7 @@ msgstr "Открыть файл"
 msgid "Open URL..."
 msgstr ""
 
-#: Player.cpp:74 Player.cpp:313 PlaylistManager.cpp:714
+#: Player.cpp:74 Player.cpp:313 PlaylistManager.cpp:728
 msgid "Play"
 msgstr "Играть"
 
@@ -427,56 +427,66 @@ msgstr "Громкость: %1%"
 msgid "Saturation: %1%"
 msgstr "Насыщенность:"
 
-#: PlaylistManager.cpp:98
+#: PlaylistManager.cpp:99
 msgid "Disc %1"
 msgstr ""
 
-#: PlaylistManager.cpp:104
+#: PlaylistManager.cpp:105
 msgid "Open DVD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:110
+#: PlaylistManager.cpp:111
 msgid "Open VCD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:116
+#: PlaylistManager.cpp:117
 msgid "Open Audio CD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:287
+#: PlaylistManager.cpp:293
 #, fuzzy
 msgid "Rename Playlist"
 msgstr "Список воспроизведения"
 
-#: PlaylistManager.cpp:287 PlaylistManager.cpp:539
+#: PlaylistManager.cpp:293 PlaylistManager.cpp:551
 msgid "Enter name:"
 msgstr ""
 
-#: PlaylistManager.cpp:529
+#: PlaylistManager.cpp:541
 msgid "File saved successfully."
 msgstr "Файл успешно сохранён."
 
-#: PlaylistManager.cpp:533
+#: PlaylistManager.cpp:545
 #, fuzzy
 msgid "Cannot open file for writing."
 msgstr "Невозможно открыть файл для записи!"
 
-#: PlaylistManager.cpp:539
+#: PlaylistManager.cpp:551
 #, fuzzy
 msgid "New playlist"
 msgstr "Список воспроизведения"
 
-#: PlaylistManager.cpp:703
+#: PlaylistManager.cpp:717
 msgid "Edit title"
 msgstr ""
 
-#: PlaylistManager.cpp:704
+#: PlaylistManager.cpp:718
 msgid "Copy URL"
 msgstr ""
 
-#: PlaylistManager.cpp:718
+#: PlaylistManager.cpp:732
 msgid "Remove"
 msgstr "Удалить"
+
+#: PlaylistManager.cpp:764
+#, fuzzy
+msgid "Rename playlist..."
+msgstr "Список воспроизведения"
+
+#: PlaylistManager.cpp:766
+#, fuzzy
+msgid "Close playlist"
+msgstr "Список воспроизведения"
 
 #: PlaylistModel.cpp:319
 msgid "Title"
