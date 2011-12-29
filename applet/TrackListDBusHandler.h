@@ -21,7 +21,6 @@
 #ifndef TRACKLIST_DBUS_HANDLER_H
 #define TRACKLIST_DBUS_HANDLER_H
 
-#include <QtCore/QObject>
 #include <QtCore/QVariantMap>
 
 namespace MiniPlayer

@@ -21,9 +21,6 @@
 #ifndef MINIPLAYERAPPLET_HEADER
 #define MINIPLAYERAPPLET_HEADER
 
-#include <QtCore/QTimerEvent>
-#include <QtGui/QKeyEvent>
-
 #include <KDialog>
 
 #include <Plasma/Applet>

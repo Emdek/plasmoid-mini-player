@@ -21,6 +21,7 @@
 #include "MetaDataManager.h"
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QTimerEvent>
 
 #include <KMimeType>
 
@@ -46,7 +47,7 @@ void MetaDataManager::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event)
 
-    killTimer(m_resolveMedia);
+    killTimer(event->timerId());
 
     resolveMetaData();
 }

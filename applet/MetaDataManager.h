@@ -22,7 +22,6 @@
 #define MINIPLAYERMETADATAMANAGER_HEADER
 
 #include <QtCore/QQueue>
-#include <QtCore/QObject>
 
 #include <KUrl>
 #include <KIcon>

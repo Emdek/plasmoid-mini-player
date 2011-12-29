@@ -21,7 +21,6 @@
 #ifndef MINIPLAYERPLAYER_HEADER
 #define MINIPLAYERPLAYER_HEADER
 
-#include <QtCore/QObject>
 #include <QtGui/QAction>
 #include <QtGui/QSlider>
 #include <QtGui/QActionGroup>

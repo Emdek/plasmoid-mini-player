@@ -21,7 +21,6 @@
 #ifndef MINIPLAYERPLAYLISTREADER_HEADER
 #define MINIPLAYERPLAYLISTREADER_HEADER
 
-#include <QtCore/QObject>
 #include <QtCore/QTextStream>
 
 #include <KIO/Job>

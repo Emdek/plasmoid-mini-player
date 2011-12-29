@@ -21,8 +21,6 @@
 #ifndef MINIPLAYERPLAYLISTMANAGER_HEADER
 #define MINIPLAYERPLAYLISTMANAGER_HEADER
 
-#include <QtCore/QObject>
-
 #include <Plasma/Dialog>
 
 #include "Constants.h"

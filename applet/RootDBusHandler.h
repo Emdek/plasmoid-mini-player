@@ -22,7 +22,6 @@
 #ifndef ROOT_DBUS_HANDLER_H
 #define ROOT_DBUS_HANDLER_H
 
-#include <QtCore/QObject>
 #include <QtDBus/QDBusArgument>
 
 struct Version
