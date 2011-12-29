@@ -326,6 +326,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>Add tracks...</string>
+         </property>
          <property name="flat">
           <bool>true</bool>
          </property>
@@ -334,7 +337,7 @@
        <item>
         <widget class="QToolButton" name="removeButton">
          <property name="toolTip">
-          <string>Remove</string>
+          <string>Remove track</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
@@ -344,7 +347,7 @@
        <item>
         <widget class="QToolButton" name="editButton">
          <property name="toolTip">
-          <string>Edit title</string>
+          <string>Edit track title</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
@@ -361,7 +364,7 @@
        <item>
         <widget class="QToolButton" name="moveUpButton">
          <property name="toolTip">
-          <string>Move down</string>
+          <string>Move down track</string>
          </property>
          <property name="autoRepeat">
           <bool>true</bool>
@@ -374,7 +377,7 @@
        <item>
         <widget class="QToolButton" name="moveDownButton">
          <property name="toolTip">
-          <string>Move up</string>
+          <string>Move up track</string>
          </property>
          <property name="autoRepeat">
           <bool>true</bool>
@@ -394,7 +397,7 @@
        <item>
         <widget class="QToolButton" name="newButton">
          <property name="toolTip">
-          <string>New</string>
+          <string>New playlist...</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
@@ -404,7 +407,7 @@
        <item>
         <widget class="QToolButton" name="exportButton">
          <property name="toolTip">
-          <string>Export</string>
+          <string>Export playlist...</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
@@ -414,7 +417,7 @@
        <item>
         <widget class="QToolButton" name="clearButton">
          <property name="toolTip">
-          <string>Clear</string>
+          <string>Clear playlist</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
@@ -430,6 +433,9 @@
        </item>
        <item>
         <widget class="QToolButton" name="shuffleButton">
+         <property name="toolTip">
+          <string>Shuffle playlist</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -448,7 +454,7 @@
        <item>
         <widget class="QToolButton" name="playbackModeButton">
          <property name="toolTip">
-          <string>Repeat</string>
+          <string>Set repeat mode</string>
          </property>
          <property name="popupMode">
           <enum>QToolButton::InstantPopup</enum>

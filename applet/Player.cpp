@@ -66,9 +66,9 @@ Player::Player(QObject *parent) : QObject(parent),
 
     m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
     m_actions[OpenMenuAction]->setMenu(new KMenu());
-    m_actions[OpenFileAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("document-open"), i18n("Open File"));
+    m_actions[OpenFileAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("document-open"), i18n("Open File..."));
     m_actions[OpenFileAction]->setShortcut(QKeySequence(Qt::Key_O));
-    m_actions[OpenUrlAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("uri-mms"), i18n("Open URL"));
+    m_actions[OpenUrlAction] = m_actions[OpenMenuAction]->menu()->addAction(KIcon("uri-mms"), i18n("Open URL..."));
     m_actions[OpenUrlAction]->setShortcut(QKeySequence(Qt::Key_U));
 
     m_actions[PlayPauseAction] = new QAction(KIcon("media-playback-start"), i18n("Play"), this);
@@ -92,7 +92,7 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[SeekBackwardAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-seek-backward"), i18n("Seek Backward"), this, SLOT(seekBackward()), QKeySequence(Qt::Key_Left));
     m_actions[SeekForwardAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-seek-forward"), i18n("Seek Forward"), this, SLOT(seekForward()), QKeySequence(Qt::Key_Right));
     m_actions[NavigationMenuAction]->menu()->addSeparator();
-    m_actions[SeekToAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("go-jump"), i18n("Jump to Position"));
+    m_actions[SeekToAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("go-jump"), i18n("Jump to Position..."));
     m_actions[SeekToAction]->setShortcut(QKeySequence(Qt::Key_G));
 
     m_actions[VolumeToggleAction] = new QAction(KIcon("player-volume"), i18n("Volume"), this);
