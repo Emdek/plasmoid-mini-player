@@ -343,15 +343,12 @@ void PlaylistManager::visiblePlaylistChanged(int position)
         return;
     }
 
-    if (!m_playlistUi.playlistViewFilter->text().isEmpty())
-    {
-        filterPlaylist(m_playlistUi.playlistViewFilter->text());
-    }
-
     if (m_player->state() == StoppedState)
     {
         setCurrentPlaylist(position);
     }
+
+    filterPlaylist(m_playlistUi.playlistViewFilter->text());
 
     m_playlistUi.playlistView->setModel(m_playlists[visiblePlaylist()]);
     m_playlistUi.playlistView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
