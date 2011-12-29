@@ -290,7 +290,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     }
     else if (role == Qt::ToolTipRole)
     {
-        return url.pathOrUrl();
+        return ((MetaDataManager::duration(url) > 0)?QString("<nobr>%1 (%2)</nobr>").arg(MetaDataManager::title(url)).arg(MetaDataManager::timeToString(MetaDataManager::duration(url))):QString("<nobr>%1</nobr>").arg(MetaDataManager::title(url)));
     }
     else if (role == Qt::UserRole)
     {
