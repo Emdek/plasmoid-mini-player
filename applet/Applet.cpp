@@ -26,8 +26,8 @@
 #include "PlaylistModel.h"
 #include "PlaylistReader.h"
 #include "SeekSlider.h"
-#include "PlayerDBusHandler.h"
 #include "RootDBusHandler.h"
+#include "PlayerDBusHandler.h"
 #include "TrackListDBusHandler.h"
 
 #include <QtCore/QTime>
@@ -74,12 +74,12 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 {
     KGlobal::locale()->insertCatalog("miniplayer");
 
-    MetaDataManager::createInstance(this);
-
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     setAspectRatioMode(Plasma::IgnoreAspectRatio);
     setHasConfigurationInterface(true);
     setAcceptDrops(true);
+
+    MetaDataManager::createInstance(this);
 
     m_player->registerAppletVideoWidget(m_videoWidget);
     m_player->setVideoMode(false);
@@ -92,7 +92,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 
     setLayout(mainLayout);
 
-    SeekSlider *seekSlider = new SeekSlider();
+    SeekSlider *seekSlider = new SeekSlider;
     seekSlider->setPlayer(m_player);
 
     Plasma::Slider *positionSlider = new Plasma::Slider(m_controlsWidget);
@@ -242,6 +242,7 @@ void Applet::init()
     m_player->setContrast(config().readEntry("contrast", 50));
     m_player->setHue(config().readEntry("hue", 50));
     m_player->setSaturation(config().readEntry("saturation", 50));
+    m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
 
     QTimer::singleShot(100, this, SLOT(configReset()));
 }
@@ -413,8 +414,6 @@ void Applet::configReset()
 
     m_controlsWidget->setVisible(visible);
     m_controlsWidget->setMaximumHeight(visible?-1:0);
-
-    m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
 
     if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
     {
@@ -634,14 +633,17 @@ void Applet::metaDataChanged()
         configSave();
     }
 
-    if (m_player->position() < 150 && m_hideToolTip == 0)
+    if (m_player->state() != StoppedState)
     {
-        updateToolTip();
+        if (m_player->position() < 150 && m_hideToolTip == 0)
+        {
+            updateToolTip();
 
-        QTimer::singleShot(500, this, SLOT(showToolTip()));
+            QTimer::singleShot(500, this, SLOT(showToolTip()));
+        }
+
+        emit titleChanged(m_player->title());
     }
-
-    emit titleChanged(m_player->title());
 }
 
 void Applet::openUrl()
