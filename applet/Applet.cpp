@@ -592,6 +592,10 @@ void Applet::timerEvent(QTimerEvent *event)
     {
         updateToolTip();
     }
+    else
+    {
+        killTimer(event->timerId());
+    }
 }
 
 void Applet::stateChanged(PlayerState state)
