@@ -292,6 +292,10 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     {
         return url.pathOrUrl();
     }
+    else if (role == Qt::UserRole)
+    {
+        return url.pathOrUrl();
+    }
 
     return QVariant();
 }

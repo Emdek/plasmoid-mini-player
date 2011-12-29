@@ -208,7 +208,7 @@ void PlaylistManager::trackChanged()
 
 void PlaylistManager::moveUpTrack()
 {
-    KUrl url(m_playlistUi.playlistView->currentIndex().data(Qt::ToolTipRole).toString());
+    KUrl url(m_playlistUi.playlistView->currentIndex().data(Qt::UserRole).toUrl());
     int row = m_playlistUi.playlistView->currentIndex().row();
 
     m_playlists[visiblePlaylist()]->removeTrack(row);
@@ -221,7 +221,7 @@ void PlaylistManager::moveUpTrack()
 
 void PlaylistManager::moveDownTrack()
 {
-    KUrl url(m_playlistUi.playlistView->currentIndex().data(Qt::ToolTipRole).toString());
+    KUrl url(m_playlistUi.playlistView->currentIndex().data(Qt::UserRole).toUrl());
     int row = m_playlistUi.playlistView->currentIndex().row();
 
     m_playlists[visiblePlaylist()]->removeTrack(row);
@@ -263,7 +263,7 @@ void PlaylistManager::editTrackTitle()
 
 void PlaylistManager::copyTrackUrl()
 {
-    QApplication::clipboard()->setText(m_playlistUi.playlistView->currentIndex().data(Qt::ToolTipRole).toString());
+    QApplication::clipboard()->setText(m_playlistUi.playlistView->currentIndex().data(Qt::UserRole).toUrl().toString());
 }
 
 void PlaylistManager::removeTrack()
@@ -710,7 +710,6 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
 
             if (index.isValid())
             {
-                KUrl url = KUrl(index.data(Qt::ToolTipRole).toString());
                 KMenu menu;
                 menu.addAction(KIcon("document-edit"), i18n("Edit title"), this, SLOT(editTrackTitle()));
                 menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
