@@ -106,11 +106,13 @@ void SeekSlider::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event)
 
-    if (!isSliderDown() && m_player)
+    const int position = ((m_player->position() * 10000) / m_player->duration());
+
+    if (!isSliderDown() && m_player && position != value())
     {
         disconnect(this, SIGNAL(valueChanged(int)), this, SLOT(positionChanged(int)));
 
-        setValue((m_player->position() * 10000) / m_player->duration());
+        setValue(position);
 
         connect(this, SIGNAL(valueChanged(int)), this, SLOT(positionChanged(int)));
     }
