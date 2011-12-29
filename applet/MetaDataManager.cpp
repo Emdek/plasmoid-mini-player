@@ -65,7 +65,7 @@ void MetaDataManager::resolveMetaData()
 
         m_mediaObject->stop();
 
-        if ((title.isEmpty() || duration < 1) && m_attempts < 4)
+        if ((title.isEmpty() || duration < 1) && m_attempts < 6)
         {
             ++m_attempts;
 
@@ -115,7 +115,7 @@ void MetaDataManager::addUrls(const KUrl::List &urls)
 {
     for (int i = 0; i < urls.count(); ++i)
     {
-        m_queue.append(qMakePair(urls.at(i), 0));
+        m_queue.prepend(qMakePair(urls.at(i), 0));
     }
 
     if (!m_mediaObject->currentSource().url().isValid())

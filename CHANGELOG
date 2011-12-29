@@ -3,7 +3,7 @@
 - added possibility to select displayed controls;
 - added menu for add track button (on long button press);
 - save playback mode for each playlist separately;
-- try up to three times to get meta data;
+- try few times to get meta data;
 - many fixes and changes.
 
 1.2 (05.12.2011):
