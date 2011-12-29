@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_miniplayer\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2011-12-29 20:01+0100\n"
+"POT-Creation-Date: 2011-12-30 00:40+0100\n"
 "PO-Revision-Date: 2009-04-06 10:37+0200\n"
 "Last-Translator: Matthias Fehring <buschmann23@opensuse.org>\n"
 "Language-Team: German <kde-i18n-de@kde.org>\n"
@@ -17,50 +17,50 @@ msgstr ""
 "X-Generator: Lokalize 0.3\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: Applet.cpp:157 Applet.cpp:209 Applet.cpp:222
+#: Applet.cpp:159 Applet.cpp:215 Applet.cpp:228
 msgid "Default"
 msgstr ""
 
 #. i18n: file: ui/general.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, general)
-#: Applet.cpp:270 locale/rc.cpp:30 rc.cpp:30
+#: Applet.cpp:276 locale/rc.cpp:30 rc.cpp:30
 msgid "General"
 msgstr "Allgemein"
 
 #. i18n: file: ui/controls.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, controls)
-#: Applet.cpp:271 locale/rc.cpp:3 rc.cpp:3
+#: Applet.cpp:277 locale/rc.cpp:3 rc.cpp:3
 msgid "Visible Controls"
 msgstr ""
 
-#: Applet.cpp:642
+#: Applet.cpp:651
 msgid "Open URL"
 msgstr ""
 
-#: Applet.cpp:642
+#: Applet.cpp:651
 msgid "Enter a URL:"
 msgstr ""
 
 #. i18n: file: ui/jumpToPosition.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, jumpToPosition)
-#: Applet.cpp:686 locale/rc.cpp:45 rc.cpp:45
+#: Applet.cpp:695 locale/rc.cpp:45 rc.cpp:45
 #, fuzzy
 msgid "Jump to Position"
 msgstr "Gehe zu Position"
 
-#: Applet.cpp:776 Player.cpp:191
+#: Applet.cpp:785 Player.cpp:191
 msgid "Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:794
+#: Applet.cpp:803
 msgid "Exit Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:841
+#: Applet.cpp:850
 msgid "Position: %1 / %2"
 msgstr "Position: %1 / &2"
 
-#: Applet.cpp:870
+#: Applet.cpp:879
 #, fuzzy
 msgid "Settings"
 msgstr "Videoeinstellungen"
@@ -153,7 +153,7 @@ msgstr "HH:mm:ss"
 
 #. i18n: file: ui/playlist.ui:20
 #. i18n: ectx: property (windowTitle), widget (QWidget, playlist)
-#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:371 rc.cpp:54
+#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:367 rc.cpp:54
 #, fuzzy
 msgid "Playlist"
 msgstr "Abspielliste"
@@ -206,7 +206,7 @@ msgstr "Nach oben"
 
 #. i18n: file: ui/playlist.ui:400
 #. i18n: ectx: property (toolTip), widget (QToolButton, newButton)
-#: locale/rc.cpp:78 PlaylistManager.cpp:759 rc.cpp:78
+#: locale/rc.cpp:78 PlaylistManager.cpp:756 rc.cpp:78
 #, fuzzy
 msgid "New playlist..."
 msgstr "Abspielliste"
@@ -268,7 +268,7 @@ msgstr "Datei öffnen"
 msgid "Open URL..."
 msgstr ""
 
-#: Player.cpp:74 Player.cpp:313 PlaylistManager.cpp:728
+#: Player.cpp:74 Player.cpp:313 PlaylistManager.cpp:725
 msgid "Play"
 msgstr "Wiedergabe"
 
@@ -410,22 +410,22 @@ msgstr ""
 msgid "Track %1"
 msgstr ""
 
-#: Player.cpp:550
+#: Player.cpp:551
 #, fuzzy
 msgid "Brightness: %1%"
 msgstr "Helligkeit:"
 
-#: Player.cpp:551
+#: Player.cpp:552
 #, fuzzy
 msgid "Contrast: %1%"
 msgstr "Kontrast:"
 
-#: Player.cpp:552
+#: Player.cpp:553
 #, fuzzy
 msgid "Hue: %1%"
 msgstr "Lautstärke: %1%"
 
-#: Player.cpp:553
+#: Player.cpp:554
 #, fuzzy
 msgid "Saturation: %1%"
 msgstr "Sättigung:"
@@ -446,60 +446,64 @@ msgstr ""
 msgid "Open Audio CD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:293
+#: PlaylistManager.cpp:292
 #, fuzzy
 msgid "Rename Playlist"
 msgstr "Abspielliste"
 
-#: PlaylistManager.cpp:293 PlaylistManager.cpp:551
+#: PlaylistManager.cpp:292 PlaylistManager.cpp:547
 msgid "Enter name:"
 msgstr ""
 
-#: PlaylistManager.cpp:541
+#: PlaylistManager.cpp:537
 msgid "File saved successfully."
 msgstr "Datei erfolgreich gespeichert."
 
-#: PlaylistManager.cpp:545
+#: PlaylistManager.cpp:541
 #, fuzzy
 msgid "Cannot open file for writing."
 msgstr "Kann Datei nicht zum Schreiben öffnen!"
 
-#: PlaylistManager.cpp:551
+#: PlaylistManager.cpp:547
 #, fuzzy
 msgid "New playlist"
 msgstr "Abspielliste"
 
-#: PlaylistManager.cpp:717
+#: PlaylistManager.cpp:714
 msgid "Edit title"
 msgstr ""
 
-#: PlaylistManager.cpp:718
+#: PlaylistManager.cpp:715
 msgid "Copy URL"
 msgstr ""
 
-#: PlaylistManager.cpp:732
+#: PlaylistManager.cpp:729
 msgid "Remove"
 msgstr "Entfernen"
 
-#: PlaylistManager.cpp:764
+#: PlaylistManager.cpp:761
 #, fuzzy
 msgid "Rename playlist..."
 msgstr "Abspielliste"
 
-#: PlaylistManager.cpp:766
+#: PlaylistManager.cpp:763
 #, fuzzy
 msgid "Close playlist"
 msgstr "Abspielliste"
 
-#: PlaylistModel.cpp:319
+#: PlaylistModel.cpp:323
 msgid "Title"
 msgstr ""
 
-#: PlaylistModel.cpp:321
+#: PlaylistModel.cpp:325
+msgid "Artist"
+msgstr ""
+
+#: PlaylistModel.cpp:327
 msgid "Length"
 msgstr ""
 
-#: PlaylistReader.cpp:186
+#: PlaylistReader.cpp:155
 #, fuzzy
 msgid "Cannot open file for reading."
 msgstr "Kann Datei nicht zum Lesen öffnen!"
