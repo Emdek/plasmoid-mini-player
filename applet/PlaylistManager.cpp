@@ -536,7 +536,12 @@ void PlaylistManager::exportPlaylist()
 
 void PlaylistManager::newPlaylist()
 {
-    createPlaylist(KInputDialog::getText(i18n("New playlist"), i18n("Enter name:")));
+    const QString title = KInputDialog::getText(i18n("New playlist"), i18n("Enter name:"));
+
+    if (!title.isEmpty())
+    {
+        createPlaylist(title);
+    }
 }
 
 void PlaylistManager::clearPlaylist()
