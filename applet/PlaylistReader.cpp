@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "PlaylistReader.h"
+#include "MetaDataManager.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -39,7 +40,7 @@ PlaylistReader::PlaylistReader(QObject *parent, const KUrl::List &urls, int inde
     m_imports(0),
     m_index(index)
 {
-    connect(this, SIGNAL(processedTracks(KUrl::List,QHash<KUrl,QPair<QString,qint64> >,int,PlayerReaction)), parent, SLOT(addTracks(KUrl::List,QHash<KUrl,QPair<QString,qint64> >,int,PlayerReaction)));
+    connect(this, SIGNAL(processedTracks(KUrl::List,int,PlayerReaction)), parent, SLOT(processedTracks(KUrl::List,int,PlayerReaction)));
 
     addUrls(urls);
 }
@@ -135,7 +136,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 
     if (!m_imports)
     {
-        emit processedTracks(m_tracks, m_metaData, m_index, m_reaction);
+        emit processedTracks(m_tracks, m_index, m_reaction);
 
         deleteLater();
     }
@@ -260,7 +261,7 @@ void PlaylistReader::readM3u(QTextStream &stream)
 
             if (!title.isEmpty() || duration > 0)
             {
-                m_metaData[url] = qMakePair(title, duration);
+                MetaDataManager::setMetaData(url, title, duration);
 
                 title = QString();
                 duration = -1;
@@ -312,7 +313,7 @@ void PlaylistReader::readPls(QTextStream &stream)
         {
             if (url.isValid() && (!title.isEmpty() || duration > 0))
             {
-                m_metaData[url] = qMakePair(title, duration);
+                MetaDataManager::setMetaData(url, title, duration);
             }
 
             title = QString();

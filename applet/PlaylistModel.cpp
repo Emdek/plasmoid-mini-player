@@ -84,7 +84,7 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, int position, PlayerReac
     new PlaylistReader(this, tracks, position, reaction);
 }
 
-void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, PlayerReaction reaction)
+void PlaylistModel::processedTracks(const KUrl::List &tracks, int position, PlayerReaction reaction)
 {
     for (int i = (tracks.count() - 1); i >= 0; --i)
     {
@@ -107,7 +107,6 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<
         }
     }
 
-    MetaDataManager::setMetaData(metaData);
     MetaDataManager::addTracks(tracks);
 
     emit needsSaving();

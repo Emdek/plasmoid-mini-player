@@ -31,6 +31,8 @@
 namespace MiniPlayer
 {
 
+struct Track;
+
 class PlaylistReader : public QObject
 {
     Q_OBJECT
@@ -54,14 +56,13 @@ class PlaylistReader : public QObject
     private:
         QHash<KJob*, QByteArray> m_remotePlaylistsData;
         QHash<KJob*, PlaylistFormat> m_remotePlaylistsType;
-        QHash<KUrl, QPair<QString, qint64> > m_metaData;
         KUrl::List m_tracks;
         PlayerReaction m_reaction;
         int m_imports;
         int m_index;
 
     signals:
-        void processedTracks(KUrl::List tracks, QHash<KUrl, QPair<QString, qint64> > metaData, int index, PlayerReaction reaction);
+        void processedTracks(KUrl::List tracks, int index, PlayerReaction reaction);
 };
 
 }

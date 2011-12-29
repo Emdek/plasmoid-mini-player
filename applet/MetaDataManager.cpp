@@ -126,16 +126,6 @@ void MetaDataManager::setMetaData(const KUrl &url, const QString &title, qint64 
     m_instance->setUrlMetaData(url, title, duration);
 }
 
-void MetaDataManager::setMetaData(const QHash<KUrl, QPair<QString, qint64> > &metaData)
-{
-    QHash<KUrl, QPair<QString, qint64> >::const_iterator iterator;
-
-    for (iterator = metaData.begin(); iterator != metaData.end(); ++iterator)
-    {
-        m_instance->setUrlMetaData(iterator.key(), iterator.value().first, iterator.value().second);
-    }
-}
-
 void MetaDataManager::setUrlMetaData(const KUrl &url, const QString &title, qint64 duration)
 {
     if (title.isEmpty() && duration < 1)

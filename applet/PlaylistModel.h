@@ -83,7 +83,7 @@ class PlaylistModel : public QAbstractTableModel
         int randomTrack() const;
 
     protected slots:
-        void addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<QString, qint64> > &metaData, int position, PlayerReaction reaction = NoReaction);
+        void processedTracks(const KUrl::List &tracks, int position, PlayerReaction reaction = NoReaction);
 
     private:
         PlaylistManager *m_manager;
