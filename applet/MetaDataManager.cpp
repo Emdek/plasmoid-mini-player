@@ -60,7 +60,7 @@ void MetaDataManager::resolveMetaData()
     if (m_mediaObject->currentSource().type() != Phonon::MediaSource::Invalid)
     {
         const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
-        QString title = (titles.isEmpty()?QString():titles.first());
+        const QString title = (titles.isEmpty()?QString():titles.first());
         const qint64 duration = m_mediaObject->totalTime();
 
         m_mediaObject->stop();
@@ -73,11 +73,6 @@ void MetaDataManager::resolveMetaData()
         }
         else
         {
-            if (title.isEmpty())
-            {
-                title = QFileInfo(m_mediaObject->currentSource().url().toString()).completeBaseName().replace("%20", " ");
-            }
-
             setMetaData(m_mediaObject->currentSource().url(), title, duration);
 
             emit urlChanged(m_mediaObject->currentSource().url());
