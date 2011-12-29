@@ -98,7 +98,7 @@ void MetaDataManager::resolveMetaData()
         m_mediaObject->setCurrentSource(Phonon::MediaSource(track.first));
         m_mediaObject->play();
 
-        m_resolveMedia = startTimer(250);
+        m_resolveMedia = startTimer(200 + (m_attempts * 100));
 
         return;
     }

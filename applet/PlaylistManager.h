@@ -101,7 +101,7 @@ class PlaylistManager : public QObject
         Ui::playlist m_playlistUi;
 
     signals:
-        void configNeedsSaving();
+        void needsSaving();
         void requestMenu(QPoint position);
 };
 

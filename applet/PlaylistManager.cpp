@@ -279,7 +279,7 @@ void PlaylistManager::movePlaylist(int from, int to)
 {
     m_playlists.swap(from, to);
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void PlaylistManager::renamePlaylist(int position)
@@ -289,18 +289,17 @@ void PlaylistManager::renamePlaylist(int position)
         position = m_selectedPlaylist;
     }
 
-    QString oldTitle = KGlobal::locale()->removeAcceleratorMarker(m_playlistUi.tabBar->tabText(position));
-    QString newTitle = KInputDialog::getText(i18n("Rename Playlist"), i18n("Enter name:"), oldTitle);
+    const QString title = KInputDialog::getText(i18n("Rename Playlist"), i18n("Enter name:"), m_playlists[position]->title());
 
-    if (newTitle.isEmpty())
+    if (title.isEmpty())
     {
         return;
     }
 
-    m_playlistUi.tabBar->setTabText(position, newTitle);
-    m_playlists[position]->setTitle(newTitle);
+    m_playlistUi.tabBar->setTabText(position, title);
+    m_playlists[position]->setTitle(title);
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void PlaylistManager::removePlaylist(int position)
@@ -334,7 +333,7 @@ void PlaylistManager::removePlaylist(int position)
         m_playlistUi.tabBar->hide();
     }
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void PlaylistManager::visiblePlaylistChanged(int position)
@@ -359,7 +358,7 @@ void PlaylistManager::visiblePlaylistChanged(int position)
     m_playlistUi.playlistView->horizontalHeader()->resizeSection(0, 22);
     m_playlistUi.playlistView->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void PlaylistManager::showDialog(const QPoint &position)
@@ -421,8 +420,8 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_dialog->installEventFilter(this);
         m_dialog->installEventFilter(m_player->parent());
 
-        connect(m_dialog, SIGNAL(dialogResized()), this, SIGNAL(configNeedsSaving()));
-        connect(m_playlistUi.splitter, SIGNAL(splitterMoved(int,int)), this, SIGNAL(configNeedsSaving()));
+        connect(m_dialog, SIGNAL(dialogResized()), this, SIGNAL(needsSaving()));
+        connect(m_playlistUi.splitter, SIGNAL(splitterMoved(int,int)), this, SIGNAL(needsSaving()));
         connect(m_playlistUi.tabBar, SIGNAL(newTabRequest()), this, SLOT(newPlaylist()));
         connect(m_playlistUi.tabBar, SIGNAL(tabDoubleClicked(int)), this, SLOT(renamePlaylist(int)));
         connect(m_playlistUi.tabBar, SIGNAL(closeRequest(int)), this, SLOT(removePlaylist(int)));
@@ -585,7 +584,7 @@ void PlaylistManager::setCurrentPlaylist(int position)
 
     m_player->setPlaylist(m_playlists[m_currentPlaylist]);
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void PlaylistManager::setDialogSize(const QSize &size)
@@ -659,9 +658,9 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
         m_playlistUi.tabBar->setCurrentIndex(position + 1);
     }
 
-    emit configNeedsSaving();
+    emit needsSaving();
 
-    connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(configNeedsSaving()));
+    connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(needsSaving()));
     connect(playlist, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
 
     return position;

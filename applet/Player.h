@@ -147,7 +147,7 @@ class Player : public QObject
         bool m_fullScreenMode;
 
     signals:
-        void configNeedsSaving();
+        void needsSaving();
         void metaDataChanged();
         void trackChanged();
         void durationChanged(qint64 duration);

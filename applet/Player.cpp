@@ -295,7 +295,7 @@ void Player::volumeChanged(qreal volume)
     m_actions[VolumeToggleAction]->setEnabled(isAudioAvailable());
     m_actions[AudioMenuAction]->setEnabled(isAudioAvailable());
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void Player::videoChanged()
@@ -745,7 +745,7 @@ void Player::setAspectRatio(AspectRatio ratio)
 
     m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(ratio))->setChecked(true);
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void Player::setVideoMode(bool mode)
@@ -804,7 +804,7 @@ void Player::setBrightness(int value)
 
     updateSliders();
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void Player::setContrast(int value)
@@ -813,7 +813,7 @@ void Player::setContrast(int value)
 
     updateSliders();
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void Player::setHue(int value)
@@ -822,7 +822,7 @@ void Player::setHue(int value)
 
     updateSliders();
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 void Player::setSaturation(int value)
@@ -831,7 +831,7 @@ void Player::setSaturation(int value)
 
     updateSliders();
 
-    emit configNeedsSaving();
+    emit needsSaving();
 }
 
 QString Player::errorString() const

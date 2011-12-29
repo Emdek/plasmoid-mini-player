@@ -239,8 +239,8 @@ void Applet::init()
 
     QTimer::singleShot(100, this, SLOT(configReset()));
 
-    connect(m_player, SIGNAL(configNeedsSaving()), this, SLOT(configSave()));
-    connect(m_playlistManager, SIGNAL(configNeedsSaving()), this, SLOT(configSave()));
+    connect(m_player, SIGNAL(needsSaving()), this, SLOT(configSave()));
+    connect(m_playlistManager, SIGNAL(needsSaving()), this, SLOT(configSave()));
 }
 
 void Applet::createConfigurationInterface(KConfigDialog *parent)
