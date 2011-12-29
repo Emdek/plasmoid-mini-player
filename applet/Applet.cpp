@@ -92,9 +92,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 
     setLayout(mainLayout);
 
-    QAction *playlistAction = new QAction(KIcon("view-media-playlist"), i18n("Playlist"), this);
-    playlistAction->setShortcut(QKeySequence(Qt::Key_P));
-
     QAction *separator1 = new QAction(this);
     separator1->setSeparator(true);
 
@@ -124,7 +121,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_actions.append(separator4);
     m_actions.append(m_player->action(VideoMenuAction));
     m_actions.append(separator5);
-    m_actions.append(playlistAction);
+    m_actions.append(m_player->action(PlaylistToggleAction));
     m_actions.append(separator6);
 
     SeekSlider *seekSlider = new SeekSlider();
@@ -143,10 +140,10 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     stopButton->setAction(m_player->action(StopAction));
 
     Plasma::ToolButton *volumeButton = new Plasma::ToolButton(m_controlsWidget);
-    volumeButton->setAction(m_player->action(VolumeAction));
+    volumeButton->setAction(m_player->action(VolumeToggleAction));
 
     Plasma::ToolButton *playlistButton = new Plasma::ToolButton(m_controlsWidget);
-    playlistButton->setAction(playlistAction);
+    playlistButton->setAction(m_player->action(PlaylistToggleAction));
 
     Plasma::ToolButton *fullScreenButton = new Plasma::ToolButton(m_controlsWidget);
     fullScreenButton->setAction(m_player->action(FullScreenAction));
@@ -210,8 +207,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_player->action(OpenUrlAction), SIGNAL(triggered()), this, SLOT(openUrl()));
     connect(m_player->action(SeekToAction), SIGNAL(triggered()), this, SLOT(toggleJumpToPosition()));
     connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
-    connect(m_player->action(VolumeAction), SIGNAL(triggered()), this, SLOT(toggleVolumeDialog()));
-    connect(playlistAction, SIGNAL(triggered()), this, SLOT(togglePlaylistDialog()));
+    connect(m_player->action(VolumeToggleAction), SIGNAL(triggered()), this, SLOT(toggleVolumeDialog()));
+    connect(m_player->action(PlaylistToggleAction), SIGNAL(triggered()), this, SLOT(togglePlaylistDialog()));
 }
 
 Applet::~Applet()

@@ -77,6 +77,8 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[StopAction] = new QAction(KIcon("media-playback-stop"), i18n("Stop"), this);
     m_actions[StopAction]->setEnabled(false);
     m_actions[StopAction]->setShortcut(QKeySequence(Qt::Key_S));
+    m_actions[PlaylistToggleAction] = new QAction(KIcon("view-media-playlist"), i18n("Playlist"), this);
+    m_actions[PlaylistToggleAction]->setShortcut(QKeySequence(Qt::Key_P));
 
     m_actions[NavigationMenuAction] = new QAction(i18n("Navigation"), this);
     m_actions[NavigationMenuAction]->setMenu(new KMenu());
@@ -93,8 +95,8 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[SeekToAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("go-jump"), i18n("Jump to Position"));
     m_actions[SeekToAction]->setShortcut(QKeySequence(Qt::Key_G));
 
-    m_actions[VolumeAction] = new QAction(KIcon("player-volume"), i18n("Volume"), this);
-    m_actions[VolumeAction]->setShortcut(QKeySequence(Qt::Key_V));
+    m_actions[VolumeToggleAction] = new QAction(KIcon("player-volume"), i18n("Volume"), this);
+    m_actions[VolumeToggleAction]->setShortcut(QKeySequence(Qt::Key_V));
     m_actions[AudioMenuAction] = new QAction(i18n("Audio"), this);
     m_actions[AudioMenuAction]->setMenu(new KMenu());
     m_actions[AudioChannelMenuAction] = m_actions[AudioMenuAction]->menu()->addAction(i18n("Channel"));
@@ -265,13 +267,13 @@ void Player::volumeChanged(qreal volume)
 
     if (isAudioMuted())
     {
-        m_actions[VolumeAction]->setText(i18n("Muted"));
+        m_actions[VolumeToggleAction]->setText(i18n("Muted"));
 
         icon = KIcon("audio-volume-muted");
     }
     else
     {
-        m_actions[VolumeAction]->setText(i18n("Volume: %1%", this->volume()));
+        m_actions[VolumeToggleAction]->setText(i18n("Volume: %1%", this->volume()));
 
         if (this->volume() > 65)
         {
@@ -289,8 +291,8 @@ void Player::volumeChanged(qreal volume)
 
     m_actions[MuteAction]->setIcon(icon);
     m_actions[MuteAction]->setEnabled(isAudioAvailable());
-    m_actions[VolumeAction]->setIcon(icon);
-    m_actions[VolumeAction]->setEnabled(isAudioAvailable());
+    m_actions[VolumeToggleAction]->setIcon(icon);
+    m_actions[VolumeToggleAction]->setEnabled(isAudioAvailable());
     m_actions[AudioMenuAction]->setEnabled(isAudioAvailable());
 
     emit configNeedsSaving();
