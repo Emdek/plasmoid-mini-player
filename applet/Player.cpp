@@ -423,7 +423,7 @@ void Player::availableTitlesChanged()
 
         tracks.append(url);
 
-        MetaDataManager::setMetaData(url, i18n("Track %1", i), -1);
+        MetaDataManager::setMetaData(url, i18n("Track %1", i), QString(), -1);
     }
 
     emit createDevicePlaylist(udi, tracks);
@@ -854,6 +854,20 @@ QString Player::title(bool allowSubstitute) const
     else
     {
         return titles.first();
+    }
+}
+
+QString Player::artist() const
+{
+    const QStringList artists = m_mediaObject->metaData(Phonon::ArtistMetaData);
+
+    if (artists.isEmpty() || artists.first().isEmpty())
+    {
+        return QString();
+    }
+    else
+    {
+        return artists.first();
     }
 }
 

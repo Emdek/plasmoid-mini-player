@@ -62,6 +62,8 @@ void MetaDataManager::resolveMetaData()
     {
         const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
         const QString title = (titles.isEmpty()?QString():titles.first());
+        const QStringList artists = m_mediaObject->metaData(Phonon::ArtistMetaData);
+        const QString artist = (artists.isEmpty()?QString():artists.first());
         const qint64 duration = m_mediaObject->totalTime();
 
         m_mediaObject->stop();
@@ -74,7 +76,7 @@ void MetaDataManager::resolveMetaData()
         }
         else
         {
-            setMetaData(m_mediaObject->currentSource().url(), title, duration);
+            setMetaData(m_mediaObject->currentSource().url(), title, artist, duration);
         }
     }
 
@@ -121,18 +123,13 @@ void MetaDataManager::addUrls(const KUrl::List &urls)
     }
 }
 
-void MetaDataManager::setMetaData(const KUrl &url, const QString &title, qint64 duration)
+void MetaDataManager::setMetaData(const KUrl &url, const Track &track)
 {
-    m_instance->setUrlMetaData(url, title, duration);
+    m_instance->setMetaData(url, track, !isAvailable(url));
 }
 
-void MetaDataManager::setUrlMetaData(const KUrl &url, const QString &title, qint64 duration)
+void MetaDataManager::setMetaData(const KUrl &url, const QString &title, const QString &artist, qint64 duration)
 {
-    if (title.isEmpty() && duration < 1)
-    {
-        return;
-    }
-
     const bool available = isAvailable(url);
 
     if (duration < 1 && m_tracks.contains(url))
@@ -142,11 +139,22 @@ void MetaDataManager::setUrlMetaData(const KUrl &url, const QString &title, qint
 
     Track track;
     track.title = title;
+    track.artist = artist;
     track.duration = duration;
+
+    m_instance->setMetaData(url, track, !available);
+}
+
+void MetaDataManager::setMetaData(const KUrl &url, const Track &track, bool notify)
+{
+    if ((track.title.isEmpty() && track.duration < 1) || !url.isValid())
+    {
+        return;
+    }
 
     m_tracks[url] = track;
 
-    if (!available)
+    if (notify)
     {
         emit urlChanged(url);
     }
@@ -245,6 +253,16 @@ QString MetaDataManager::title(const KUrl &url)
     }
 
     return title;
+}
+
+QString MetaDataManager::artist(const KUrl &url)
+{
+    if (m_tracks.contains(url))
+    {
+        return m_tracks[url].artist;
+    }
+
+    return QString();
 }
 
 KIcon MetaDataManager::icon(const KUrl &url)

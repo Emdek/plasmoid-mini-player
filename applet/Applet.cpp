@@ -202,7 +202,7 @@ void Applet::init()
     {
         KConfigGroup trackConfiguration = metaDataConfiguration.group(tracks.at(i));
 
-        MetaDataManager::setMetaData(KUrl(trackConfiguration.readEntry("url", QString())), trackConfiguration.readEntry("title", QString()), trackConfiguration.readEntry("duration", -1));
+        MetaDataManager::setMetaData(KUrl(trackConfiguration.readEntry("url", QString())), trackConfiguration.readEntry("title", QString()), trackConfiguration.readEntry("artist", QString()), trackConfiguration.readEntry("duration", -1));
     }
 
     for (int i = 0; i < playlists.count(); ++i)
@@ -376,6 +376,7 @@ void Applet::configSave()
         KConfigGroup trackConfiguration = metaDataConfiguration.group(QString::number(i));
         trackConfiguration.writeEntry("url", tracks.at(i));
         trackConfiguration.writeEntry("title", MetaDataManager::title(tracks.at(i)));
+        trackConfiguration.writeEntry("artist", MetaDataManager::artist(tracks.at(i)));
         trackConfiguration.writeEntry("duration", MetaDataManager::duration(tracks.at(i)));
     }
 
@@ -623,7 +624,7 @@ void Applet::metaDataChanged()
 
     if (!MetaDataManager::isAvailable(m_player->url()))
     {
-        MetaDataManager::setMetaData(m_player->url(), m_player->title(false), m_player->duration());
+        MetaDataManager::setMetaData(m_player->url(), m_player->title(false), m_player->artist(), m_player->duration());
     }
 
     if (m_player->position() < 150 && m_hideToolTip == 0)

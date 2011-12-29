@@ -45,12 +45,14 @@ class MetaDataManager : public QObject
     public:
         static void createInstance(QObject *parent = NULL);
         static void addTracks(const KUrl::List &urls);
-        static void setMetaData(const KUrl &url, const QString &title, qint64 duration);
+        static void setMetaData(const KUrl &url, const Track &track);
+        static void setMetaData(const KUrl &url, const QString &title, const QString &artist, qint64 duration);
         static MetaDataManager* instance();
         static QString timeToString(qint64 time);
         static QVariantMap metaData(const KUrl &url);
         static KUrl::List tracks();
         static QString title(const KUrl &url);
+        static QString artist(const KUrl &url);
         static KIcon icon(const KUrl &url);
         static qint64 duration(const KUrl &url);
         static bool isAvailable(const KUrl &url);
@@ -61,7 +63,7 @@ class MetaDataManager : public QObject
         void timerEvent(QTimerEvent *event);
         void resolveMetaData();
         void addUrls(const KUrl::List &urls);
-        void setUrlMetaData(const KUrl &url, const QString &title, qint64 duration);
+        void setMetaData(const KUrl &url, const Track &track, bool notify);
 
     private:
         Phonon::MediaObject *m_mediaObject;

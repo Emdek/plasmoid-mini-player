@@ -219,11 +219,10 @@ void PlaylistReader::importResult(KJob* job)
 
 void PlaylistReader::readM3u(QTextStream &stream)
 {
-    KUrl::List items;
+    KUrl::List urls;
     QRegExp m3uInformation("^#EXTINF:");
     QString line;
-    QString title;
-    qint64 duration = -1;
+    Track track;
     bool addUrl;
 
     do
@@ -246,8 +245,8 @@ void PlaylistReader::readM3u(QTextStream &stream)
         {
             QStringList information = line.remove(m3uInformation).split(',');
 
-            title = information.value(1);
-            duration = information.value(0).toLongLong();
+            track.title = information.value(1);
+            track.duration = information.value(0).toLongLong();
         }
 
         if (addUrl)
@@ -259,17 +258,14 @@ void PlaylistReader::readM3u(QTextStream &stream)
                 continue;
             }
 
-            if (!title.isEmpty() || duration > 0)
-            {
-                MetaDataManager::setMetaData(url, title, duration);
+            MetaDataManager::setMetaData(url, track);
 
-                title = QString();
-                duration = -1;
-            }
+            track.title = QString();
+            track.duration = -1;
 
             if (!url.isLocalFile())
             {
-                items.append(url);
+                urls.append(url);
 
                 continue;
             }
@@ -279,25 +275,24 @@ void PlaylistReader::readM3u(QTextStream &stream)
 
             if (location.exists())
             {
-                items.append(KUrl(location.filePath()));
+                urls.append(KUrl(location.filePath()));
             }
         }
     }
     while (!line.isNull());
 
-    addUrls(items);
+    addUrls(urls);
 }
 
 void PlaylistReader::readPls(QTextStream &stream)
 {
-    KUrl::List items;
+    KUrl::List urls;
     KUrl url;
     QRegExp plsUrl("^File\\d+=");
     QRegExp plsTitle("^Title\\d+=");
     QRegExp plsDuration("^Length\\d+=");
     QString line;
-    QString title;
-    qint64 duration = -1;
+    Track track;
     bool addUrl = false;
 
     do
@@ -311,13 +306,10 @@ void PlaylistReader::readPls(QTextStream &stream)
 
         if (addUrl)
         {
-            if (url.isValid() && (!title.isEmpty() || duration > 0))
-            {
-                MetaDataManager::setMetaData(url, title, duration);
-            }
+            MetaDataManager::setMetaData(url, track);
 
-            title = QString();
-            duration = -1;
+            track.title = QString();
+            track.duration = -1;
         }
 
         addUrl = false;
@@ -330,11 +322,11 @@ void PlaylistReader::readPls(QTextStream &stream)
         }
         else if (line.contains(plsTitle))
         {
-            title = line.remove(plsTitle).trimmed();
+            track.title = line.remove(plsTitle).trimmed();
         }
         else if (line.contains(plsDuration))
         {
-            duration = line.remove(plsDuration).trimmed().toLongLong();
+            track.duration = line.remove(plsDuration).trimmed().toLongLong();
         }
 
         if (addUrl)
@@ -348,7 +340,7 @@ void PlaylistReader::readPls(QTextStream &stream)
 
             if (!url.isLocalFile())
             {
-                items.append(url);
+                urls.append(url);
 
                 continue;
             }
@@ -358,20 +350,21 @@ void PlaylistReader::readPls(QTextStream &stream)
 
             if (location.exists())
             {
-                items.append(KUrl(location.filePath()));
+                urls.append(KUrl(location.filePath()));
             }
         }
     }
     while (!line.isNull());
 
-    addUrls(items);
+    addUrls(urls);
 }
 
 void PlaylistReader::readXspf(const QByteArray &data)
 {
-    KUrl::List items;
+    KUrl::List urls;
+    KUrl url;
     QXmlStreamReader reader(data);
-    QString title;
+    Track track;
 
     while (!reader.atEnd())
     {
@@ -379,17 +372,17 @@ void PlaylistReader::readXspf(const QByteArray &data)
 
         if (reader.name().toString() == "track")
         {
-            title = "";
+            track.title = QString();
         }
 
         if (reader.name().toString() == "title")
         {
-            title = reader.text().toString();
+            track.title = reader.text().toString();
         }
 
         if (reader.name().toString() == "location")
         {
-            KUrl url(reader.text().toString());
+            url = KUrl(reader.text().toString());
 
             if (!url.isValid())
             {
@@ -398,7 +391,9 @@ void PlaylistReader::readXspf(const QByteArray &data)
 
             if (!url.isLocalFile())
             {
-                items.append(url);
+                MetaDataManager::setMetaData(url, track);
+
+                urls.append(url);
 
                 continue;
             }
@@ -408,19 +403,24 @@ void PlaylistReader::readXspf(const QByteArray &data)
 
             if (location.exists())
             {
-                items.append(KUrl(location.filePath()));
+                url = KUrl(location.filePath());
+
+                MetaDataManager::setMetaData(url, track);
+
+                urls.append(url);
             }
         }
     }
 
-    addUrls(items);
+    addUrls(urls);
 }
 
 void PlaylistReader::readAsx(const QByteArray &data)
 {
-    KUrl::List items;
+    KUrl::List urls;
+    KUrl url;
     QXmlStreamReader reader(data);
-    QString title;
+    Track track;
 
     while (!reader.atEnd())
     {
@@ -428,19 +428,19 @@ void PlaylistReader::readAsx(const QByteArray &data)
 
         if (reader.name().toString() == "entry")
         {
-            title = "";
+            track.title = QString();
         }
 
         if (reader.name().toString() == "title")
         {
-            title = reader.text().toString();
+            track.title = reader.text().toString();
         }
 
         if (reader.name().toString() == "ref")
         {
             QXmlStreamAttributes attributes = reader.attributes();
 
-            KUrl url(attributes.value("href").toString());
+            url = KUrl(attributes.value("href").toString());
 
             if (!url.isValid())
             {
@@ -449,7 +449,9 @@ void PlaylistReader::readAsx(const QByteArray &data)
 
             if (!url.isLocalFile())
             {
-                items.append(url);
+                urls.append(url);
+
+                MetaDataManager::setMetaData(url, track);
 
                 continue;
             }
@@ -459,12 +461,16 @@ void PlaylistReader::readAsx(const QByteArray &data)
 
             if (location.exists())
             {
-                items.append(KUrl(location.filePath()));
+                url = KUrl(location.filePath());
+
+                MetaDataManager::setMetaData(url, track);
+
+                urls.append(url);
             }
         }
     }
 
-    addUrls(items);
+    addUrls(urls);
 }
 
 void PlaylistReader::readDirectory(const KUrl &url, int level)
