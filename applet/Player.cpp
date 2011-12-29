@@ -423,7 +423,7 @@ void Player::availableTitlesChanged()
 
         tracks.append(url);
 
-        MetaDataManager::setMetaData(url, i18n("Track %1", i), QString(), -1);
+        MetaDataManager::setTitle(url, i18n("Track %1", i));
     }
 
     emit createDevicePlaylist(udi, tracks);

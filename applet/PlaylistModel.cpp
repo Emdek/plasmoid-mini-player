@@ -461,7 +461,7 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
 
     if (role == Qt::EditRole)
     {
-        MetaDataManager::setMetaData(m_tracks.at(index.row()), value.toString(), QString(), -1);
+        MetaDataManager::setTitle(m_tracks.at(index.row()), value.toString());
     }
     else
     {

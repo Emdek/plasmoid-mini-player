@@ -61,14 +61,15 @@ void MetaDataManager::resolveMetaData()
     if (m_mediaObject->currentSource().url().isValid())
     {
         const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
-        const QString title = (titles.isEmpty()?QString():titles.first());
         const QStringList artists = m_mediaObject->metaData(Phonon::ArtistMetaData);
-        const QString artist = (artists.isEmpty()?QString():artists.first());
-        const qint64 duration = m_mediaObject->totalTime();
+        Track track;
+        track.title = (titles.isEmpty()?QString():titles.first());
+        track.artist = (artists.isEmpty()?QString():artists.first());
+        track.duration = m_mediaObject->totalTime();
 
         m_mediaObject->stop();
 
-        if ((title.isEmpty() || duration < 1) && m_attempts < 6)
+        if ((track.title.isEmpty() || track.duration < 1) && m_attempts < 6)
         {
             ++m_attempts;
 
@@ -76,7 +77,7 @@ void MetaDataManager::resolveMetaData()
         }
         else
         {
-            setMetaData(m_mediaObject->currentSource().url(), title, artist, duration);
+            setMetaData(m_mediaObject->currentSource().url(), track);
         }
     }
 
@@ -123,26 +124,62 @@ void MetaDataManager::addUrls(const KUrl::List &urls)
     }
 }
 
+void MetaDataManager::setTitle(const KUrl &url, const QString &title)
+{
+    if (title.isEmpty())
+    {
+        return;
+    }
+
+    if (!m_tracks.contains(url))
+    {
+        m_tracks[url] = Track();
+        m_tracks[url].duration = -1;
+    }
+
+    m_tracks[url].title = title;
+
+    m_instance->setMetaData(url, m_tracks[url], true);
+}
+
+void MetaDataManager::setArtist(const KUrl &url, const QString &artist)
+{
+    if (artist.isEmpty())
+    {
+        return;
+    }
+
+    if (!m_tracks.contains(url))
+    {
+        m_tracks[url] = Track();
+        m_tracks[url].duration = -1;
+    }
+
+    m_tracks[url].artist = artist;
+
+    m_instance->setMetaData(url, m_tracks[url], true);
+}
+
+void MetaDataManager::setDuration(const KUrl &url, qint64 duration)
+{
+    if (duration < 1)
+    {
+        return;
+    }
+
+    if (!m_tracks.contains(url))
+    {
+        m_tracks[url] = Track();
+    }
+
+    m_tracks[url].duration = duration;
+
+    m_instance->setMetaData(url, m_tracks[url], true);
+}
+
 void MetaDataManager::setMetaData(const KUrl &url, const Track &track)
 {
     m_instance->setMetaData(url, track, !isAvailable(url));
-}
-
-void MetaDataManager::setMetaData(const KUrl &url, const QString &title, const QString &artist, qint64 duration)
-{
-    const bool available = isAvailable(url);
-
-    if (duration < 1 && m_tracks.contains(url))
-    {
-        duration = m_tracks[url].duration;
-    }
-
-    Track track;
-    track.title = title;
-    track.artist = artist;
-    track.duration = duration;
-
-    m_instance->setMetaData(url, track, !available);
 }
 
 void MetaDataManager::setMetaData(const KUrl &url, const Track &track, bool notify)
