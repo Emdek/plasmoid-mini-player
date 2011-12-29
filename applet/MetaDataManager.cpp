@@ -146,6 +146,11 @@ void MetaDataManager::setMetaData(const QHash<KUrl, QPair<QString, qint64> > &me
 
 void MetaDataManager::setUrlMetaData(const KUrl &url, const QString &title, qint64 duration)
 {
+    if (title.isEmpty() && duration < 1)
+    {
+        return;
+    }
+
     if (!available(url))
     {
         emit urlChanged(url);
