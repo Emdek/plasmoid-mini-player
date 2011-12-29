@@ -463,10 +463,12 @@ void Player::currentTrackChanged(int track, PlayerReaction reaction)
 
 void Player::stateChanged(Phonon::State state)
 {
+    const PlayerState translatedState = translateState(state);
+
     mediaChanged();
     videoChanged();
 
-    if (isVideoAvailable() && this->state() == PlayingState)
+    if (isVideoAvailable() && translatedState == PlayingState)
     {
         m_stopSleepCookie = Solid::PowerManagement::beginSuppressingSleep("Plasma MiniPlayerApplet: playing video");
 
@@ -479,8 +481,7 @@ void Player::stateChanged(Phonon::State state)
     {
         Solid::PowerManagement::stopSuppressingSleep(m_stopSleepCookie);
 
-        delete m_notificationRestrictions;
-
+        m_notificationRestrictions->deleteLater();
         m_notificationRestrictions = NULL;
     }
 
@@ -491,8 +492,8 @@ void Player::stateChanged(Phonon::State state)
         emit errorOccured(m_mediaObject->errorString());
     }
 
-    emit translateState(state);
-    emit audioAvailableChanged(this->state() != StoppedState);
+    emit stateChanged(translatedState);
+    emit audioAvailableChanged(translatedState != StoppedState);
 }
 
 void Player::changeAspectRatio(QAction *action)

@@ -594,8 +594,7 @@ void Applet::stateChanged(PlayerState state)
     {
         QTimer::singleShot(500, this, SLOT(showToolTip()));
     }
-
-    if (state == StoppedState)
+    else if (state == StoppedState)
     {
         Plasma::ToolTipManager::self()->clearContent(this);
 
