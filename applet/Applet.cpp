@@ -92,38 +92,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 
     setLayout(mainLayout);
 
-    QAction *separator1 = new QAction(this);
-    separator1->setSeparator(true);
-
-    QAction *separator2 = new QAction(this);
-    separator2->setSeparator(true);
-
-    QAction *separator3 = new QAction(this);
-    separator3->setSeparator(true);
-
-    QAction *separator4 = new QAction(this);
-    separator4->setSeparator(true);
-
-    QAction *separator5 = new QAction(this);
-    separator5->setSeparator(true);
-
-    QAction *separator6 = new QAction(this);
-    separator6->setSeparator(true);
-
-    m_actions.append(m_player->action(OpenMenuAction));
-    m_actions.append(separator1);
-    m_actions.append(m_player->action(PlayPauseAction));
-    m_actions.append(m_player->action(StopAction));
-    m_actions.append(separator2);
-    m_actions.append(m_player->action(NavigationMenuAction));
-    m_actions.append(separator3);
-    m_actions.append(m_player->action(AudioMenuAction));
-    m_actions.append(separator4);
-    m_actions.append(m_player->action(VideoMenuAction));
-    m_actions.append(separator5);
-    m_actions.append(m_player->action(PlaylistToggleAction));
-    m_actions.append(separator6);
-
     SeekSlider *seekSlider = new SeekSlider();
     seekSlider->setPlayer(m_player);
 
@@ -908,6 +876,41 @@ void Applet::showMenu(const QPoint &position)
 
 QList<QAction*> Applet::contextualActions()
 {
+    if (m_actions.isEmpty())
+    {
+        QAction *separator1 = new QAction(this);
+        separator1->setSeparator(true);
+
+        QAction *separator2 = new QAction(this);
+        separator2->setSeparator(true);
+
+        QAction *separator3 = new QAction(this);
+        separator3->setSeparator(true);
+
+        QAction *separator4 = new QAction(this);
+        separator4->setSeparator(true);
+
+        QAction *separator5 = new QAction(this);
+        separator5->setSeparator(true);
+
+        QAction *separator6 = new QAction(this);
+        separator6->setSeparator(true);
+
+        m_actions.append(m_player->action(OpenMenuAction));
+        m_actions.append(separator1);
+        m_actions.append(m_player->action(PlayPauseAction));
+        m_actions.append(m_player->action(StopAction));
+        m_actions.append(separator2);
+        m_actions.append(m_player->action(NavigationMenuAction));
+        m_actions.append(separator3);
+        m_actions.append(m_player->action(AudioMenuAction));
+        m_actions.append(separator4);
+        m_actions.append(m_player->action(VideoMenuAction));
+        m_actions.append(separator5);
+        m_actions.append(m_player->action(PlaylistToggleAction));
+        m_actions.append(separator6);
+    }
+
     return m_actions;
 }
 
