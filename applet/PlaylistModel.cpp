@@ -137,7 +137,8 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
 
     QMultiMap<QString, KUrl> urlMap;
     QMultiMap<QString, KUrl> titleMap;
-    QMultiMap<qint64, KUrl> lengthMap;
+    QMultiMap<QString, KUrl> artistMap;
+    QMultiMap<qint64, KUrl> durationMap;
     KUrl::List tracks;
 
     switch (column)
@@ -153,10 +154,18 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
         case 2:
             for (int i = 0; i < m_tracks.count(); ++i)
             {
-                lengthMap.insert(MetaDataManager::duration(m_tracks.at(i)), m_tracks.at(i));
+                artistMap.insert(MetaDataManager::artist(m_tracks.at(i)), m_tracks.at(i));
             }
 
-            tracks = lengthMap.values();
+            tracks = artistMap.values();
+        break;
+        case 3:
+            for (int i = 0; i < m_tracks.count(); ++i)
+            {
+                durationMap.insert(MetaDataManager::duration(m_tracks.at(i)), m_tracks.at(i));
+            }
+
+            tracks = durationMap.values();
         break;
         default:
             for (int i = 0; i < m_tracks.count(); ++i)
@@ -284,6 +293,8 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
             case 1:
                 return MetaDataManager::title(url);
             case 2:
+                return MetaDataManager::artist(url);
+            case 3:
                 return MetaDataManager::timeToString(MetaDataManager::duration(url));
         }
     }
@@ -311,6 +322,8 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
         case 1:
             return i18n("Title");
         case 2:
+            return i18n("Artist");
+        case 3:
             return i18n("Length");
     }
 
@@ -444,7 +457,7 @@ int PlaylistModel::trackCount() const
 
 int PlaylistModel::columnCount(const QModelIndex &index) const
 {
-    return (index.isValid()?0:3);
+    return (index.isValid()?0:4);
 }
 
 int PlaylistModel::rowCount(const QModelIndex &index) const
