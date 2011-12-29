@@ -655,6 +655,8 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
         m_playlistUi.tabBar->setCurrentIndex(position + 1);
     }
 
+    playlist->setCurrentTrack(0);
+
     emit needsSaving();
 
     connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(needsSaving()));

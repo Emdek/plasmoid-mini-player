@@ -88,10 +88,7 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<
 {
     for (int i = (tracks.count() - 1); i >= 0; --i)
     {
-        if (tracks.at(i).isValid())
-        {
-            m_tracks.insert(position, tracks.at(i));
-        }
+        m_tracks.insert(position, tracks.at(i));
     }
 
     if (reaction == PlayReaction)
@@ -100,7 +97,14 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, const QHash<KUrl, QPair<
     }
     else if (position <= m_currentTrack)
     {
-        setCurrentTrack(qMin((m_currentTrack + tracks.count()), (m_tracks.count() - 1)), reaction);
+        if (m_tracks.count() == tracks.count())
+        {
+            setCurrentTrack(0, reaction);
+        }
+        else
+        {
+            setCurrentTrack(qMin((m_currentTrack + tracks.count()), (m_tracks.count() - 1)), reaction);
+        }
     }
 
     MetaDataManager::setMetaData(metaData);

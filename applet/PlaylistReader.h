@@ -32,14 +32,12 @@
 namespace MiniPlayer
 {
 
-class PlaylistModel;
-
 class PlaylistReader : public QObject
 {
     Q_OBJECT
 
     public:
-        PlaylistReader(PlaylistModel *parent, const KUrl::List &urls, int index, PlayerReaction reaction);
+        PlaylistReader(QObject *parent, const KUrl::List &urls, int index, PlayerReaction reaction);
 
     public slots:
         void importData(KIO::Job *job, const QByteArray &data);
@@ -50,8 +48,8 @@ class PlaylistReader : public QObject
         void importPlaylist(const KUrl &url, PlaylistFormat type);
         void readM3u(QTextStream &stream);
         void readPls(QTextStream &stream);
-        void readXspf(QByteArray &data);
-        void readAsx(QByteArray &data);
+        void readXspf(const QByteArray &data);
+        void readAsx(const QByteArray &data);
         void readDirectory(const KUrl &url, int level = 0);
 
     private:

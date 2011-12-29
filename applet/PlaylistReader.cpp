@@ -19,7 +19,6 @@
 ***********************************************************************************/
 
 #include "PlaylistReader.h"
-#include "PlaylistModel.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -35,7 +34,7 @@
 namespace MiniPlayer
 {
 
-PlaylistReader::PlaylistReader(PlaylistModel *parent, const KUrl::List &urls, int index, PlayerReaction reaction) : QObject(parent),
+PlaylistReader::PlaylistReader(QObject *parent, const KUrl::List &urls, int index, PlayerReaction reaction) : QObject(parent),
     m_reaction(reaction),
     m_imports(0),
     m_index(index)
@@ -144,49 +143,44 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 
 void PlaylistReader::importPlaylist(const KUrl &url, PlaylistFormat type)
 {
-    KUrl::List items;
     QFileInfo currentLocation(url.pathOrUrl());
 
     QDir::setCurrent(currentLocation.absolutePath());
 
     QFile data(url.pathOrUrl());
 
-    if (data.open(QFile::ReadOnly))
-    {
-        if (type == XspfFormat)
-        {
-            QByteArray byteArray = data.readAll();
-
-            readXspf(byteArray);
-        }
-        else if (type == AsxFormat)
-        {
-            QByteArray byteArray = data.readAll();
-
-            readAsx(byteArray);
-        }
-        else
-        {
-            QTextStream stream(&data);
-
-            if (type == PlsFormat)
-            {
-                readPls(stream);
-            }
-            else
-            {
-                readM3u(stream);
-            }
-        }
-
-        data.close();
-    }
-    else
+    if (!data.open(QFile::ReadOnly))
     {
         KMessageBox::error(NULL, i18n("Cannot open file for reading."));
     }
 
-    addUrls(items);
+    if (type == XspfFormat)
+    {
+        QByteArray byteArray = data.readAll();
+
+        readXspf(byteArray);
+    }
+    else if (type == AsxFormat)
+    {
+        QByteArray byteArray = data.readAll();
+
+        readAsx(byteArray);
+    }
+    else
+    {
+        QTextStream stream(&data);
+
+        if (type == PlsFormat)
+        {
+            readPls(stream);
+        }
+        else
+        {
+            readM3u(stream);
+        }
+    }
+
+    data.close();
 }
 
 void PlaylistReader::importData(KIO::Job* job, const QByteArray &data)
@@ -372,7 +366,7 @@ void PlaylistReader::readPls(QTextStream &stream)
     addUrls(items);
 }
 
-void PlaylistReader::readXspf(QByteArray &data)
+void PlaylistReader::readXspf(const QByteArray &data)
 {
     KUrl::List items;
     QXmlStreamReader reader(data);
@@ -421,7 +415,7 @@ void PlaylistReader::readXspf(QByteArray &data)
     addUrls(items);
 }
 
-void PlaylistReader::readAsx(QByteArray &data)
+void PlaylistReader::readAsx(const QByteArray &data)
 {
     KUrl::List items;
     QXmlStreamReader reader(data);
