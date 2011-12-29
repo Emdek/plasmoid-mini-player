@@ -189,8 +189,8 @@ Applet::~Applet()
 
 void Applet::init()
 {
-    KConfigGroup playlistsConfiguration = config().group("playlists");
-    KConfigGroup metaDataConfiguration = config().group("metaData");
+    KConfigGroup playlistsConfiguration = config().group("Playlists");
+    KConfigGroup metaDataConfiguration = config().group("MetaData");
     QStringList playlists = playlistsConfiguration.groupList();
     QStringList tracks = metaDataConfiguration.groupList();
     int currentPlaylist = 0;
@@ -223,11 +223,6 @@ void Applet::init()
 
     m_playlistManager->setCurrentPlaylist(currentPlaylist);
 
-    if (config().readEntry("playOnStartup", false) && m_player->playlist() && m_player->playlist()->trackCount())
-    {
-        m_player->play();
-    }
-
     m_player->setAspectRatio(static_cast<AspectRatio>(config().readEntry("apectRatio", static_cast<int>(AutomaticRatio))));
     m_player->setAudioMuted(config().readEntry("mute", false));
     m_player->setVolume(config().readEntry("volume", 50));
@@ -235,6 +230,11 @@ void Applet::init()
     m_player->setContrast(config().readEntry("contrast", 50));
     m_player->setHue(config().readEntry("hue", 50));
     m_player->setSaturation(config().readEntry("saturation", 50));
+
+    if (config().readEntry("playOnStartup", false) && m_player->playlist() && m_player->playlist()->trackCount())
+    {
+        m_player->play();
+    }
 
     QTimer::singleShot(100, this, SLOT(configReset()));
 
@@ -341,11 +341,11 @@ void Applet::configSave()
         configuration.writeEntry("playlistViewHeader", m_playlistManager->headerState());
     }
 
-    configuration.deleteGroup("playlists");
-    configuration.deleteGroup("metaData");
+    configuration.deleteGroup("Playlists");
+    configuration.deleteGroup("MetaData");
 
-    KConfigGroup playlistsConfiguration = configuration.group("playlists");
-    KConfigGroup metaDataConfiguration = configuration.group("metaData");
+    KConfigGroup playlistsConfiguration = configuration.group("Playlists");
+    KConfigGroup metaDataConfiguration = configuration.group("MetaData");
     QList<PlaylistModel*> playlists = m_playlistManager->playlists();
     int index = 0;
 
