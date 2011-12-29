@@ -61,7 +61,7 @@ void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
     }
 
     m_pixmapItem->setScale(scale);
-    m_pixmapItem->setPos((geometry().left() + ((event->newSize().width() - (m_pixmapItem->boundingRect().width() * scale)) / 2)), (geometry().top() + ((event->newSize().height() - (m_pixmapItem->boundingRect().height() * scale)) / 2)));
+    m_pixmapItem->setPos(((event->newSize().width() - (m_pixmapItem->boundingRect().width() * scale)) / 2), ((event->newSize().height() - (m_pixmapItem->boundingRect().height() * scale)) / 2));
 
     m_backgroundWidget->resize(event->newSize());
     m_backgroundWidget->setPos(0, 0);
