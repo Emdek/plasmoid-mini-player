@@ -615,13 +615,11 @@ void Applet::videoAvailableChanged(bool videoAvailable)
 
 void Applet::metaDataChanged()
 {
-    KUrl url = m_player->url();
+    const KUrl url = m_player->url();
 
-    if (!m_player->title().isEmpty() && !MetaDataManager::available(url))
+    if (!MetaDataManager::isAvailable(url))
     {
         MetaDataManager::setMetaData(url, m_player->title(), m_player->duration());
-
-        configSave();
     }
 
     if (m_player->state() != StoppedState)

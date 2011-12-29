@@ -146,7 +146,7 @@ void MetaDataManager::setUrlMetaData(const KUrl &url, const QString &title, qint
         return;
     }
 
-    if (!available(url))
+    if (!isAvailable(url))
     {
         emit urlChanged(url);
     }
@@ -276,7 +276,7 @@ qint64 MetaDataManager::duration(const KUrl &url)
     return -1;
 }
 
-bool MetaDataManager::available(const KUrl &url)
+bool MetaDataManager::isAvailable(const KUrl &url)
 {
     return (!m_tracks.contains(url) || m_tracks[url].first.isEmpty() || m_tracks[url].second < 1);
 }

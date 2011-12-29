@@ -38,6 +38,9 @@ class MetaDataManager : public QObject
 
     public:
         static void createInstance(QObject *parent = NULL);
+        static void addTracks(const KUrl::List &urls);
+        static void setMetaData(const KUrl &url, const QString &title, qint64 duration);
+        static void setMetaData(const QHash<KUrl, QPair<QString, qint64> > &metaData);
         static MetaDataManager* instance();
         static QString timeToString(qint64 time);
         static QVariantMap metaData(const KUrl &url);
@@ -45,10 +48,7 @@ class MetaDataManager : public QObject
         static QString title(const KUrl &url);
         static KIcon icon(const KUrl &url);
         static qint64 duration(const KUrl &url);
-        static bool available(const KUrl &url);
-        static void addTracks(const KUrl::List &urls);
-        static void setMetaData(const KUrl &url, const QString &title, qint64 duration);
-        static void setMetaData(const QHash<KUrl, QPair<QString, qint64> > &metaData);
+        static bool isAvailable(const KUrl &url);
 
     protected:
         MetaDataManager(QObject *parent);

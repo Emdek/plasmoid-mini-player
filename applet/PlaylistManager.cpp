@@ -504,7 +504,7 @@ void PlaylistManager::exportPlaylist()
 
         for (int i = 0; i < m_playlists[visiblePlaylist()]->trackCount(); ++i)
         {
-            available = MetaDataManager::available(url);
+            available = MetaDataManager::isAvailable(url);
             url = m_playlists[visiblePlaylist()]->track(i);
             title = (available?MetaDataManager::title(url):QString());
             duration = (available?QString::number(MetaDataManager::duration(url) / 1000):QString("-1"));
