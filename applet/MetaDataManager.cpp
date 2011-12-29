@@ -35,7 +35,6 @@ MetaDataManager::MetaDataManager(QObject *parent) : QObject(parent),
     m_resolveMedia(0),
     m_attempts(0)
 {
-    connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SLOT(resolveMetaData()));
 }
 
 void MetaDataManager::createInstance(QObject *parent)

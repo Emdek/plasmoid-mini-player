@@ -54,11 +54,9 @@ class MetaDataManager : public QObject
         MetaDataManager(QObject *parent);
 
         void timerEvent(QTimerEvent *event);
+        void resolveMetaData();
         void addUrls(const KUrl::List &urls);
         void setUrlMetaData(const KUrl &url, const QString &title, qint64 duration);
-
-    protected slots:
-        void resolveMetaData();
 
     private:
         Phonon::MediaObject *m_mediaObject;
