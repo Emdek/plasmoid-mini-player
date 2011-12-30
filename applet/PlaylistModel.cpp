@@ -114,6 +114,11 @@ void PlaylistModel::processedTracks(const KUrl::List &tracks, int position, Play
 
 void PlaylistModel::clear()
 {
+    if (m_tracks.count() < 1)
+    {
+        return;
+    }
+
     m_tracks.clear();
 
     emit needsSaving();
@@ -121,7 +126,24 @@ void PlaylistModel::clear()
 
 void PlaylistModel::shuffle()
 {
+    if (m_tracks.count() < 2)
+    {
+        return;
+    }
+
+    KUrl url = m_tracks.value(m_currentTrack);
+
     KRandomSequence().randomize(m_tracks);
+
+    for (int i = 0; i < m_tracks.count(); ++i)
+    {
+        if (m_tracks.at(i) == url)
+        {
+            setCurrentTrack(i);
+
+            break;
+        }
+    }
 
     emit needsSaving();
 }
