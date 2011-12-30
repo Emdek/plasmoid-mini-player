@@ -354,6 +354,7 @@ void Applet::configSave()
     KConfigGroup playlistsConfiguration = configuration.group("Playlists");
     KConfigGroup metaDataConfiguration = configuration.group("MetaData");
     QList<PlaylistModel*> playlists = m_playlistManager->playlists();
+    QSet<KUrl> playlistTracks;
     int index = 0;
 
     for (int i = 0; i < playlists.count(); ++i)
@@ -370,6 +371,8 @@ void Applet::configSave()
         playlistConfiguration.writeEntry("currentTrack", playlists[i]->currentTrack());
         playlistConfiguration.writeEntry("isCurrent", (m_playlistManager->currentPlaylist() == i));
 
+        playlistTracks = playlistTracks.unite(playlists.at(i)->tracks().toSet());
+
         ++index;
     }
 
@@ -377,6 +380,11 @@ void Applet::configSave()
 
     for (int i = 0; i < tracks.count(); ++i)
     {
+        if (!playlistTracks.contains(tracks.at(i)))
+        {
+            continue;
+        }
+
         KConfigGroup trackConfiguration = metaDataConfiguration.group(QString::number(i));
         trackConfiguration.writeEntry("url", tracks.at(i));
         trackConfiguration.writeEntry("title", MetaDataManager::title(tracks.at(i)));

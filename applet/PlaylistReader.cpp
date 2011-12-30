@@ -184,12 +184,12 @@ void PlaylistReader::importPlaylist(const KUrl &url, PlaylistFormat type)
     data.close();
 }
 
-void PlaylistReader::importData(KIO::Job* job, const QByteArray &data)
+void PlaylistReader::importData(KIO::Job *job, const QByteArray &data)
 {
     m_remotePlaylistsData[job].append(data);
 }
 
-void PlaylistReader::importResult(KJob* job)
+void PlaylistReader::importResult(KJob *job)
 {
     if (m_remotePlaylistsType[job] == XspfFormat)
     {
@@ -219,9 +219,9 @@ void PlaylistReader::importResult(KJob* job)
 
 void PlaylistReader::readM3u(QTextStream &stream)
 {
-    KUrl::List urls;
     QRegExp m3uInformation("^#EXTINF:");
     QString line;
+    KUrl::List urls;
     Track track;
     bool addUrl;
 
@@ -286,12 +286,12 @@ void PlaylistReader::readM3u(QTextStream &stream)
 
 void PlaylistReader::readPls(QTextStream &stream)
 {
-    KUrl::List urls;
-    KUrl url;
     QRegExp plsUrl("^File\\d+=");
     QRegExp plsTitle("^Title\\d+=");
     QRegExp plsDuration("^Length\\d+=");
     QString line;
+    KUrl::List urls;
+    KUrl url;
     Track track;
     bool addUrl = false;
 
@@ -361,9 +361,9 @@ void PlaylistReader::readPls(QTextStream &stream)
 
 void PlaylistReader::readXspf(const QByteArray &data)
 {
+    QXmlStreamReader reader(data);
     KUrl::List urls;
     KUrl url;
-    QXmlStreamReader reader(data);
     Track track;
 
     while (!reader.atEnd())
@@ -417,9 +417,9 @@ void PlaylistReader::readXspf(const QByteArray &data)
 
 void PlaylistReader::readAsx(const QByteArray &data)
 {
+    QXmlStreamReader reader(data);
     KUrl::List urls;
     KUrl url;
-    QXmlStreamReader reader(data);
     Track track;
 
     while (!reader.atEnd())
