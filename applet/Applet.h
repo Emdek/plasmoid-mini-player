@@ -42,7 +42,6 @@ namespace MiniPlayer
 {
 
 class PlaylistManager;
-class VideoWidget;
 
 class Applet : public Plasma::Applet
 {
@@ -60,19 +59,6 @@ class Applet : public Plasma::Applet
     public slots:
         void configAccepted();
         void configSave();
-        void configReset();
-        void stateChanged(PlayerState state);
-        void videoAvailableChanged(bool videoAvailable);
-        void metaDataChanged();
-        void openFiles();
-        void openUrl();
-        void jumpToPosition();
-        void toggleJumpToPosition();
-        void toggleVolumeDialog();
-        void toggleFullScreen();
-        void togglePlaylistDialog();
-        void showToolTip();
-        void updateToolTip();
         void toolTipAboutToShow();
         void toolTipHidden();
         void showMenu(const QPoint &position);
@@ -88,17 +74,31 @@ class Applet : public Plasma::Applet
         void keyPressEvent(QKeyEvent *event);
         void timerEvent(QTimerEvent *event);
 
+    protected slots:
+        void configReset();
+        void stateChanged(PlayerState state);
+        void videoAvailableChanged(bool videoAvailable);
+        void metaDataChanged();
+        void openFiles();
+        void openUrl();
+        void jumpToPosition();
+        void toggleJumpToPosition();
+        void toggleVolumeDialog();
+        void toggleFullScreen();
+        void togglePlaylistDialog();
+        void showToolTip();
+        void updateToolTip();
+        void updateControls();
+
     private:
         Player *m_player;
         PlaylistManager *m_playlistManager;
-        VideoWidget *m_videoWidget;
         Plasma::Dialog *m_volumeDialog;
         PlayerDBusHandler *m_playerDBUSHandler;
         TrackListDBusHandler *m_trackListDBusHandler;
         RootDBusHandler *m_rootDBUSHandler;
         QHash<QString, QGraphicsWidget*> m_controls;
         QList<QAction*> m_actions;
-        QGraphicsWidget *m_controlsWidget;
         QWidget *m_fullScreenWidget;
         KDialog *m_jumpToPositionDialog;
         int m_hideFullScreenControls;

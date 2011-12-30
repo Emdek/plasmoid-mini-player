@@ -61,12 +61,10 @@ namespace MiniPlayer
 Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(parent, args),
     m_player(new Player(this)),
     m_playlistManager(new PlaylistManager(m_player)),
-    m_videoWidget(new VideoWidget(this)),
     m_volumeDialog(NULL),
     m_playerDBUSHandler(NULL),
     m_trackListDBusHandler(NULL),
     m_rootDBUSHandler(NULL),
-    m_controlsWidget(new QGraphicsWidget(this)),
     m_fullScreenWidget(NULL),
     m_jumpToPositionDialog(NULL),
     m_hideFullScreenControls(0),
@@ -83,39 +81,42 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 
     MetaDataManager::createInstance(this);
 
-    m_player->registerAppletVideoWidget(m_videoWidget);
+    VideoWidget *videoWidget = new VideoWidget(this);
+    QGraphicsWidget *controlsWidget = new QGraphicsWidget(this);
+
+    m_player->registerAppletVideoWidget(videoWidget);
     m_player->setVideoMode(false);
 
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical, this);
     mainLayout->setSpacing(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->insertItem(0, m_videoWidget);
-    mainLayout->insertItem(1, m_controlsWidget);
+    mainLayout->insertItem(0, videoWidget);
+    mainLayout->insertItem(1, controlsWidget);
 
     setLayout(mainLayout);
 
     SeekSlider *seekSlider = new SeekSlider;
     seekSlider->setPlayer(m_player);
 
-    Plasma::Slider *positionSlider = new Plasma::Slider(m_controlsWidget);
+    Plasma::Slider *positionSlider = new Plasma::Slider(controlsWidget);
     positionSlider->setWidget(seekSlider);
 
-    Plasma::ToolButton *openButton = new Plasma::ToolButton(m_controlsWidget);
+    Plasma::ToolButton *openButton = new Plasma::ToolButton(controlsWidget);
     openButton->setAction(m_player->action(OpenFileAction));
 
-    Plasma::ToolButton *playPauseButton = new Plasma::ToolButton(m_controlsWidget);
+    Plasma::ToolButton *playPauseButton = new Plasma::ToolButton(controlsWidget);
     playPauseButton->setAction(m_player->action(PlayPauseAction));
 
-    Plasma::ToolButton *stopButton = new Plasma::ToolButton(m_controlsWidget);
+    Plasma::ToolButton *stopButton = new Plasma::ToolButton(controlsWidget);
     stopButton->setAction(m_player->action(StopAction));
 
-    Plasma::ToolButton *volumeButton = new Plasma::ToolButton(m_controlsWidget);
+    Plasma::ToolButton *volumeButton = new Plasma::ToolButton(controlsWidget);
     volumeButton->setAction(m_player->action(VolumeToggleAction));
 
-    Plasma::ToolButton *playlistButton = new Plasma::ToolButton(m_controlsWidget);
+    Plasma::ToolButton *playlistButton = new Plasma::ToolButton(controlsWidget);
     playlistButton->setAction(m_player->action(PlaylistToggleAction));
 
-    Plasma::ToolButton *fullScreenButton = new Plasma::ToolButton(m_controlsWidget);
+    Plasma::ToolButton *fullScreenButton = new Plasma::ToolButton(controlsWidget);
     fullScreenButton->setAction(m_player->action(FullScreenAction));
 
     m_controls["open"] = openButton;
@@ -133,7 +134,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_controls["fullScreen"] = fullScreenButton;
     m_controls["fullScreen"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 
-    QGraphicsLinearLayout *controlsLayout = new QGraphicsLinearLayout(Qt::Horizontal, m_controlsWidget);
+    QGraphicsLinearLayout *controlsLayout = new QGraphicsLinearLayout(Qt::Horizontal, controlsWidget);
     controlsLayout->setSpacing(0);
     controlsLayout->setContentsMargins(0, 0, 0, 0);
     controlsLayout->addItem(m_controls["open"]);
@@ -144,8 +145,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     controlsLayout->addItem(m_controls["playlist"]);
     controlsLayout->addItem(m_controls["fullScreen"]);
 
-    m_controlsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
-    m_controlsWidget->setLayout(controlsLayout);
+    controlsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+    controlsWidget->setLayout(controlsLayout);
 
     if (args.count())
     {
@@ -398,26 +399,6 @@ void Applet::configSave()
 void Applet::configReset()
 {
     KConfigGroup configuration = config();
-    QStringList controls;
-    controls << "open" << "playPause" << "stop" << "position" << "volume" << "playlist";
-    controls = configuration.readEntry("controls", controls);
-
-    QHash<QString, QGraphicsWidget*>::iterator iterator;
-    bool visible = false;
-
-    for (iterator = m_controls.begin(); iterator != m_controls.end(); ++iterator)
-    {
-        iterator.value()->setMaximumWidth(controls.contains(iterator.key())?-1:0);
-        iterator.value()->setVisible(controls.contains(iterator.key()));
-
-        if (controls.contains(iterator.key()))
-        {
-            visible = true;
-        }
-    }
-
-    m_controlsWidget->setVisible(visible);
-    m_controlsWidget->setMaximumHeight(visible?-1:0);
 
     if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
     {
@@ -444,7 +425,7 @@ void Applet::configReset()
         m_rootDBUSHandler = new RootDBusHandler(m_player);
     }
 
-    m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
+    updateControls();
 }
 
 void Applet::constraintsEvent(Plasma::Constraints constraints)
@@ -457,7 +438,10 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 
 void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-    m_player->setVideoMode(!m_controlsWidget->isVisible() || (event->newSize().height() - m_controlsWidget->size().height()) > 50);
+    if (m_playlistManager->playlists().count())
+    {
+        updateControls();
+    }
 
     Plasma::Applet::resizeEvent(event);
 }
@@ -829,6 +813,22 @@ void Applet::togglePlaylistDialog()
     }
 }
 
+void Applet::toolTipAboutToShow()
+{
+    m_updateToolTip = startTimer(1000);
+
+    updateToolTip();
+}
+
+void Applet::toolTipHidden()
+{
+    Plasma::ToolTipManager::self()->clearContent(this);
+
+    killTimer(m_updateToolTip);
+
+    m_updateToolTip = 0;
+}
+
 void Applet::showToolTip()
 {
     const qint64 time = (config().readEntry("showToolTipOnTrackChange", 3) * 1000);
@@ -863,20 +863,31 @@ void Applet::updateToolTip()
     Plasma::ToolTipManager::self()->setContent(this, data);
 }
 
-void Applet::toolTipAboutToShow()
+void Applet::updateControls()
 {
-    m_updateToolTip = startTimer(1000);
+    QStringList controls;
+    controls << "open" << "playPause" << "stop" << "position" << "volume" << "playlist";
+    controls = config().readEntry("controls", controls);
 
-    updateToolTip();
-}
+    QHash<QString, QGraphicsWidget*>::iterator iterator;
+    bool visible = false;
 
-void Applet::toolTipHidden()
-{
-    Plasma::ToolTipManager::self()->clearContent(this);
+    for (iterator = m_controls.begin(); iterator != m_controls.end(); ++iterator)
+    {
+        iterator.value()->setMaximumWidth(controls.contains(iterator.key())?-1:0);
+        iterator.value()->setVisible(controls.contains(iterator.key()));
 
-    killTimer(m_updateToolTip);
+        if (controls.contains(iterator.key()))
+        {
+            visible = true;
+        }
+    }
 
-    m_updateToolTip = 0;
+    QGraphicsWidget *controlsWidget = static_cast<QGraphicsWidget*>(layout()->itemAt(1)->graphicsItem());
+    controlsWidget->setVisible(visible);
+    controlsWidget->setMaximumHeight(visible?-1:0);
+
+    m_player->setVideoMode(!visible|| (size().height() - controlsWidget->size().height()) > 50);
 }
 
 void Applet::showMenu(const QPoint &position)
