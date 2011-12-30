@@ -373,11 +373,17 @@ void PlaylistReader::readXspf(const QByteArray &data)
         if (reader.name().toString() == "track")
         {
             track.title = QString();
+            track.artist = QString();
         }
 
         if (reader.name().toString() == "title")
         {
             track.title = reader.text().toString();
+        }
+
+        if (reader.name().toString() == "creator")
+        {
+            track.artist = reader.text().toString();
         }
 
         if (reader.name().toString() == "location")
@@ -429,11 +435,17 @@ void PlaylistReader::readAsx(const QByteArray &data)
         if (reader.name().toString() == "entry")
         {
             track.title = QString();
+            track.artist = QString();
         }
 
         if (reader.name().toString() == "title")
         {
             track.title = reader.text().toString();
+        }
+
+        if (reader.name().toString() == "author")
+        {
+            track.artist = reader.text().toString();
         }
 
         if (reader.name().toString() == "ref")
