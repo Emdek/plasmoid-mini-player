@@ -48,6 +48,7 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_player(parent),
     m_dialog(NULL),
     m_videoWidget(new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()))),
+    m_size(QSize(600, 500)),
     m_currentPlaylist(0),
     m_selectedPlaylist(-1),
     m_editorActive(false)
@@ -408,11 +409,14 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
 
         visiblePlaylistChanged(m_currentPlaylist);
+        setSplitterState(m_splitterState);
+        setHeaderState(m_headerState);
 
         m_videoWidget->show();
 
         m_dialog->setContentsMargins(0, 0, 0, 0);
         m_dialog->adjustSize();
+        m_dialog->resize(m_size);
         m_dialog->setMouseTracking(true);
         m_dialog->installEventFilter(this);
         m_dialog->installEventFilter(m_player->parent());
@@ -590,6 +594,10 @@ void PlaylistManager::setDialogSize(const QSize &size)
     {
         m_dialog->resize(size);
     }
+    else
+    {
+        m_size = size;
+    }
 }
 
 void PlaylistManager::setSplitterState(const QByteArray &state)
@@ -598,14 +606,24 @@ void PlaylistManager::setSplitterState(const QByteArray &state)
     {
         m_playlistUi.splitter->restoreState(state);
     }
+    else
+    {
+        m_splitterState = state;
+    }
 }
 
 void PlaylistManager::setHeaderState(const QByteArray &state)
 {
     if (m_dialog)
     {
+        m_playlistUi.playlistView->horizontalHeader()->resizeSection(1, 250);
+        m_playlistUi.playlistView->horizontalHeader()->resizeSection(2, 200);
+        m_playlistUi.playlistView->horizontalHeader()->resizeSection(3, 80);
         m_playlistUi.playlistView->horizontalHeader()->restoreState(state);
-        m_playlistUi.playlistView->horizontalHeader()->resizeSection(1, 300);
+    }
+    else
+    {
+        m_headerState = state;
     }
 }
 
@@ -616,17 +634,17 @@ QList<PlaylistModel*> PlaylistManager::playlists() const
 
 QSize PlaylistManager::dialogSize() const
 {
-    return (m_dialog?m_dialog->size():QSize());
+    return (m_dialog?m_dialog->size():m_size);
 }
 
 QByteArray PlaylistManager::splitterState() const
 {
-    return (m_dialog?m_playlistUi.splitter->saveState():QByteArray());
+    return (m_dialog?m_playlistUi.splitter->saveState():m_splitterState);
 }
 
 QByteArray PlaylistManager::headerState() const
 {
-    return (m_dialog?m_playlistUi.playlistView->horizontalHeader()->saveState():QByteArray());
+    return (m_dialog?m_playlistUi.playlistView->horizontalHeader()->saveState():m_headerState);
 }
 
 PlayerState PlaylistManager::state() const

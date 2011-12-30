@@ -93,6 +93,9 @@ class PlaylistManager : public QObject
         VideoWidget *m_videoWidget;
         QHash<QString, QPair<QAction*, QHash<QString, QVariant> > > m_discActions;
         QList<PlaylistModel*> m_playlists;
+        QSize m_size;
+        QByteArray m_splitterState;
+        QByteArray m_headerState;
         int m_currentPlaylist;
         int m_selectedPlaylist;
         bool m_editorActive;
