@@ -106,12 +106,12 @@ void MetaDataManager::resolveMetaData()
     m_mediaObject->setCurrentSource(Phonon::MediaSource());
 }
 
-void MetaDataManager::addTracks(const KUrl::List &urls)
+void MetaDataManager::resolveTracks(const KUrl::List &urls)
 {
-    m_instance->addUrls(urls);
+    m_instance->addTracks(urls);
 }
 
-void MetaDataManager::addUrls(const KUrl::List &urls)
+void MetaDataManager::addTracks(const KUrl::List &urls)
 {
     for (int i = (urls.count() - 1); i >= 0 ; --i)
     {
@@ -276,7 +276,7 @@ KUrl::List MetaDataManager::tracks()
     return m_tracks.keys();
 }
 
-QString MetaDataManager::title(const KUrl &url)
+QString MetaDataManager::title(const KUrl &url, bool allowSubstitute )
 {
     QString title;
 
@@ -284,7 +284,7 @@ QString MetaDataManager::title(const KUrl &url)
     {
         title = m_tracks[url].title;
     }
-    else
+    else if (allowSubstitute)
     {
         title = QFileInfo(url.pathOrUrl()).completeBaseName().replace("%20", " ");
     }
@@ -292,14 +292,20 @@ QString MetaDataManager::title(const KUrl &url)
     return title;
 }
 
-QString MetaDataManager::artist(const KUrl &url)
+QString MetaDataManager::artist(const KUrl &url, bool allowSubstitute )
 {
+    QString artist;
+
     if (m_tracks.contains(url))
     {
-        return m_tracks[url].artist;
+        artist = m_tracks[url].artist;
+    }
+    else if (allowSubstitute)
+    {
+        artist = i18n("Unknown artist");
     }
 
-    return QString();
+    return artist;
 }
 
 KIcon MetaDataManager::icon(const KUrl &url)

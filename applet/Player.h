@@ -54,7 +54,7 @@ class Player : public QObject
         void registerFullScreenVideoWidget(QWidget *videoWidget);
         QString errorString() const;
         QString title(bool allowSubstitute = true) const;
-        QString artist() const;
+        QString artist(bool allowSubstitute = true) const;
         PlaylistModel* playlist() const;
         QAction* action(PlayerAction action) const;
         KUrl url() const;
@@ -113,7 +113,6 @@ class Player : public QObject
         void availableTitlesChanged();
         void currentTrackChanged(int track, PlayerReaction reaction = NoReaction);
         void stateChanged(Phonon::State state);
-        void changePlaybackMode(QAction *action);
         void changeAspectRatio(QAction *action);
         void changeChapter(QAction *action);
         void changeAudioChannel(QAction *action);

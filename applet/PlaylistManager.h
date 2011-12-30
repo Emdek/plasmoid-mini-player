@@ -63,6 +63,7 @@ class PlaylistManager : public QObject
 
     protected slots:
         void visiblePlaylistChanged(int position);
+        void playbackModeChanged(QAction *action);
         void openDisc(QAction *action);
         void deviceAdded(const QString &udi);
         void deviceRemoved(const QString &udi);

@@ -638,7 +638,7 @@ void Applet::metaDataChanged()
     {
         Track track;
         track.title = m_player->title(false);
-        track.artist = m_player->artist();
+        track.artist = m_player->artist(false);
         track.duration = m_player->duration();
 
         MetaDataManager::setMetaData(m_player->url(), track);
@@ -854,7 +854,7 @@ void Applet::updateToolTip()
 
     if (m_player->state() != StoppedState)
     {
-        data.setMainText(m_player->title());
+        data.setMainText(QString("%1 - %2").arg(m_player->artist()).arg(m_player->title()));
         data.setSubText((m_player->duration() > 0)?i18n("Position: %1 / %2", MetaDataManager::timeToString(m_player->position()), MetaDataManager::timeToString(m_player->duration())):"");
         data.setImage(MetaDataManager::icon(m_player->url()).pixmap(IconSize(KIconLoader::Desktop)));
         data.setAutohide(true);

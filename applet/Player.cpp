@@ -221,7 +221,6 @@ Player::Player(QObject *parent) : QObject(parent),
     mediaChanged();
     updateSliders();
 
-    connect(m_actions[PlaybackModeMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changePlaybackMode(QAction*)));
     connect(m_actions[AspectRatioMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAspectRatio(QAction*)));
     connect(m_actions[ChapterMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeChapter(QAction*)));
     connect(m_actions[AudioMenuAction]->menu(), SIGNAL(triggered(QAction*)), this, SLOT(changeAudioChannel(QAction*)));
@@ -521,14 +520,6 @@ void Player::changeAngle(QAction *action)
     m_mediaController->setCurrentAngle(action->data().toInt());
 }
 
-void Player::changePlaybackMode(QAction *action)
-{
-    if (m_playlist)
-    {
-        m_playlist->setPlaybackMode(static_cast<PlaybackMode>(action->data().toInt()));
-    }
-}
-
 void Player::trackFinished()
 {
     videoChanged();
@@ -701,8 +692,6 @@ void Player::setPlaylist(PlaylistModel *playlist)
 
     m_playlist = playlist;
 
-    m_actions[PlaybackModeMenuAction]->menu()->actions().at(static_cast<int>(m_playlist->playbackMode()))->setChecked(true);
-
     currentTrackChanged(playlist->currentTrack(), NoReaction);
     mediaChanged();
 
@@ -857,13 +846,13 @@ QString Player::title(bool allowSubstitute) const
     }
 }
 
-QString Player::artist() const
+QString Player::artist(bool allowSubstitute) const
 {
     const QStringList artists = m_mediaObject->metaData(Phonon::ArtistMetaData);
 
     if (artists.isEmpty() || artists.first().isEmpty())
     {
-        return QString();
+        return (allowSubstitute?i18n("Unknown artist"):QString());
     }
     else
     {

@@ -64,6 +64,7 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
 
     connect(m_player, SIGNAL(createDevicePlaylist(QString,KUrl::List)), this, SLOT(createDevicePlaylist(QString,KUrl::List)));
     connect(m_player->action(OpenMenuAction)->menu(), SIGNAL(triggered(QAction*)), this, SLOT(openDisc(QAction*)));
+    connect(m_player->action(PlaybackModeMenuAction)->menu(), SIGNAL(triggered(QAction*)), this, SLOT(playbackModeChanged(QAction*)));
     connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceAdded(QString)), this, SLOT(deviceAdded(QString)));
     connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceRemoved(QString)), this, SLOT(deviceRemoved(QString)));
 }
@@ -90,6 +91,11 @@ void PlaylistManager::visiblePlaylistChanged(int position)
     updateActions();
 
     emit needsSaving();
+}
+
+void PlaylistManager::playbackModeChanged(QAction *action)
+{
+    m_playlists[visiblePlaylist()]->setPlaybackMode(static_cast<PlaybackMode>(action->data().toInt()));
 }
 
 void PlaylistManager::openDisc(QAction *action)
@@ -443,6 +449,8 @@ void PlaylistManager::updateActions()
         return;
     }
 
+    m_player->action(PlaybackModeMenuAction)->menu()->actions().at(static_cast<int>(m_playlists[visiblePlaylist()]->playbackMode()))->setChecked(true);
+
     QModelIndexList selectedIndexes = m_playlistUi.playlistView->selectionModel()->selectedIndexes();
     bool hasTracks = m_playlists[visiblePlaylist()]->trackCount();
 
@@ -673,8 +681,6 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
     if (!tracks.isEmpty())
     {
         m_playlists[position]->addTracks(tracks);
-
-        MetaDataManager::addTracks(tracks);
     }
 
     if (m_dialog)

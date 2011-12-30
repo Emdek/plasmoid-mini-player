@@ -107,7 +107,7 @@ void PlaylistModel::processedTracks(const KUrl::List &tracks, int position, Play
         }
     }
 
-    MetaDataManager::addTracks(tracks);
+    MetaDataManager::resolveTracks(tracks);
 
     emit needsSaving();
 }
@@ -322,7 +322,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     }
     else if (role == Qt::ToolTipRole)
     {
-        return ((MetaDataManager::duration(url) > 0)?QString("<nobr>%1 (%2)</nobr>").arg(MetaDataManager::title(url)).arg(MetaDataManager::timeToString(MetaDataManager::duration(url))):QString("<nobr>%1</nobr>").arg(MetaDataManager::title(url)));
+        return ((MetaDataManager::duration(url) > 0)?QString("<nobr>%1 - %2 (%3)</nobr>").arg(MetaDataManager::artist(url)).arg(MetaDataManager::title(url)).arg(MetaDataManager::timeToString(MetaDataManager::duration(url))):QString("<nobr>%1 - %2</nobr>").arg(MetaDataManager::artist(url)).arg(MetaDataManager::title(url)));
     }
     else if (role == Qt::UserRole)
     {
