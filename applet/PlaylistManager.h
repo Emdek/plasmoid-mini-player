@@ -54,38 +54,36 @@ class PlaylistManager : public QObject
         bool eventFilter(QObject *object, QEvent *event);
 
     public slots:
-        void filterPlaylist(const QString &text);
-        void movePlaylist(int from, int to);
-        void renamePlaylist(int position = -1);
-        void removePlaylist(int position = -1);
-        void visiblePlaylistChanged(int position);
-        void exportPlaylist();
-        void newPlaylist();
-        void clearPlaylist();
-        void shufflePlaylist();
+        void showDialog(const QPoint &position);
+        void closeDialog();
         void setCurrentPlaylist(int position);
         void setDialogSize(const QSize &size);
         void setSplitterState(const QByteArray &state);
         void setHeaderState(const QByteArray &state);
-        void showDialog(const QPoint &position);
-        void closeDialog();
 
     protected slots:
+        void visiblePlaylistChanged(int position);
         void openDisc(QAction *action);
         void deviceAdded(const QString &udi);
         void deviceRemoved(const QString &udi);
         void createDevicePlaylist(const QString &udi, const KUrl::List &tracks);
-        void updateVideoView();
-
-    public slots:
-        void trackPressed();
+        void playlistMoved(int from, int to);
+        void filterPlaylist(const QString &text);
+        void renamePlaylist(int position = -1);
+        void removePlaylist(int position = -1);
+        void exportPlaylist();
+        void newPlaylist();
+        void clearPlaylist();
+        void shufflePlaylist();
         void trackChanged();
         void moveUpTrack();
         void moveDownTrack();
+        void removeTrack();
         void playTrack(QModelIndex index = QModelIndex());
         void editTrackTitle();
         void copyTrackUrl();
-        void removeTrack();
+        void updateActions();
+        void updateVideoView();
 
     private:
         Player *m_player;
@@ -98,7 +96,7 @@ class PlaylistManager : public QObject
         QByteArray m_headerState;
         int m_currentPlaylist;
         int m_selectedPlaylist;
-        bool m_editorActive;
+        bool m_isEdited;
         Ui::playlist m_playlistUi;
 
     signals:
