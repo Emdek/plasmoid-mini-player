@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2011-12-30 00:40+0100\n"
+"POT-Creation-Date: 2011-12-30 10:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,33 +33,33 @@ msgstr ""
 msgid "Visible Controls"
 msgstr ""
 
-#: Applet.cpp:651
+#: Applet.cpp:659
 msgid "Open URL"
 msgstr ""
 
-#: Applet.cpp:651
+#: Applet.cpp:659
 msgid "Enter a URL:"
 msgstr ""
 
 #. i18n: file: ui/jumpToPosition.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, jumpToPosition)
-#: Applet.cpp:695 locale/rc.cpp:45 rc.cpp:45
+#: Applet.cpp:703 locale/rc.cpp:45 rc.cpp:45
 msgid "Jump to Position"
 msgstr ""
 
-#: Applet.cpp:785 Player.cpp:191
+#: Applet.cpp:793 Player.cpp:191
 msgid "Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:803
+#: Applet.cpp:811
 msgid "Exit Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:850
+#: Applet.cpp:858
 msgid "Position: %1 / %2"
 msgstr ""
 
-#: Applet.cpp:879
+#: Applet.cpp:887
 msgid "Settings"
 msgstr ""
 
@@ -149,7 +149,7 @@ msgstr ""
 
 #. i18n: file: ui/playlist.ui:20
 #. i18n: ectx: property (windowTitle), widget (QWidget, playlist)
-#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:367 rc.cpp:54
+#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:484 rc.cpp:54
 msgid "Playlist"
 msgstr ""
 
@@ -197,7 +197,7 @@ msgstr ""
 
 #. i18n: file: ui/playlist.ui:400
 #. i18n: ectx: property (toolTip), widget (QToolButton, newButton)
-#: locale/rc.cpp:78 PlaylistManager.cpp:756 rc.cpp:78
+#: locale/rc.cpp:78 PlaylistManager.cpp:788 rc.cpp:78
 msgid "New playlist..."
 msgstr ""
 
@@ -253,7 +253,7 @@ msgstr ""
 msgid "Open URL..."
 msgstr ""
 
-#: Player.cpp:74 Player.cpp:313 PlaylistManager.cpp:725
+#: Player.cpp:74 Player.cpp:313 PlaylistManager.cpp:757
 msgid "Play"
 msgstr ""
 
@@ -405,71 +405,79 @@ msgstr ""
 msgid "Saturation: %1%"
 msgstr ""
 
-#: PlaylistManager.cpp:99
+#: PlaylistManager.cpp:124
 msgid "Disc %1"
 msgstr ""
 
-#: PlaylistManager.cpp:105
+#: PlaylistManager.cpp:130
 msgid "Open DVD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:111
+#: PlaylistManager.cpp:136
 msgid "Open VCD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:117
+#: PlaylistManager.cpp:142
 msgid "Open Audio CD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:292
+#: PlaylistManager.cpp:214
 msgid "Rename Playlist"
 msgstr ""
 
-#: PlaylistManager.cpp:292 PlaylistManager.cpp:547
+#: PlaylistManager.cpp:214 PlaylistManager.cpp:340
 msgid "Enter name:"
 msgstr ""
 
-#: PlaylistManager.cpp:537
+#: PlaylistManager.cpp:330
 msgid "File saved successfully."
 msgstr ""
 
-#: PlaylistManager.cpp:541
+#: PlaylistManager.cpp:334
 msgid "Cannot open file for writing."
 msgstr ""
 
-#: PlaylistManager.cpp:547
+#: PlaylistManager.cpp:340
 msgid "New playlist"
 msgstr ""
 
-#: PlaylistManager.cpp:714
-msgid "Edit title"
+#: PlaylistManager.cpp:743
+msgid "Edit"
 msgstr ""
 
-#: PlaylistManager.cpp:715
+#: PlaylistManager.cpp:744
+msgid "Edit title..."
+msgstr ""
+
+#: PlaylistManager.cpp:745
+msgid "Edit artist..."
+msgstr ""
+
+#: PlaylistManager.cpp:747
 msgid "Copy URL"
 msgstr ""
 
-#: PlaylistManager.cpp:729
+#: PlaylistManager.cpp:761
 msgid "Remove"
 msgstr ""
 
-#: PlaylistManager.cpp:761
+#: PlaylistManager.cpp:793
 msgid "Rename playlist..."
 msgstr ""
 
-#: PlaylistManager.cpp:763
+#: PlaylistManager.cpp:795
 msgid "Close playlist"
 msgstr ""
 
-#: PlaylistModel.cpp:323
+#: PlaylistModel.cpp:345
 msgid "Title"
 msgstr ""
 
-#: PlaylistModel.cpp:325
+#: PlaylistModel.cpp:347
 msgid "Artist"
 msgstr ""
 
-#: PlaylistModel.cpp:327
+#: PlaylistModel.cpp:349
 msgid "Length"
 msgstr ""
 

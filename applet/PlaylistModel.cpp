@@ -376,7 +376,7 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const
 
     if (index.isValid())
     {
-        if (index.column() == 1)
+        if (index.column() == 1 || index.column() == 2)
         {
             return (defaultFlags | Qt::ItemIsDragEnabled | Qt::ItemIsEditable);
         }
@@ -494,9 +494,13 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
         return false;
     }
 
-    if (role == Qt::EditRole)
+    if (role == Qt::EditRole && index.column() == 1)
     {
         MetaDataManager::setTitle(m_tracks.at(index.row()), value.toString());
+    }
+    else if (role == Qt::EditRole && index.column() == 2)
+    {
+        MetaDataManager::setArtist(m_tracks.at(index.row()), value.toString());
     }
     else
     {

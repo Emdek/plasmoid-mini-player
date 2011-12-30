@@ -81,6 +81,7 @@ class PlaylistManager : public QObject
         void removeTrack();
         void playTrack(QModelIndex index = QModelIndex());
         void editTrackTitle();
+        void editTrackArtist();
         void copyTrackUrl();
         void updateActions();
         void updateVideoView();

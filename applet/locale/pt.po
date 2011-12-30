@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_miniplayer\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2011-12-30 00:40+0100\n"
+"POT-Creation-Date: 2011-12-30 10:46+0100\n"
 "PO-Revision-Date: 2009-04-10 00:54+0100\n"
 "Last-Translator: José Nuno Coelho Pires <jncp@netcabo.pt>\n"
 "Language-Team: Portuguese <kde-i18n-pt@kde.org>\n"
@@ -29,34 +29,34 @@ msgstr "Geral"
 msgid "Visible Controls"
 msgstr ""
 
-#: Applet.cpp:651
+#: Applet.cpp:659
 msgid "Open URL"
 msgstr ""
 
-#: Applet.cpp:651
+#: Applet.cpp:659
 msgid "Enter a URL:"
 msgstr ""
 
 #. i18n: file: ui/jumpToPosition.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, jumpToPosition)
-#: Applet.cpp:695 locale/rc.cpp:45 rc.cpp:45
+#: Applet.cpp:703 locale/rc.cpp:45 rc.cpp:45
 #, fuzzy
 msgid "Jump to Position"
 msgstr "Saltar para a posição"
 
-#: Applet.cpp:785 Player.cpp:191
+#: Applet.cpp:793 Player.cpp:191
 msgid "Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:803
+#: Applet.cpp:811
 msgid "Exit Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:850
+#: Applet.cpp:858
 msgid "Position: %1 / %2"
 msgstr "Posição: %1 / %2"
 
-#: Applet.cpp:879
+#: Applet.cpp:887
 #, fuzzy
 msgid "Settings"
 msgstr "Configuração do vídeo"
@@ -149,7 +149,7 @@ msgstr "HH:mm:ss"
 
 #. i18n: file: ui/playlist.ui:20
 #. i18n: ectx: property (windowTitle), widget (QWidget, playlist)
-#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:367 rc.cpp:54
+#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:484 rc.cpp:54
 #, fuzzy
 msgid "Playlist"
 msgstr "Lista de Reprodução"
@@ -202,7 +202,7 @@ msgstr "Subir"
 
 #. i18n: file: ui/playlist.ui:400
 #. i18n: ectx: property (toolTip), widget (QToolButton, newButton)
-#: locale/rc.cpp:78 PlaylistManager.cpp:756 rc.cpp:78
+#: locale/rc.cpp:78 PlaylistManager.cpp:788 rc.cpp:78
 #, fuzzy
 msgid "New playlist..."
 msgstr "Lista de Reprodução"
@@ -264,7 +264,7 @@ msgstr "Abrir um ficheiro"
 msgid "Open URL..."
 msgstr ""
 
-#: Player.cpp:74 Player.cpp:313 PlaylistManager.cpp:725
+#: Player.cpp:74 Player.cpp:313 PlaylistManager.cpp:757
 msgid "Play"
 msgstr "Reproduzir"
 
@@ -426,75 +426,84 @@ msgstr "Volume: %1%"
 msgid "Saturation: %1%"
 msgstr "Saturação:"
 
-#: PlaylistManager.cpp:99
+#: PlaylistManager.cpp:124
 msgid "Disc %1"
 msgstr ""
 
-#: PlaylistManager.cpp:105
+#: PlaylistManager.cpp:130
 msgid "Open DVD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:111
+#: PlaylistManager.cpp:136
 msgid "Open VCD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:117
+#: PlaylistManager.cpp:142
 msgid "Open Audio CD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:292
+#: PlaylistManager.cpp:214
 #, fuzzy
 msgid "Rename Playlist"
 msgstr "Lista de Reprodução"
 
-#: PlaylistManager.cpp:292 PlaylistManager.cpp:547
+#: PlaylistManager.cpp:214 PlaylistManager.cpp:340
 msgid "Enter name:"
 msgstr ""
 
-#: PlaylistManager.cpp:537
+#: PlaylistManager.cpp:330
 msgid "File saved successfully."
 msgstr "O ficheiro foi gravado com sucesso."
 
-#: PlaylistManager.cpp:541
+#: PlaylistManager.cpp:334
 msgid "Cannot open file for writing."
 msgstr "Não foi possível abrir o ficheiro para escrita."
 
-#: PlaylistManager.cpp:547
+#: PlaylistManager.cpp:340
 #, fuzzy
 msgid "New playlist"
 msgstr "Lista de Reprodução"
 
-#: PlaylistManager.cpp:714
-msgid "Edit title"
+#: PlaylistManager.cpp:743
+msgid "Edit"
 msgstr ""
 
-#: PlaylistManager.cpp:715
+#: PlaylistManager.cpp:744
+msgid "Edit title..."
+msgstr ""
+
+#: PlaylistManager.cpp:745
+#, fuzzy
+msgid "Edit artist..."
+msgstr "Lista de Reprodução"
+
+#: PlaylistManager.cpp:747
 msgid "Copy URL"
 msgstr ""
 
-#: PlaylistManager.cpp:729
+#: PlaylistManager.cpp:761
 msgid "Remove"
 msgstr "Remover"
 
-#: PlaylistManager.cpp:761
+#: PlaylistManager.cpp:793
 #, fuzzy
 msgid "Rename playlist..."
 msgstr "Lista de Reprodução"
 
-#: PlaylistManager.cpp:763
+#: PlaylistManager.cpp:795
 #, fuzzy
 msgid "Close playlist"
 msgstr "Lista de Reprodução"
 
-#: PlaylistModel.cpp:323
+#: PlaylistModel.cpp:345
 msgid "Title"
 msgstr ""
 
-#: PlaylistModel.cpp:325
+#: PlaylistModel.cpp:347
 msgid "Artist"
 msgstr ""
 
-#: PlaylistModel.cpp:327
+#: PlaylistModel.cpp:349
 msgid "Length"
 msgstr ""
 

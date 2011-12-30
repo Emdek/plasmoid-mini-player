@@ -421,7 +421,14 @@ void PlaylistManager::editTrackTitle()
 {
     m_isEdited = true;
 
-    m_playlistUi.playlistView->edit(m_playlistUi.playlistView->currentIndex());
+    m_playlistUi.playlistView->edit(m_playlistUi.playlistView->model()->index(m_playlistUi.playlistView->currentIndex().row(), 1));
+}
+
+void PlaylistManager::editTrackArtist()
+{
+    m_isEdited = true;
+
+    m_playlistUi.playlistView->edit(m_playlistUi.playlistView->model()->index(m_playlistUi.playlistView->currentIndex().row(), 2));
 }
 
 void PlaylistManager::copyTrackUrl()
@@ -733,7 +740,10 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             if (index.isValid())
             {
                 KMenu menu;
-                menu.addAction(KIcon("document-edit"), i18n("Edit title"), this, SLOT(editTrackTitle()));
+                QMenu *editMenu = menu.addMenu(KIcon("document-edit"), i18n("Edit"));
+                editMenu->addAction(i18n("Edit title..."), this, SLOT(editTrackTitle()));
+                editMenu->addAction(i18n("Edit artist..."), this, SLOT(editTrackArtist()));
+
                 menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
                 menu.addSeparator();
 
