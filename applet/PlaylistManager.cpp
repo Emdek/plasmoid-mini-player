@@ -746,8 +746,10 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
     if (m_dialog)
     {
         m_playlistUi.tabBar->show();
-        m_playlistUi.tabBar->insertTab((position + 1), playlist->icon(), title);
-        m_playlistUi.tabBar->setCurrentIndex(position + 1);
+        m_playlistUi.tabBar->insertTab((position), playlist->icon(), title);
+        m_playlistUi.tabBar->setCurrentIndex(position);
+
+        visiblePlaylistChanged(position);
     }
 
     playlist->setCurrentTrack(0);
