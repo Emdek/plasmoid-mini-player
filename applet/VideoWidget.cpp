@@ -30,7 +30,8 @@ namespace MiniPlayer
 
 VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsProxyWidget(parent),
    m_pixmapItem(new QGraphicsPixmapItem(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous), this)),
-   m_backgroundWidget(new QGraphicsWidget(this))
+   m_backgroundWidget(new QGraphicsWidget(this)),
+   m_updateTimer(0)
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Window, Qt::black);
@@ -67,8 +68,17 @@ void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
     m_backgroundWidget->setPos(0, 0);
 }
 
+void VideoWidget::timerEvent(QTimerEvent *event)
+{
+    Q_UNUSED(event)
+
+    update();
+}
+
 void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode)
 {
+    killTimer(m_updateTimer);
+
     if (videoWidget)
     {
         const QSize size = this->size().toSize();
@@ -77,6 +87,8 @@ void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode)
 
         videoWidget->show();
         videoWidget->resize(size);
+
+        m_updateTimer = startTimer(50);
     }
     else
     {

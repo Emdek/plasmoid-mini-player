@@ -43,10 +43,12 @@ class VideoWidget : public QGraphicsProxyWidget
 
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
+        void timerEvent(QTimerEvent *event);
 
     private:
         QGraphicsPixmapItem *m_pixmapItem;
         QGraphicsWidget *m_backgroundWidget;
+        int m_updateTimer;
 
     friend class Player;
 };
