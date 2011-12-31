@@ -23,12 +23,6 @@
       <enum>Qt::Vertical</enum>
      </property>
      <widget class="QWidget" name="headerWidget" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QLabel" name="titleLabel">
@@ -59,12 +53,6 @@
       </layout>
      </widget>
      <widget class="QGraphicsView" name="graphicsView">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>150</height>
-       </size>
-      </property>
       <property name="palette">
        <palette>
         <active>
@@ -155,11 +143,11 @@
       </property>
      </widget>
      <widget class="QWidget" name="controlsWidget" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>50</height>
+       </size>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,3,0,0,0">
        <property name="margin">
@@ -235,12 +223,6 @@
        </item>
        <item>
         <widget class="QTableView" name="playlistView">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>150</height>
-          </size>
-         </property>
          <property name="acceptDrops">
           <bool>true</bool>
          </property>
@@ -294,6 +276,12 @@
       </layout>
      </widget>
      <widget class="KLineEdit" name="playlistViewFilter">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>50</height>
+       </size>
+      </property>
       <property name="clickMessage">
        <string>Search...</string>
       </property>
@@ -302,11 +290,11 @@
       </property>
      </widget>
      <widget class="QWidget" name="toolsWidget" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>50</height>
+       </size>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <property name="margin">

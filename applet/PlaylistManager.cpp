@@ -520,10 +520,10 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.titleLabel->setText(m_player->title());
         m_playlistUi.splitter->setStretchFactor(0, 1);
         m_playlistUi.splitter->setStretchFactor(1, 3);
-        m_playlistUi.splitter->setStretchFactor(2, 1);
+        m_playlistUi.splitter->setStretchFactor(2, 0);
         m_playlistUi.splitter->setStretchFactor(3, 3);
-        m_playlistUi.splitter->setStretchFactor(4, 1);
-        m_playlistUi.splitter->setStretchFactor(5, 1);
+        m_playlistUi.splitter->setStretchFactor(4, 0);
+        m_playlistUi.splitter->setStretchFactor(5, 0);
 
         for (int i = 0; i < m_playlists.count(); ++i)
         {
