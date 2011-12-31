@@ -162,7 +162,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 
     Plasma::ToolTipManager::self()->registerWidget(this);
 
-    setMinimumWidth(150);
     resize(250, 50);
 
     connect(this, SIGNAL(activate()), this, SLOT(togglePlaylistDialog()));
