@@ -620,7 +620,7 @@ void Applet::metaDataChanged()
         return;
     }
 
-    if (!MetaDataManager::isAvailable(m_player->url()))
+    if (!MetaDataManager::isAvailable(m_player->url()), true)
     {
         Track track;
         track.title = m_player->title(false);

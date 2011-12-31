@@ -286,11 +286,7 @@ void PlaylistManager::exportPlaylist()
     if (data.open(QFile::WriteOnly))
     {
         QTextStream out(&data);
-        QString title;
-        QString duration;
-        KUrl url;
-        PlaylistFormat type = (dialog.selectedUrl().toLocalFile().endsWith(".pls")?PlsFormat:M3uFormat);
-        bool available;
+        const PlaylistFormat type = (dialog.selectedUrl().toLocalFile().endsWith(".pls")?PlsFormat:M3uFormat);
 
         if (type == PlsFormat)
         {
@@ -304,10 +300,9 @@ void PlaylistManager::exportPlaylist()
 
         for (int i = 0; i < m_playlists[visiblePlaylist()]->trackCount(); ++i)
         {
-            available = MetaDataManager::isAvailable(url);
-            url = m_playlists[visiblePlaylist()]->track(i);
-            title = (available?MetaDataManager::title(url):QString());
-            duration = (available?QString::number(MetaDataManager::duration(url) / 1000):QString("-1"));
+            KUrl url = m_playlists[visiblePlaylist()]->track(i);
+            QString title = MetaDataManager::title(url, false);
+            QString duration = ((MetaDataManager::duration(url) > 0)?QString::number(MetaDataManager::duration(url) / 1000):QString("-1"));
 
             if (type == PlsFormat)
             {

@@ -115,7 +115,7 @@ void MetaDataManager::addTracks(const KUrl::List &urls)
 {
     for (int i = (urls.count() - 1); i >= 0 ; --i)
     {
-        m_queue.prepend(qMakePair(urls.at(i), 0));
+        m_queue.prepend(qMakePair(urls.value(i), 0));
     }
 
     if (!m_mediaObject->currentSource().url().isValid())
@@ -330,9 +330,9 @@ qint64 MetaDataManager::duration(const KUrl &url)
     return -1;
 }
 
-bool MetaDataManager::isAvailable(const KUrl &url)
+bool MetaDataManager::isAvailable(const KUrl &url, bool complete)
 {
-    return (m_tracks.contains(url) && !m_tracks[url].title.isEmpty());
+    return (m_tracks.contains(url) && !m_tracks[url].title.isEmpty() && (!complete || (!m_tracks[url].title.isEmpty() && !m_tracks[url].duration > 0)));
 }
 
 }

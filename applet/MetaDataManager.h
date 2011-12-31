@@ -58,7 +58,7 @@ class MetaDataManager : public QObject
         static QString artist(const KUrl &url, bool allowSubstitute = true);
         static KIcon icon(const KUrl &url);
         static qint64 duration(const KUrl &url);
-        static bool isAvailable(const KUrl &url);
+        static bool isAvailable(const KUrl &url, bool complete = false);
 
     protected:
         MetaDataManager(QObject *parent);
