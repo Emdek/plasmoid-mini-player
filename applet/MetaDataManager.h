@@ -52,6 +52,7 @@ class MetaDataManager : public QObject
         static void setMetaData(const KUrl &url, const Track &track);
         static MetaDataManager* instance();
         static QString timeToString(qint64 time);
+        static QString urlToTitle(const KUrl &url);
         static QVariantMap metaData(const KUrl &url);
         static KUrl::List tracks();
         static QString title(const KUrl &url, bool allowSubstitute = true);

@@ -23,7 +23,6 @@
 #include "PlaylistModel.h"
 #include "VideoWidget.h"
 
-#include <QtCore/QFileInfo>
 #include <QtGui/QLayout>
 #include <QtGui/QWidgetAction>
 #include <QtGui/QGraphicsSceneMouseEvent>
@@ -843,7 +842,7 @@ QString Player::title(bool allowSubstitute) const
 
     if (titles.isEmpty() || titles.first().isEmpty())
     {
-        return (allowSubstitute?QFileInfo(m_mediaObject->currentSource().url().toString()).completeBaseName().replace("%20", " "):QString());
+        return (allowSubstitute?MetaDataManager::urlToTitle(KUrl(m_mediaObject->currentSource().url())):QString());
     }
     else
     {

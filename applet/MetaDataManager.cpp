@@ -54,7 +54,7 @@ void MetaDataManager::timerEvent(QTimerEvent *event)
 
 void MetaDataManager::resolveMetaData()
 {
-    QPair<KUrl, int> track;
+    QPair<KUrl, int> url;
 
     killTimer(m_resolveMedia);
 
@@ -69,15 +69,15 @@ void MetaDataManager::resolveMetaData()
 
         m_mediaObject->stop();
 
-        if ((track.title.isEmpty() || track.duration < 1) && m_attempts < 6)
+        if (!track.title.isEmpty() || track.duration > 0)
+        {
+            setMetaData(m_mediaObject->currentSource().url(), track);
+        }
+        else if (m_attempts < 6)
         {
             ++m_attempts;
 
             m_queue.insert(m_attempts, qMakePair(KUrl(m_mediaObject->currentSource().url()), m_attempts));
-        }
-        else
-        {
-            setMetaData(m_mediaObject->currentSource().url(), track);
         }
     }
 
@@ -86,16 +86,16 @@ void MetaDataManager::resolveMetaData()
 
     while (!m_queue.isEmpty())
     {
-        track = m_queue.dequeue();
+        url = m_queue.dequeue();
 
-        if (!track.first.isValid() || !track.first.isLocalFile() || (m_tracks.contains(track.first) && m_tracks[track.first].duration > 0))
+        if (!url.first.isValid() || !url.first.isLocalFile() || (m_tracks.contains(url.first) && m_tracks[url.first].duration > 0))
         {
             continue;
         }
 
-        m_attempts = track.second;
+        m_attempts = url.second;
 
-        m_mediaObject->setCurrentSource(Phonon::MediaSource(track.first));
+        m_mediaObject->setCurrentSource(Phonon::MediaSource(url.first));
         m_mediaObject->play();
 
         m_resolveMedia = startTimer(200 + (m_attempts * 100));
@@ -271,6 +271,15 @@ QString MetaDataManager::timeToString(qint64 time)
     return string;
 }
 
+QString MetaDataManager::urlToTitle(const KUrl &url)
+{
+    QString title = QFileInfo(url.pathOrUrl()).completeBaseName();
+    title = title.replace(QString("%20"), QChar(' '));
+    title = title.replace(QChar('_'), QChar(' '));
+
+    return title;
+}
+
 KUrl::List MetaDataManager::tracks()
 {
     return m_tracks.keys();
@@ -286,7 +295,7 @@ QString MetaDataManager::title(const KUrl &url, bool allowSubstitute )
     }
     else if (allowSubstitute)
     {
-        title = QFileInfo(url.pathOrUrl()).completeBaseName().replace("%20", " ");
+        title = urlToTitle(url);
     }
 
     return title;
@@ -296,7 +305,7 @@ QString MetaDataManager::artist(const KUrl &url, bool allowSubstitute )
 {
     QString artist;
 
-    if (m_tracks.contains(url))
+    if (m_tracks.contains(url) && !m_tracks[url].artist.isEmpty())
     {
         artist = m_tracks[url].artist;
     }
