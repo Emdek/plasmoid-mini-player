@@ -438,9 +438,11 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 
 void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-    if (m_playlistManager->playlists().count())
+    QGraphicsWidget *controlsWidget = static_cast<QGraphicsWidget*>(layout()->itemAt(1)->graphicsItem());
+
+    if (controlsWidget)
     {
-        updateControls();
+        m_player->setVideoMode(!controlsWidget->isVisible() || (size().height() - controlsWidget->size().height()) > 50);
     }
 
     Plasma::Applet::resizeEvent(event);

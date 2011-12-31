@@ -628,6 +628,8 @@ void Player::play()
     else
     {
         m_mediaObject->play();
+
+        emit volumeChanged(volume());
     }
 }
 
@@ -776,6 +778,7 @@ void Player::setVideoMode(bool mode)
         else
         {
             m_appletVideoWidget->setVideoWidget(NULL);
+            m_appletVideoWidget->hide();
 
             m_dialogVideoWidget->setVideoWidget(m_videoWidget, mode);
         }
