@@ -92,7 +92,7 @@ void PlaylistManager::sectionsOrderChanged()
 
 void PlaylistManager::visiblePlaylistChanged(int position)
 {
-    if (!m_dialog || position > m_playlists.count())
+    if (!m_dialog || position > (m_playlists.count() - 1))
     {
         return;
     }
@@ -109,7 +109,6 @@ void PlaylistManager::visiblePlaylistChanged(int position)
     m_playlistUi.playlistView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
     m_playlistUi.playlistView->horizontalHeader()->resizeSection(0, 22);
 
-    setSectionsOrder(m_sectionsOrder);
     updateActions();
 
     emit needsSaving();
@@ -275,7 +274,7 @@ void PlaylistManager::removePlaylist(int position)
     {
         m_player->stop();
 
-        setCurrentPlaylist(qMax(0, (position - 1)));
+        setCurrentPlaylist(currentPlaylist());
     }
 
     if (m_playlistUi.tabBar->count() == 1)
@@ -548,6 +547,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
 
         visiblePlaylistChanged(currentPlaylist());
+        setSectionsOrder(m_sectionsOrder);
         setSplitterLocked(m_splitterLocked);
         setSplitterState(m_splitterState);
         setHeaderState(m_headerState);
@@ -609,6 +609,8 @@ void PlaylistManager::setCurrentPlaylist(int position)
         position = 0;
     }
 
+    m_player->setPlaylist(m_playlists[position]);
+
     if (m_dialog)
     {
         for (int i = 0; i < m_playlistUi.tabBar->count(); ++i)
@@ -616,8 +618,6 @@ void PlaylistManager::setCurrentPlaylist(int position)
             m_playlistUi.tabBar->setTabIcon(i, ((currentPlaylist() == i)?KIcon("media-playback-start"):m_playlists.at(i)->icon()));
         }
     }
-
-    m_player->setPlaylist(m_playlists[position]);
 
     emit needsSaving();
 }
@@ -764,14 +764,16 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
 
 int PlaylistManager::currentPlaylist() const
 {
-    return m_playlists.indexOf(m_player->playlist());
+    int currentPlaylist = m_playlists.indexOf(m_player->playlist());
+
+    return ((currentPlaylist < 0 || currentPlaylist > (m_playlists.count() - 1))?visiblePlaylist():currentPlaylist);
 }
 
 int PlaylistManager::visiblePlaylist() const
 {
-    int index = (m_dialog?m_playlistUi.tabBar->currentIndex():currentPlaylist());
+    int index = (m_dialog?m_playlistUi.tabBar->currentIndex():m_playlists.indexOf(m_player->playlist()));
 
-    return ((index > m_playlists.count() || index < 0)?0:index);
+    return ((index > (m_playlists.count() - 1) || index < 0)?0:index);
 }
 
 bool PlaylistManager::isDialogVisible() const
