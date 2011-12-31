@@ -2,6 +2,7 @@
 - fully refactored, cleaned up and modularized source;
 - added possibility to select displayed controls;
 - added menu for add track button (on long button press);
+- allow to lock playlist dialog widgets;
 - save playback mode for each playlist separately;
 - try few times to get meta data;
 - many fixes and other changes.

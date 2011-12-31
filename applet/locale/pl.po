@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2011-12-30 11:43+0100\n"
-"PO-Revision-Date: 2011-12-30 11:44+0100\n"
+"POT-Creation-Date: 2011-12-31 12:15+0100\n"
+"PO-Revision-Date: 2011-12-31 12:15+0100\n"
 "Last-Translator: Michał D. aka Emdek <emdeck@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -17,14 +17,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: Applet.cpp:160
-#: Applet.cpp:216
-#: Applet.cpp:229
+#: Applet.cpp:215
+#: Applet.cpp:228
 msgid "Default"
 msgstr "Domyślna"
 
 #. i18n: file: ui/general.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, general)
-#: Applet.cpp:277
+#: Applet.cpp:276
 #: locale/rc.cpp:30
 #: rc.cpp:30
 msgid "General"
@@ -32,42 +32,46 @@ msgstr "Ogólne"
 
 #. i18n: file: ui/controls.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, controls)
-#: Applet.cpp:278
+#: Applet.cpp:277
 #: locale/rc.cpp:3
 #: rc.cpp:3
 msgid "Visible Controls"
 msgstr "Widoczne elementy sterowania"
 
-#: Applet.cpp:643
+#: Applet.cpp:645
 msgid "Open URL"
 msgstr "Otwórz URL"
 
-#: Applet.cpp:643
+#: Applet.cpp:645
 msgid "Enter a URL:"
 msgstr "Wprowadź URL:"
 
 #. i18n: file: ui/jumpToPosition.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, jumpToPosition)
-#: Applet.cpp:687
+#: Applet.cpp:689
 #: locale/rc.cpp:45
 #: rc.cpp:45
 msgid "Jump to Position"
 msgstr "Skocz do pozycji"
 
-#: Applet.cpp:777
+#: Applet.cpp:779
 #: Player.cpp:191
 msgid "Full Screen Mode"
 msgstr "Tryb pełnoekranowy"
 
-#: Applet.cpp:795
+#: Applet.cpp:797
 msgid "Exit Full Screen Mode"
 msgstr "Opuść tryb pełnoekranowy"
 
-#: Applet.cpp:858
+#: Applet.cpp:861
 msgid "Position: %1 / %2"
 msgstr "Pozycja: %1 / %2"
 
-#: Applet.cpp:898
+#: Applet.cpp:905
+msgid "Lock widgets"
+msgstr "Zablokuj widżety"
+
+#: Applet.cpp:913
 msgid "Settings"
 msgstr "Ustawienia"
 
@@ -169,94 +173,94 @@ msgstr "Skocz do:"
 msgid "HH:mm:ss"
 msgstr "HH:mm:ss"
 
-#. i18n: file: ui/playlist.ui:20
+#. i18n: file: ui/playlist.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, playlist)
 #: locale/rc.cpp:54
 #: Player.cpp:80
-#: PlaylistManager.cpp:492
+#: PlaylistManager.cpp:493
 #: rc.cpp:54
 msgid "Playlist"
 msgstr "Lista odtwarzania"
 
-#. i18n: file: ui/playlist.ui:58
+#. i18n: file: ui/playlist.ui:49
 #. i18n: ectx: property (toolTip), widget (QToolButton, closeButton)
 #: locale/rc.cpp:57
 #: rc.cpp:57
 msgid "Close"
 msgstr "Zamknij"
 
-#. i18n: file: ui/playlist.ui:304
+#. i18n: file: ui/playlist.ui:289
 #. i18n: ectx: property (clickMessage), widget (KLineEdit, playlistViewFilter)
 #: locale/rc.cpp:60
 #: rc.cpp:60
 msgid "Search..."
 msgstr "Szukaj..."
 
-#. i18n: file: ui/playlist.ui:330
+#. i18n: file: ui/playlist.ui:315
 #. i18n: ectx: property (toolTip), widget (KPushButton, addButton)
 #: locale/rc.cpp:63
 #: rc.cpp:63
 msgid "Add tracks..."
 msgstr "Dodaj ścieżki..."
 
-#. i18n: file: ui/playlist.ui:340
+#. i18n: file: ui/playlist.ui:325
 #. i18n: ectx: property (toolTip), widget (QToolButton, removeButton)
 #: locale/rc.cpp:66
 #: rc.cpp:66
 msgid "Remove track"
 msgstr "Usuń ścieżkę"
 
-#. i18n: file: ui/playlist.ui:350
+#. i18n: file: ui/playlist.ui:335
 #. i18n: ectx: property (toolTip), widget (QToolButton, editButton)
 #: locale/rc.cpp:69
 #: rc.cpp:69
 msgid "Edit track title"
 msgstr "Edytuj tytuł ścieżki"
 
-#. i18n: file: ui/playlist.ui:367
+#. i18n: file: ui/playlist.ui:352
 #. i18n: ectx: property (toolTip), widget (QToolButton, moveUpButton)
 #: locale/rc.cpp:72
 #: rc.cpp:72
 msgid "Move down track"
 msgstr "Przesuń ścieżkę niżej"
 
-#. i18n: file: ui/playlist.ui:380
+#. i18n: file: ui/playlist.ui:365
 #. i18n: ectx: property (toolTip), widget (QToolButton, moveDownButton)
 #: locale/rc.cpp:75
 #: rc.cpp:75
 msgid "Move up track"
 msgstr "Przesuń ścieżkę wyżej"
 
-#. i18n: file: ui/playlist.ui:400
+#. i18n: file: ui/playlist.ui:385
 #. i18n: ectx: property (toolTip), widget (QToolButton, newButton)
 #: locale/rc.cpp:78
-#: PlaylistManager.cpp:794
+#: PlaylistManager.cpp:821
 #: rc.cpp:78
 msgid "New playlist..."
 msgstr "Nowa lista odtwarzania..."
 
-#. i18n: file: ui/playlist.ui:410
+#. i18n: file: ui/playlist.ui:395
 #. i18n: ectx: property (toolTip), widget (QToolButton, exportButton)
 #: locale/rc.cpp:81
 #: rc.cpp:81
 msgid "Export playlist..."
 msgstr "Eksportuj listę odtwarzania..."
 
-#. i18n: file: ui/playlist.ui:420
+#. i18n: file: ui/playlist.ui:405
 #. i18n: ectx: property (toolTip), widget (QToolButton, clearButton)
 #: locale/rc.cpp:84
 #: rc.cpp:84
 msgid "Clear playlist"
 msgstr "Wyczyść listę odtwarzania"
 
-#. i18n: file: ui/playlist.ui:437
+#. i18n: file: ui/playlist.ui:422
 #. i18n: ectx: property (toolTip), widget (QToolButton, shuffleButton)
 #: locale/rc.cpp:87
 #: rc.cpp:87
 msgid "Shuffle playlist"
 msgstr "Przetasuj listę odtwarzania"
 
-#. i18n: file: ui/playlist.ui:457
+#. i18n: file: ui/playlist.ui:442
 #. i18n: ectx: property (toolTip), widget (QToolButton, playbackModeButton)
 #: locale/rc.cpp:90
 #: rc.cpp:90
@@ -284,7 +288,7 @@ msgid "Your emails"
 msgstr "emdeck@gmail.com"
 
 #: MetaDataManager.cpp:305
-#: Player.cpp:855
+#: Player.cpp:860
 msgid "Unknown artist"
 msgstr "Nieznany wykonawca"
 
@@ -301,8 +305,8 @@ msgid "Open URL..."
 msgstr "Otwórz URL..."
 
 #: Player.cpp:74
-#: Player.cpp:312
-#: PlaylistManager.cpp:763
+#: Player.cpp:314
+#: PlaylistManager.cpp:790
 msgid "Play"
 msgstr "Odtwarzaj"
 
@@ -414,110 +418,110 @@ msgstr "Powtarzaj listę odtwarzania"
 msgid "Random Track"
 msgstr "Losowa ścieżka"
 
-#: Player.cpp:269
+#: Player.cpp:271
 #: VolumeSlider.cpp:109
 msgid "Muted"
 msgstr "Wyciszone"
 
-#: Player.cpp:275
+#: Player.cpp:277
 #: VolumeSlider.cpp:109
 msgid "Volume: %1%"
 msgstr "Głośność: %1%"
 
-#: Player.cpp:312
+#: Player.cpp:314
 msgid "Pause"
 msgstr "Pauza"
 
-#: Player.cpp:331
+#: Player.cpp:333
 msgid "Chapter %1"
 msgstr "Rozdział %1"
 
-#: Player.cpp:403
+#: Player.cpp:405
 msgid "Angle %1"
 msgstr "Kąt %1"
 
-#: Player.cpp:425
+#: Player.cpp:427
 msgid "Track %1"
 msgstr "Ścieżka %1"
 
-#: Player.cpp:542
+#: Player.cpp:544
 msgid "Brightness: %1%"
 msgstr "Jasność: %1%"
 
-#: Player.cpp:543
+#: Player.cpp:545
 msgid "Contrast: %1%"
 msgstr "Kontrast: %1%"
 
-#: Player.cpp:544
+#: Player.cpp:546
 msgid "Hue: %1%"
 msgstr "Barwa: %1%"
 
-#: Player.cpp:545
+#: Player.cpp:547
 msgid "Saturation: %1%"
 msgstr "Nasycenie: %1%"
 
-#: PlaylistManager.cpp:130
+#: PlaylistManager.cpp:131
 msgid "Disc %1"
 msgstr "Dysk %1"
 
-#: PlaylistManager.cpp:136
+#: PlaylistManager.cpp:137
 msgid "Open DVD: %1"
 msgstr "Otwórz DVD: %1"
 
-#: PlaylistManager.cpp:142
+#: PlaylistManager.cpp:143
 msgid "Open VCD: %1"
 msgstr "Otwórz VCD: %1"
 
-#: PlaylistManager.cpp:148
+#: PlaylistManager.cpp:149
 msgid "Open Audio CD: %1"
 msgstr "Otwórz Audio CD: %1"
 
-#: PlaylistManager.cpp:220
+#: PlaylistManager.cpp:221
 msgid "Rename Playlist"
 msgstr "Zmień nazwę listy odtwarzania"
 
-#: PlaylistManager.cpp:220
-#: PlaylistManager.cpp:346
+#: PlaylistManager.cpp:221
+#: PlaylistManager.cpp:347
 msgid "Enter name:"
 msgstr "Wprowadź nazwę:"
 
-#: PlaylistManager.cpp:336
+#: PlaylistManager.cpp:337
 msgid "File saved successfully."
 msgstr "Plik zapisany pomyślnie."
 
-#: PlaylistManager.cpp:340
+#: PlaylistManager.cpp:341
 msgid "Cannot open file for writing."
 msgstr "Nie można otworzyć pliku do zapisu."
 
-#: PlaylistManager.cpp:346
+#: PlaylistManager.cpp:347
 msgid "New playlist"
 msgstr "Nowa lista odtwarzania"
 
-#: PlaylistManager.cpp:749
+#: PlaylistManager.cpp:776
 msgid "Edit"
 msgstr "Edytuj"
 
-#: PlaylistManager.cpp:750
+#: PlaylistManager.cpp:777
 msgid "Edit title..."
 msgstr "Edytuj tytuł..."
 
-#: PlaylistManager.cpp:751
+#: PlaylistManager.cpp:778
 msgid "Edit artist..."
 msgstr "Edytuj wykonawcę..."
 
-#: PlaylistManager.cpp:753
+#: PlaylistManager.cpp:780
 msgid "Copy URL"
 msgstr "Kopiuj URL"
 
-#: PlaylistManager.cpp:767
+#: PlaylistManager.cpp:794
 msgid "Remove"
 msgstr "Usuń"
 
-#: PlaylistManager.cpp:799
+#: PlaylistManager.cpp:826
 msgid "Rename playlist..."
 msgstr "Zmień nazwę listy odtwarzania..."
 
-#: PlaylistManager.cpp:801
+#: PlaylistManager.cpp:828
 msgid "Close playlist"
 msgstr "Zamknij listę odtwarzania"
 

@@ -51,6 +51,7 @@ class PlaylistManager : public QObject
         int currentPlaylist() const;
         int visiblePlaylist() const;
         bool isDialogVisible() const;
+        bool isSplitterLocked() const;
         bool eventFilter(QObject *object, QEvent *event);
 
     public slots:
@@ -58,6 +59,7 @@ class PlaylistManager : public QObject
         void closeDialog();
         void setCurrentPlaylist(int position);
         void setDialogSize(const QSize &size);
+        void setSplitterLocked(bool locked);
         void setSplitterState(const QByteArray &state);
         void setHeaderState(const QByteArray &state);
 
@@ -98,6 +100,7 @@ class PlaylistManager : public QObject
         QByteArray m_headerState;
         int m_currentPlaylist;
         int m_selectedPlaylist;
+        bool m_splitterLocked;
         bool m_isEdited;
         Ui::playlist m_playlistUi;
 

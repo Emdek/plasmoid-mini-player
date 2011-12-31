@@ -344,6 +344,7 @@ void Applet::configSave()
     if (m_playlistManager->isDialogVisible())
     {
         configuration.writeEntry("playlistSize", m_playlistManager->dialogSize());
+        configuration.writeEntry("playlistLocked", m_playlistManager->isSplitterLocked());
         configuration.writeEntry("playlistSplitter", m_playlistManager->splitterState());
         configuration.writeEntry("playlistViewHeader", m_playlistManager->headerState());
     }
@@ -808,6 +809,7 @@ void Applet::togglePlaylistDialog()
     else
     {
         m_playlistManager->setDialogSize(config().readEntry("playlistSize", m_playlistManager->dialogSize()));
+        m_playlistManager->setSplitterLocked(config().readEntry("playlistLocked", true));
         m_playlistManager->setSplitterState(config().readEntry("playlistSplitter", QByteArray()));
         m_playlistManager->setHeaderState(config().readEntry("headerState", QByteArray()));
         m_playlistManager->showDialog(containment()->corona()->popupPosition(this, config().readEntry("playlistSize", m_playlistManager->dialogSize()), Qt::AlignCenter));
@@ -895,6 +897,18 @@ void Applet::showMenu(const QPoint &position)
 {
     KMenu menu;
     menu.addActions(contextualActions());
+
+    if (m_playlistManager->isDialogVisible() && (!m_fullScreenWidget || !m_fullScreenWidget->isFullScreen()))
+    {
+        menu.addSeparator();
+
+        QAction *lockAction = menu.addAction(KIcon("system-lock-screen"), i18n("Lock widgets"));
+        lockAction->setCheckable(true);
+        lockAction->setChecked(m_playlistManager->isSplitterLocked());
+
+        connect(lockAction, SIGNAL(toggled(bool)), m_playlistManager, SLOT(setSplitterLocked(bool)));
+    }
+
     menu.addSeparator();
     menu.addAction(KIcon("configure"), i18n("Settings"), this, SLOT(showConfigurationInterface()));
     menu.exec(position);

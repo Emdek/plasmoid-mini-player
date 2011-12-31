@@ -22,6 +22,9 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="handleWidth">
+      <number>10</number>
+     </property>
      <widget class="QWidget" name="headerWidget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>

@@ -51,6 +51,7 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_size(QSize(600, 500)),
     m_currentPlaylist(0),
     m_selectedPlaylist(-1),
+    m_splitterLocked(true),
     m_isEdited(false)
 {
     m_videoWidget->hide();
@@ -519,11 +520,11 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.volumeSlider->setPlayer(m_player);
         m_playlistUi.titleLabel->setText(m_player->title());
         m_playlistUi.splitter->setStretchFactor(0, 1);
-        m_playlistUi.splitter->setStretchFactor(1, 3);
-        m_playlistUi.splitter->setStretchFactor(2, 0);
-        m_playlistUi.splitter->setStretchFactor(3, 3);
-        m_playlistUi.splitter->setStretchFactor(4, 0);
-        m_playlistUi.splitter->setStretchFactor(5, 0);
+        m_playlistUi.splitter->setStretchFactor(1, 10);
+        m_playlistUi.splitter->setStretchFactor(2, 1);
+        m_playlistUi.splitter->setStretchFactor(3, 10);
+        m_playlistUi.splitter->setStretchFactor(4, 1);
+        m_playlistUi.splitter->setStretchFactor(5, 1);
 
         for (int i = 0; i < m_playlists.count(); ++i)
         {
@@ -533,6 +534,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
 
         visiblePlaylistChanged(m_currentPlaylist);
+        setSplitterLocked(m_splitterLocked);
         setSplitterState(m_splitterState);
         setHeaderState(m_headerState);
 
@@ -616,6 +618,28 @@ void PlaylistManager::setDialogSize(const QSize &size)
     else
     {
         m_size = size;
+    }
+}
+
+void PlaylistManager::setSplitterLocked(bool locked)
+{
+    m_splitterLocked = locked;
+
+    emit needsSaving();
+
+    if (!m_dialog)
+    {
+        return;
+    }
+
+    m_playlistUi.splitter->setHandleWidth(locked?0:5);
+
+    for (int i = 0; i < (m_playlistUi.splitter->count() - 1); ++i)
+    {
+        if (m_playlistUi.splitter->handle(i))
+        {
+            m_playlistUi.splitter->handle(i)->setEnabled(!locked);
+        }
     }
 }
 
@@ -715,6 +739,11 @@ int PlaylistManager::visiblePlaylist() const
 bool PlaylistManager::isDialogVisible() const
 {
     return (m_dialog && m_dialog->isVisible());
+}
+
+bool PlaylistManager::isSplitterLocked() const
+{
+    return m_splitterLocked;
 }
 
 bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
