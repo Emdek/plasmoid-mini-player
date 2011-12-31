@@ -217,6 +217,8 @@ Player::Player(QObject *parent) : QObject(parent),
     playbackModeActionGroup->addAction(repeatPlaylistAction);
     playbackModeActionGroup->addAction(randomTrackAction);
 
+    m_videoWidget->installEventFilter(this);
+
     volumeChanged();
     mediaChanged();
     updateSliders();
