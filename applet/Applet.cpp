@@ -371,7 +371,7 @@ void Applet::configSave()
         playlistConfiguration.writeEntry("title", playlists[i]->title());
         playlistConfiguration.writeEntry("playbackMode", static_cast<int>(playlists[i]->playbackMode()));
         playlistConfiguration.writeEntry("currentTrack", playlists[i]->currentTrack());
-        playlistConfiguration.writeEntry("isCurrent", (m_playlistManager->currentPlaylist() == i));
+        playlistConfiguration.writeEntry("isCurrent", playlists[i]->isCurrent());
 
         playlistTracks = playlistTracks.unite(playlists.at(i)->tracks().toSet());
 
