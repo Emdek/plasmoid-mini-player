@@ -634,11 +634,12 @@ void PlaylistManager::setSplitterLocked(bool locked)
 
     m_playlistUi.splitter->setHandleWidth(locked?0:5);
 
-    for (int i = 0; i < (m_playlistUi.splitter->count() - 1); ++i)
+    for (int i = 0; i < m_playlistUi.splitter->count(); ++i)
     {
         if (m_playlistUi.splitter->handle(i))
         {
             m_playlistUi.splitter->handle(i)->setEnabled(!locked);
+            m_playlistUi.splitter->handle(i)->setVisible(!locked);
         }
     }
 }
