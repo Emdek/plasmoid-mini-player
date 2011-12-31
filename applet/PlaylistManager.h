@@ -90,6 +90,7 @@ class PlaylistManager : public QObject
         void editTrackArtist();
         void copyTrackUrl();
         void updateActions();
+        void updateTheme();
         void updateVideoView();
 
     private:

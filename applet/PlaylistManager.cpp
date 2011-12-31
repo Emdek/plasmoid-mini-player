@@ -36,6 +36,8 @@
 #include <KFileDialog>
 #include <KInputDialog>
 
+#include <Plasma/Theme>
+
 #include <Solid/Block>
 #include <Solid/Device>
 #include <Solid/OpticalDisc>
@@ -482,6 +484,22 @@ void PlaylistManager::updateActions()
     m_isEdited = false;
 }
 
+void PlaylistManager::updateTheme()
+{
+    if (!m_dialog)
+    {
+        return;
+    }
+
+    QPalette palette = m_dialog->palette();
+    palette.setColor(QPalette::WindowText, Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor));
+    palette.setColor(QPalette::ButtonText, Plasma::Theme::defaultTheme()->color(Plasma::Theme::ButtonTextColor));
+    palette.setColor(QPalette::Background, Plasma::Theme::defaultTheme()->color(Plasma::Theme::BackgroundColor));
+    palette.setColor(QPalette::Button, palette.color(QPalette::Background).lighter(250));
+
+    m_dialog->setPalette(palette);
+}
+
 void PlaylistManager::updateVideoView()
 {
     m_videoWidget->resize(m_playlistUi.graphicsView->size());
@@ -551,6 +569,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         setSplitterLocked(m_splitterLocked);
         setSplitterState(m_splitterState);
         setHeaderState(m_headerState);
+        updateTheme();
 
         m_videoWidget->show();
 
@@ -584,6 +603,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
         connect(m_player->parent(), SIGNAL(titleChanged(QString)), m_playlistUi.titleLabel, SLOT(setText(QString)));
         connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(updateVideoView()));
+        connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
         connect(this, SIGNAL(destroyed()), m_dialog, SLOT(deleteLater()));
     }
 
@@ -878,7 +898,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
         {
             emit requestMenu(QCursor::pos());
 
-        return true;
+            return true;
         }
     }
 
