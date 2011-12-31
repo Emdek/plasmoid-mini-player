@@ -102,7 +102,6 @@ class PlaylistManager : public QObject
         QSize m_size;
         QByteArray m_splitterState;
         QByteArray m_headerState;
-        int m_currentPlaylist;
         int m_selectedPlaylist;
         bool m_splitterLocked;
         bool m_isEdited;

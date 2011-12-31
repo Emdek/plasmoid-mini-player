@@ -49,7 +49,6 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_dialog(NULL),
     m_videoWidget(new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()))),
     m_size(QSize(600, 500)),
-    m_currentPlaylist(0),
     m_selectedPlaylist(-1),
     m_splitterLocked(true),
     m_isEdited(false)
@@ -272,7 +271,7 @@ void PlaylistManager::removePlaylist(int position)
     m_playlists[position]->deleteLater();
     m_playlists.removeAt(position);
 
-    if (m_currentPlaylist == position)
+    if (currentPlaylist() == position)
     {
         m_player->stop();
 
@@ -424,7 +423,7 @@ void PlaylistManager::playTrack(QModelIndex index)
         index = m_playlistUi.playlistView->currentIndex();
     }
 
-    if (visiblePlaylist() != m_currentPlaylist)
+    if (visiblePlaylist() != currentPlaylist())
     {
         setCurrentPlaylist(visiblePlaylist());
     }
@@ -543,12 +542,12 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         for (int i = 0; i < m_playlists.count(); ++i)
         {
-            m_playlistUi.tabBar->addTab(((m_currentPlaylist == i)?KIcon("media-playback-start"):m_playlists.at(i)->icon()), m_playlists.at(i)->title());
+            m_playlistUi.tabBar->addTab(((currentPlaylist() == i)?KIcon("media-playback-start"):m_playlists.at(i)->icon()), m_playlists.at(i)->title());
         }
 
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
 
-        visiblePlaylistChanged(m_currentPlaylist);
+        visiblePlaylistChanged(currentPlaylist());
         setSplitterLocked(m_splitterLocked);
         setSplitterState(m_splitterState);
         setHeaderState(m_headerState);
@@ -605,22 +604,20 @@ void PlaylistManager::closeDialog()
 
 void PlaylistManager::setCurrentPlaylist(int position)
 {
-    if (position > m_playlists.count())
+    if (position > m_playlists.count() || position < 0)
     {
         position = 0;
     }
-
-    m_currentPlaylist = position;
 
     if (m_dialog)
     {
         for (int i = 0; i < m_playlistUi.tabBar->count(); ++i)
         {
-            m_playlistUi.tabBar->setTabIcon(i, ((m_currentPlaylist == i)?KIcon("media-playback-start"):m_playlists.at(i)->icon()));
+            m_playlistUi.tabBar->setTabIcon(i, ((currentPlaylist() == i)?KIcon("media-playback-start"):m_playlists.at(i)->icon()));
         }
     }
 
-    m_player->setPlaylist(m_playlists[m_currentPlaylist]);
+    m_player->setPlaylist(m_playlists[position]);
 
     emit needsSaving();
 }
@@ -737,7 +734,7 @@ PlayerState PlaylistManager::state() const
 int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks, PlaylistSource source)
 {
     PlaylistModel *playlist = new PlaylistModel(this, title, source);
-    int position = qMin(m_playlists.count(), visiblePlaylist() + 1);
+    int position = qMin(m_playlists.count(), (visiblePlaylist() + 1));
 
     m_playlists.insert(position, playlist);
 
@@ -765,12 +762,12 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
 
 int PlaylistManager::currentPlaylist() const
 {
-    return m_currentPlaylist;
+    return m_playlists.indexOf(m_player->playlist());
 }
 
 int PlaylistManager::visiblePlaylist() const
 {
-    int index = (m_dialog?m_playlistUi.tabBar->currentIndex():m_currentPlaylist);
+    int index = (m_dialog?m_playlistUi.tabBar->currentIndex():currentPlaylist());
 
     return ((index > m_playlists.count() || index < 0)?0:index);
 }
