@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_miniplayer\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2011-12-31 12:15+0100\n"
+"POT-Creation-Date: 2011-12-31 13:27+0100\n"
 "PO-Revision-Date: 2009-04-10 00:54+0100\n"
 "Last-Translator: José Nuno Coelho Pires <jncp@netcabo.pt>\n"
 "Language-Team: Portuguese <kde-i18n-pt@kde.org>\n"
@@ -153,7 +153,7 @@ msgstr "HH:mm:ss"
 
 #. i18n: file: ui/playlist.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, playlist)
-#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:493 rc.cpp:54
+#: locale/rc.cpp:54 Player.cpp:80 PlaylistManager.cpp:486 rc.cpp:54
 #, fuzzy
 msgid "Playlist"
 msgstr "Lista de Reprodução"
@@ -206,7 +206,7 @@ msgstr "Subir"
 
 #. i18n: file: ui/playlist.ui:385
 #. i18n: ectx: property (toolTip), widget (QToolButton, newButton)
-#: locale/rc.cpp:78 PlaylistManager.cpp:821 rc.cpp:78
+#: locale/rc.cpp:78 PlaylistManager.cpp:817 rc.cpp:78
 #, fuzzy
 msgid "New playlist..."
 msgstr "Lista de Reprodução"
@@ -272,7 +272,7 @@ msgstr "Abrir um ficheiro"
 msgid "Open URL..."
 msgstr ""
 
-#: Player.cpp:74 Player.cpp:314 PlaylistManager.cpp:790
+#: Player.cpp:74 Player.cpp:314 PlaylistManager.cpp:786
 msgid "Play"
 msgstr "Reproduzir"
 
@@ -455,50 +455,46 @@ msgstr ""
 msgid "Rename Playlist"
 msgstr "Lista de Reprodução"
 
-#: PlaylistManager.cpp:221 PlaylistManager.cpp:347
+#: PlaylistManager.cpp:221 PlaylistManager.cpp:340
 msgid "Enter name:"
 msgstr ""
 
-#: PlaylistManager.cpp:337
-msgid "File saved successfully."
-msgstr "O ficheiro foi gravado com sucesso."
-
-#: PlaylistManager.cpp:341
+#: PlaylistManager.cpp:334
 msgid "Cannot open file for writing."
 msgstr "Não foi possível abrir o ficheiro para escrita."
 
-#: PlaylistManager.cpp:347
+#: PlaylistManager.cpp:340
 #, fuzzy
 msgid "New playlist"
 msgstr "Lista de Reprodução"
 
-#: PlaylistManager.cpp:776
+#: PlaylistManager.cpp:772
 msgid "Edit"
 msgstr ""
 
-#: PlaylistManager.cpp:777
+#: PlaylistManager.cpp:773
 msgid "Edit title..."
 msgstr ""
 
-#: PlaylistManager.cpp:778
+#: PlaylistManager.cpp:774
 #, fuzzy
 msgid "Edit artist..."
 msgstr "Lista de Reprodução"
 
-#: PlaylistManager.cpp:780
+#: PlaylistManager.cpp:776
 msgid "Copy URL"
 msgstr ""
 
-#: PlaylistManager.cpp:794
+#: PlaylistManager.cpp:790
 msgid "Remove"
 msgstr "Remover"
 
-#: PlaylistManager.cpp:826
+#: PlaylistManager.cpp:822
 #, fuzzy
 msgid "Rename playlist..."
 msgstr "Lista de Reprodução"
 
-#: PlaylistManager.cpp:828
+#: PlaylistManager.cpp:824
 #, fuzzy
 msgid "Close playlist"
 msgstr "Lista de Reprodução"
@@ -518,6 +514,9 @@ msgstr ""
 #: PlaylistReader.cpp:155
 msgid "Cannot open file for reading."
 msgstr "Não foi possível aceder ao ficheiro para leitura."
+
+#~ msgid "File saved successfully."
+#~ msgstr "O ficheiro foi gravado com sucesso."
 
 #~ msgid "Export"
 #~ msgstr "Exportar"

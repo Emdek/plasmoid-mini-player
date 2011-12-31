@@ -328,8 +328,6 @@ void PlaylistManager::exportPlaylist()
         }
 
         data.close();
-
-        KMessageBox::information(NULL, i18n("File saved successfully."));
     }
     else
     {
