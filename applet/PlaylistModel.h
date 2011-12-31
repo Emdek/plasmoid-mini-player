@@ -69,6 +69,7 @@ class PlaylistModel : public QAbstractTableModel
         bool dropMimeData(const QMimeData *mimeData, Qt::DropAction action, int row, int column, const QModelIndex &index);
         bool insertRows(int row, int count, const QModelIndex &index = QModelIndex());
         bool removeRows(int row, int count, const QModelIndex &index = QModelIndex());
+        bool isCurrent() const;
         bool isReadOnly() const;
 
     public slots:
@@ -81,6 +82,7 @@ class PlaylistModel : public QAbstractTableModel
 
     protected:
         int randomTrack() const;
+        int findTrack(const KUrl &url) const;
 
     protected slots:
         void processedTracks(const KUrl::List &tracks, int position, PlayerReaction reaction = NoReaction);

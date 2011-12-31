@@ -62,16 +62,14 @@ void PlaylistModel::removeTrack(int position)
 {
     m_tracks.removeAt(position);
 
-    if (position == m_currentTrack && (m_manager->state() != StoppedState && m_manager->playlists().value(m_manager->currentPlaylist()) == this))
+    if (position <= m_currentTrack)
     {
-        setCurrentTrack(qMax(0, (m_tracks.count() - 1)), StopReaction);
+        setCurrentTrack((m_currentTrack - 1), ((position == m_currentTrack && (m_manager->state() != StoppedState && isCurrent()))?StopReaction:NoReaction));
     }
-    else if (position < m_currentTrack)
+    else
     {
-        setCurrentTrack(m_currentTrack - 1);
+        setCurrentTrack(m_currentTrack);
     }
-
-    emit needsSaving();
 }
 
 void PlaylistModel::addTracks(const KUrl::List &tracks, int position, PlayerReaction reaction)
@@ -135,17 +133,7 @@ void PlaylistModel::shuffle()
 
     KRandomSequence().randomize(m_tracks);
 
-    for (int i = 0; i < m_tracks.count(); ++i)
-    {
-        if (m_tracks.at(i) == url)
-        {
-            setCurrentTrack(i);
-
-            break;
-        }
-    }
-
-    emit needsSaving();
+    setCurrentTrack(findTrack(url));
 }
 
 void PlaylistModel::sort(int column, Qt::SortOrder order)
@@ -162,6 +150,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
     QMultiMap<QString, KUrl> artistMap;
     QMultiMap<qint64, KUrl> durationMap;
     KUrl::List tracks;
+    KUrl url = m_tracks.value(m_currentTrack);
 
     switch (column)
     {
@@ -213,7 +202,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
 
     m_tracks = tracks;
 
-    emit needsSaving();
+    setCurrentTrack(findTrack(url));
 }
 
 void PlaylistModel::next(PlayerReaction reaction)
@@ -250,7 +239,7 @@ void PlaylistModel::previous(PlayerReaction reaction)
 
 void PlaylistModel::setCurrentTrack(int track, PlayerReaction reaction)
 {
-    if (track > m_tracks.count())
+    if (track > (m_tracks.count() - 1))
     {
         track = 0;
     }
@@ -258,6 +247,7 @@ void PlaylistModel::setCurrentTrack(int track, PlayerReaction reaction)
     m_currentTrack = track;
 
     emit currentTrackChanged(m_currentTrack, reaction);
+    emit needsSaving();
     emit layoutChanged();
 }
 
@@ -441,6 +431,19 @@ int PlaylistModel::randomTrack() const
     return randomTrack;
 }
 
+int PlaylistModel::findTrack(const KUrl &url) const
+{
+    for (int i = 0; i < m_tracks.count(); ++i)
+    {
+        if (m_tracks.at(i) == url)
+        {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
 int PlaylistModel::currentTrack() const
 {
     return m_currentTrack;
@@ -549,7 +552,7 @@ bool PlaylistModel::insertRows(int row, int count, const QModelIndex &index)
         return false;
     }
 
-    int end = (row + count);
+    const int end = (row + count);
 
     beginInsertRows(index, row, (end - 1));
 
@@ -559,6 +562,11 @@ bool PlaylistModel::insertRows(int row, int count, const QModelIndex &index)
     }
 
     endInsertRows();
+
+    if (row <= m_currentTrack)
+    {
+        setCurrentTrack(qMin(end, (m_tracks.count() - 1)));
+    }
 
     emit needsSaving();
 
@@ -572,7 +580,7 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
         return false;
     }
 
-    int end = (row + count);
+    const int end = (row + count);
 
     beginRemoveRows(index, row, (end - 1));
 
@@ -583,7 +591,14 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
 
     endRemoveRows();
 
-    emit needsSaving();
+    if (row < m_currentTrack)
+    {
+        setCurrentTrack((m_currentTrack - count), ((m_currentTrack >= row && m_currentTrack <= end && (m_manager->state() != StoppedState && isCurrent()))?StopReaction:NoReaction));
+    }
+    else
+    {
+        setCurrentTrack(m_currentTrack);
+    }
 
     return true;
 }
@@ -591,6 +606,11 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
 bool PlaylistModel::isReadOnly() const
 {
     return (m_source != LocalSource);
+}
+
+bool PlaylistModel::isCurrent() const
+{
+    return (m_manager->playlists().value(m_manager->currentPlaylist()) == this);
 }
 
 }
