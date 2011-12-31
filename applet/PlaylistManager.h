@@ -43,6 +43,7 @@ class PlaylistManager : public QObject
 
         void addTracks(const KUrl::List &tracks, int index = -1, PlayerReaction reaction = NoReaction);
         QList<PlaylistModel*> playlists() const;
+        QList<int> sectionsOrder() const;
         QSize dialogSize() const;
         QByteArray splitterState() const;
         QByteArray headerState() const;
@@ -59,11 +60,13 @@ class PlaylistManager : public QObject
         void closeDialog();
         void setCurrentPlaylist(int position);
         void setDialogSize(const QSize &size);
+        void setSectionsOrder(const QList<int> &order);
         void setSplitterLocked(bool locked);
         void setSplitterState(const QByteArray &state);
         void setHeaderState(const QByteArray &state);
 
     protected slots:
+        void sectionsOrderChanged();
         void visiblePlaylistChanged(int position);
         void playbackModeChanged(QAction *action);
         void openDisc(QAction *action);
@@ -95,6 +98,7 @@ class PlaylistManager : public QObject
         VideoWidget *m_videoWidget;
         QHash<QString, QPair<QAction*, QHash<QString, QVariant> > > m_discActions;
         QList<PlaylistModel*> m_playlists;
+        QList<int> m_sectionsOrder;
         QSize m_size;
         QByteArray m_splitterState;
         QByteArray m_headerState;

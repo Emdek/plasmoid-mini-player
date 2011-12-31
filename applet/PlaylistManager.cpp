@@ -54,6 +54,8 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_splitterLocked(true),
     m_isEdited(false)
 {
+    m_sectionsOrder << 0 << 1 << 2 << 3;
+
     m_videoWidget->hide();
 
     m_player->registerDialogVideoWidget(m_videoWidget);
@@ -70,9 +72,28 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceRemoved(QString)), this, SLOT(deviceRemoved(QString)));
 }
 
+void PlaylistManager::sectionsOrderChanged()
+{
+    if (!m_dialog)
+    {
+        return;
+    }
+
+    QList<int> order;
+
+    for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
+    {
+        order.append(m_playlistUi.playlistView->horizontalHeader()->visualIndex(i));
+    }
+
+    m_sectionsOrder = order;
+
+    emit needsSaving();
+}
+
 void PlaylistManager::visiblePlaylistChanged(int position)
 {
-    if (position > m_playlists.count())
+    if (!m_dialog || position > m_playlists.count())
     {
         return;
     }
@@ -89,6 +110,7 @@ void PlaylistManager::visiblePlaylistChanged(int position)
     m_playlistUi.playlistView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
     m_playlistUi.playlistView->horizontalHeader()->resizeSection(0, 22);
 
+    setSectionsOrder(m_sectionsOrder);
     updateActions();
 
     emit needsSaving();
@@ -559,6 +581,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.shuffleButton, SIGNAL(clicked()), this, SLOT(shufflePlaylist()));
         connect(m_playlistUi.playlistView, SIGNAL(pressed(QModelIndex)), this, SLOT(updateActions()));
         connect(m_playlistUi.playlistView, SIGNAL(activated(QModelIndex)), this, SLOT(playTrack(QModelIndex)));
+        connect(m_playlistUi.playlistView->horizontalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(sectionsOrderChanged()));
         connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
         connect(m_player->parent(), SIGNAL(titleChanged(QString)), m_playlistUi.titleLabel, SLOT(setText(QString)));
         connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(updateVideoView()));
@@ -611,6 +634,23 @@ void PlaylistManager::setDialogSize(const QSize &size)
     else
     {
         m_size = size;
+    }
+}
+
+void PlaylistManager::setSectionsOrder(const QList<int> &order)
+{
+    m_sectionsOrder = order;
+
+    emit needsSaving();
+
+    if (!m_dialog)
+    {
+        return;
+    }
+
+    for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
+    {
+        m_playlistUi.playlistView->horizontalHeader()->moveSection(m_playlistUi.playlistView->horizontalHeader()->visualIndex(order.value(i, i)), i);
     }
 }
 
@@ -667,6 +707,11 @@ void PlaylistManager::setHeaderState(const QByteArray &state)
 QList<PlaylistModel*> PlaylistManager::playlists() const
 {
     return m_playlists;
+}
+
+QList<int> PlaylistManager::sectionsOrder() const
+{
+    return m_sectionsOrder;
 }
 
 QSize PlaylistManager::dialogSize() const

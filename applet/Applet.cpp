@@ -230,7 +230,7 @@ void Applet::init()
 
     m_playlistManager->setCurrentPlaylist(currentPlaylist);
 
-    m_player->setAspectRatio(static_cast<AspectRatio>(config().readEntry("apectRatio", static_cast<int>(AutomaticRatio))));
+    m_player->setAspectRatio(static_cast<AspectRatio>(config().readEntry("aspectRatio", static_cast<int>(AutomaticRatio))));
     m_player->setAudioMuted(config().readEntry("mute", false));
     m_player->setVolume(config().readEntry("volume", 50));
     m_player->setBrightness(config().readEntry("brightness", 50));
@@ -333,7 +333,7 @@ void Applet::configAccepted()
 void Applet::configSave()
 {
     KConfigGroup configuration = config();
-    configuration.writeEntry("apectRatio", static_cast<int>(m_player->aspectRatio()));
+    configuration.writeEntry("aspectRatio", static_cast<int>(m_player->aspectRatio()));
     configuration.writeEntry("mute", m_player->isAudioMuted());
     configuration.writeEntry("volume", m_player->volume());
     configuration.writeEntry("brightness", m_player->brightness());
@@ -344,6 +344,7 @@ void Applet::configSave()
     if (m_playlistManager->isDialogVisible())
     {
         configuration.writeEntry("playlistSize", m_playlistManager->dialogSize());
+        configuration.writeEntry("sectionsOrder", m_playlistManager->sectionsOrder());
         configuration.writeEntry("playlistLocked", m_playlistManager->isSplitterLocked());
         configuration.writeEntry("playlistSplitter", m_playlistManager->splitterState());
         configuration.writeEntry("playlistViewHeader", m_playlistManager->headerState());
@@ -809,6 +810,7 @@ void Applet::togglePlaylistDialog()
     else
     {
         m_playlistManager->setDialogSize(config().readEntry("playlistSize", m_playlistManager->dialogSize()));
+        m_playlistManager->setSectionsOrder(config().readEntry("sectionsOrder", m_playlistManager->sectionsOrder()));
         m_playlistManager->setSplitterLocked(config().readEntry("playlistLocked", true));
         m_playlistManager->setSplitterState(config().readEntry("playlistSplitter", QByteArray()));
         m_playlistManager->setHeaderState(config().readEntry("headerState", QByteArray()));
