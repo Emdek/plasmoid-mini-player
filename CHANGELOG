@@ -1,5 +1,7 @@
-2.1 (--.01.2012):
+2.1 (01.01.2012):
 - save and restore sections order;
+- fixed freeze when using sequential playback mode;
+- added workaround for video not updated before going full screen;
 - some other fixes.
 
 2.0 (31.12.2011):
