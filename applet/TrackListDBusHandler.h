@@ -1,6 +1,6 @@
 /***********************************************************************************
 * Copyright (C) 2009 by Marco Martin <notmart@gmail.com>
-* Copyright (C) 2009 by Michal Dutkiewicz <emdeck@gmail.com>
+* Copyright (C) 2009 - 2012 by Michal Dutkiewicz <emdeck@gmail.com>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
