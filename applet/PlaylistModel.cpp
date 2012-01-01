@@ -246,6 +246,11 @@ void PlaylistModel::setCurrentTrack(int track, PlayerReaction reaction)
 
     m_currentTrack = track;
 
+    if (m_currentTrack == -1 && m_playbackMode == SequentialMode)
+    {
+        reaction = StopReaction;
+    }
+
     emit currentTrackChanged(m_currentTrack, reaction);
     emit needsSaving();
     emit layoutChanged();
