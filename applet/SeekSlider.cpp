@@ -75,7 +75,7 @@ void SeekSlider::mousePressEvent(QMouseEvent *event)
 
 void SeekSlider::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!m_player)
+    if (!m_player || m_player->duration() < 1)
     {
         return;
     }
@@ -111,7 +111,7 @@ void SeekSlider::timerEvent(QTimerEvent *event)
         return;
     }
 
-    const int position = ((m_player->position() * 10000) / m_player->duration());
+    const int position = ((m_player->duration() > 0)?((m_player->position() * 10000) / m_player->duration()):0);
 
     if (!isSliderDown() && position != value())
     {
@@ -174,8 +174,8 @@ void SeekSlider::mediaChanged()
     if (m_player->isSeekable())
     {
         setEnabled(true);
-        setSingleStep(qMin((qint64) 1, m_player->duration() / 300000));
-        setPageStep(qMin((qint64) 1, m_player->duration() / 30000));
+        setSingleStep(qMin((qint64) 1, (m_player->duration() / 300000)));
+        setPageStep(qMin((qint64) 1, (m_player->duration() / 30000)));
 
         m_updatePosition = startTimer(250);
     }
