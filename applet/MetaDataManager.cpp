@@ -228,7 +228,7 @@ QVariantMap MetaDataManager::metaData(const KUrl &url)
         ++i;
     }
 
-    metaData["time"] = ((mediaObject.totalTime() > 0)?(mediaObject.totalTime() / 1000):-1);
+    metaData["time"] = ((duration(url) > 0)?duration(url):((mediaObject.totalTime() > 0)?(mediaObject.totalTime() / 1000):-1));
     metaData["location"] = url.pathOrUrl();
 
     return metaData;
