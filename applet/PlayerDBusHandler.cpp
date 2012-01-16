@@ -162,7 +162,7 @@ QVariantMap PlayerDBusHandler::GetMetadata()
         return QVariantMap();
     }
 
-    return MiniPlayer::MetaDataManager::metaData(m_player->url());
+    return m_player->metaData();
 }
 
 int PlayerDBusHandler::GetCaps()

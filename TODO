@@ -1,3 +1,4 @@
+- cache all or selected meta data keys - need to avoid caching no longer used tracks (?);
 - add playlist statusbar (total length, current time etc.) (?);
 - dynamic playlist with most often played tracks (?);
 - add audio analyzer (?);

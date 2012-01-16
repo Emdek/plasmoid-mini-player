@@ -874,6 +874,35 @@ QAction* Player::action(PlayerAction action) const
     return (m_actions.contains(action)?m_actions[action]:NULL);
 }
 
+QVariantMap Player::metaData() const
+{
+    QVariantMap metaData;
+    QMultiMap<QString, QString> stringMap = m_mediaObject->metaData();
+    QMultiMap<QString, QString>::const_iterator i = stringMap.constBegin();
+
+    while (i != stringMap.constEnd())
+    {
+        bool number = false;
+        int value = i.value().toInt(&number);
+
+        if (number && (i.key().toLower() != "tracknumber"))
+        {
+            metaData[i.key().toLower()] = value;
+        }
+        else
+        {
+            metaData[i.key().toLower()] = QVariant(i.value());
+        }
+
+        ++i;
+    }
+
+    metaData["time"] = ((duration() > 0)?duration():MetaDataManager::duration(url()));
+    metaData["location"] = url().pathOrUrl();
+
+    return metaData;
+}
+
 KUrl Player::url() const
 {
     return KUrl(m_mediaObject->currentSource().url());

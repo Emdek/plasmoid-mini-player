@@ -57,6 +57,7 @@ class Player : public QObject
         QString artist(bool allowSubstitute = true) const;
         PlaylistModel* playlist() const;
         QAction* action(PlayerAction action) const;
+        QVariantMap metaData() const;
         KUrl url() const;
         qint64 duration() const;
         qint64 position() const;
