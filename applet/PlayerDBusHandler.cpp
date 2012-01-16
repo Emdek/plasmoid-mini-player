@@ -157,6 +157,11 @@ DBusStatus PlayerDBusHandler::GetStatus()
 
 QVariantMap PlayerDBusHandler::GetMetadata()
 {
+    if (m_player->state() == MiniPlayer::StoppedState)
+    {
+        return QVariantMap();
+    }
+
     return MiniPlayer::MetaDataManager::metaData(m_player->url());
 }
 
