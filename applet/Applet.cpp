@@ -494,25 +494,32 @@ void Applet::keyPressEvent(QKeyEvent *event)
     {
         case Qt::Key_PageDown:
             m_player->playPrevious();
-        break;
+
+            break;
         case Qt::Key_PageUp:
             m_player->playNext();
-        break;
+
+            break;
         case Qt::Key_Left:
             m_player->seekBackward();
-        break;
+
+            break;
         case Qt::Key_Right:
             m_player->seekForward();
-        break;
+
+            break;
         case Qt::Key_Plus:
             m_player->increaseVolume();
-        break;
+
+            break;
         case Qt::Key_Minus:
             m_player->decreaseVolume();
-        break;
+
+            break;
         case Qt::Key_Space:
             m_player->playPause();
-        break;
+
+            break;
         case Qt::Key_Escape:
             if (m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
             {
@@ -522,34 +529,44 @@ void Applet::keyPressEvent(QKeyEvent *event)
             {
                 m_playlistManager->closeDialog();
             }
-        break;
+
+            break;
         case Qt::Key_F:
             toggleFullScreen();
-        break;
+
+            break;
         case Qt::Key_G:
             toggleJumpToPosition();
-        break;
+
+            break;
         case Qt::Key_M:
             m_player->setAudioMuted(!m_player->isAudioMuted());
-        break;
+
+            break;
         case Qt::Key_O:
             openFiles();
-        break;
+
+            break;
         case Qt::Key_P:
             togglePlaylistDialog();
-        break;
+
+            break;
         case Qt::Key_S:
             m_player->stop();
-        break;
+
+            break;
         case Qt::Key_U:
             openUrl();
-        break;
+
+            break;
         case Qt::Key_V:
             toggleVolumeDialog();
-        break;
+
+            break;
         default:
             event->ignore();
-        break;
+
+            break;
     }
 }
 

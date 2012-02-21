@@ -161,7 +161,8 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
             }
 
             tracks = titleMap.values();
-        break;
+
+            break;
         case 2:
             for (int i = 0; i < m_tracks.count(); ++i)
             {
@@ -169,7 +170,8 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
             }
 
             tracks = artistMap.values();
-        break;
+
+            break;
         case 3:
             for (int i = 0; i < m_tracks.count(); ++i)
             {
@@ -177,7 +179,8 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
             }
 
             tracks = durationMap.values();
-        break;
+
+            break;
         default:
             for (int i = 0; i < m_tracks.count(); ++i)
             {
@@ -185,7 +188,8 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
             }
 
             tracks = urlMap.values();
-        break;
+
+            break;
     }
 
     if (order == Qt::AscendingOrder)
@@ -249,6 +253,7 @@ void PlaylistModel::setCurrentTrack(int track, PlayerReaction reaction)
     if (m_currentTrack == -1 && m_playbackMode == SequentialMode)
     {
         reaction = StopReaction;
+        m_currentTrack = 0;
     }
 
     emit currentTrackChanged(m_currentTrack, reaction);

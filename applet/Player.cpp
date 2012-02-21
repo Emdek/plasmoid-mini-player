@@ -442,15 +442,18 @@ void Player::currentTrackChanged(int track, PlayerReaction reaction)
         {
             case PlayReaction:
                 play();
-            break;
+
+                break;
             case PauseReaction:
                 pause();
-            break;
+
+                break;
             case StopReaction:
                 stop();
-            break;
+
+                break;
             default:
-            break;
+                break;
         }
 
         emit trackChanged();
@@ -597,16 +600,20 @@ void Player::openDisc(const QString &device, PlaylistSource type)
     {
         case DvdSource:
             discType = Phonon::Dvd;
-        break;
+
+            break;
         case VcdSource:
             discType = Phonon::Vcd;
-        break;
+
+            break;
         case CdSource:
             discType = Phonon::Cd;
-        break;
+
+            break;
         default:
             discType = Phonon::NoDisc;
-        break;
+
+            break;
     }
 
     m_mediaObject->setCurrentSource(Phonon::MediaSource(discType, device));
@@ -725,18 +732,22 @@ void Player::setAspectRatio(AspectRatio ratio)
     {
         case Ratio4_3:
             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio4_3);
-        break;
+
+            break;
         case Ratio16_9:
             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
-        break;
+
+            break;
         case FitToRatio:
             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioWidget);
-        break;
+
+            break;
         default:
             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
 
             ratio = AutomaticRatio;
-        break;
+
+            break;
     }
 
     m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(ratio))->setChecked(true);
@@ -924,13 +935,10 @@ PlayerState Player::translateState(Phonon::State state) const
     {
         case Phonon::PlayingState:
             return PlayingState;
-        break;
         case Phonon::PausedState:
             return PausedState;
-        break;
         default:
             return StoppedState;
-        break;
     }
 }
 

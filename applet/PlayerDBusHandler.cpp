@@ -140,12 +140,16 @@ DBusStatus PlayerDBusHandler::GetStatus()
     {
         case MiniPlayer::PlayingState:
             status.Play = 0;
-        break;
+
+            break;
         case MiniPlayer::PausedState:
             status.Play = 1;
-        break;
+
+            break;
         default:
             status.Play = 2;
+
+            break;
     }
 
     status.Random = ((m_player->playlist() && m_player->playlist()->playbackMode() == MiniPlayer::RandomMode)?1:0);
