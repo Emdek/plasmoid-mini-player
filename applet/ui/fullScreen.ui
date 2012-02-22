@@ -227,6 +227,9 @@
       </item>
       <item>
        <widget class="MiniPlayer::VolumeSlider" name="volumeSlider">
+        <property name="maximum">
+         <number>100</number>
+        </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>

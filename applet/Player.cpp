@@ -954,7 +954,7 @@ PlayerState Player::state() const
 
 int Player::volume() const
 {
-    return (m_audioOutput->volume() * 50);
+    return (m_audioOutput->volume() * 100);
 }
 
 int Player::brightness() const
