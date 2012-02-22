@@ -162,6 +162,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     }
 
     Plasma::ToolTipManager::self()->registerWidget(this);
+
+    resize(250, 50);
 }
 
 Applet::~Applet()
@@ -176,8 +178,6 @@ Applet::~Applet()
 
 void Applet::init()
 {
-    resize(250, 50);
-
     QTimer::singleShot(100, this, SLOT(configChanged()));
 
     connect(this, SIGNAL(activate()), this, SLOT(togglePlaylistDialog()));
