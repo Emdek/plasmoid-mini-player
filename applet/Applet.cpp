@@ -70,7 +70,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_hideFullScreenControls(0),
     m_togglePlaylist(0),
     m_hideToolTip(0),
-    m_updateToolTip(0)
+    m_updateToolTip(0),
+    m_initialized(false)
 {
     KGlobal::locale()->insertCatalog("miniplayer");
 
@@ -161,8 +162,23 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     }
 
     Plasma::ToolTipManager::self()->registerWidget(this);
+}
 
+Applet::~Applet()
+{
+    if (m_playerDBUSHandler)
+    {
+        delete m_playerDBUSHandler;
+        delete m_trackListDBusHandler;
+        delete m_rootDBUSHandler;
+    }
+}
+
+void Applet::init()
+{
     resize(250, 50);
+
+    QTimer::singleShot(100, this, SLOT(configChanged()));
 
     connect(this, SIGNAL(activate()), this, SLOT(togglePlaylistDialog()));
     connect(m_player, SIGNAL(trackChanged()), this, SLOT(showToolTip()));
@@ -178,75 +194,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     connect(m_player->action(VolumeToggleAction), SIGNAL(triggered()), this, SLOT(toggleVolumeDialog()));
     connect(m_player->action(PlaylistToggleAction), SIGNAL(triggered()), this, SLOT(togglePlaylistDialog()));
     connect(m_playlistManager, SIGNAL(requestMenu(QPoint)), this, SLOT(showMenu(QPoint)));
-}
-
-Applet::~Applet()
-{
-    if (m_playerDBUSHandler)
-    {
-        delete m_playerDBUSHandler;
-        delete m_trackListDBusHandler;
-        delete m_rootDBUSHandler;
-    }
-}
-
-void Applet::init()
-{
-    KConfigGroup playlistsConfiguration = config().group("Playlists");
-    KConfigGroup metaDataConfiguration = config().group("MetaData");
-    QStringList playlists = playlistsConfiguration.groupList();
-    QStringList tracks = metaDataConfiguration.groupList();
-    int currentPlaylist = 0;
-
-    for (int i = 0; i < tracks.count(); ++i)
-    {
-        KConfigGroup trackConfiguration = metaDataConfiguration.group(tracks.at(i));
-        Track track;
-        track.title = trackConfiguration.readEntry("title", QString());
-        track.artist = trackConfiguration.readEntry("artist", QString());
-        track.duration = trackConfiguration.readEntry("duration", -1);
-
-        MetaDataManager::setMetaData(KUrl(trackConfiguration.readEntry("url", QString())), track);
-    }
-
-    for (int i = 0; i < playlists.count(); ++i)
-    {
-        KConfigGroup playlistConfiguration = playlistsConfiguration.group(playlists.at(i));
-        int playlist = m_playlistManager->createPlaylist(playlistConfiguration.readEntry("title", i18n("Default")), KUrl::List(playlistConfiguration.readEntry("tracks", QStringList())));
-
-        m_playlistManager->playlists().at(playlist)->setCurrentTrack(playlistConfiguration.readEntry("currentTrack", 0));
-        m_playlistManager->playlists().at(playlist)->setPlaybackMode(static_cast<PlaybackMode>(playlistConfiguration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
-
-        if (playlistConfiguration.readEntry("isCurrent", false))
-        {
-            currentPlaylist = playlist;
-        }
-    }
-
-    if (!m_playlistManager->playlists().count())
-    {
-        m_playlistManager->createPlaylist(i18n("Default"), KUrl::List());
-    }
-
-    m_playlistManager->setCurrentPlaylist(currentPlaylist);
-
-    m_player->setAspectRatio(static_cast<AspectRatio>(config().readEntry("aspectRatio", static_cast<int>(AutomaticRatio))));
-    m_player->setAudioMuted(config().readEntry("mute", false));
-    m_player->setVolume(config().readEntry("volume", 50));
-    m_player->setBrightness(config().readEntry("brightness", 50));
-    m_player->setContrast(config().readEntry("contrast", 50));
-    m_player->setHue(config().readEntry("hue", 50));
-    m_player->setSaturation(config().readEntry("saturation", 50));
-
-    if (config().readEntry("playOnStartup", false) && m_player->playlist() && m_player->playlist()->trackCount())
-    {
-        m_player->play();
-    }
-
-    QTimer::singleShot(100, this, SLOT(configChanged()));
-
-    connect(m_player, SIGNAL(needsSaving()), this, SLOT(configSave()));
-    connect(m_playlistManager, SIGNAL(needsSaving()), this, SLOT(configSave()));
 }
 
 void Applet::createConfigurationInterface(KConfigDialog *parent)
@@ -333,6 +280,65 @@ void Applet::configAccepted()
 void Applet::configChanged()
 {
     KConfigGroup configuration = config();
+
+    m_player->setAspectRatio(static_cast<AspectRatio>(config().readEntry("aspectRatio", static_cast<int>(AutomaticRatio))));
+    m_player->setAudioMuted(config().readEntry("mute", false));
+    m_player->setVolume(config().readEntry("volume", 50));
+    m_player->setBrightness(config().readEntry("brightness", 50));
+    m_player->setContrast(config().readEntry("contrast", 50));
+    m_player->setHue(config().readEntry("hue", 50));
+    m_player->setSaturation(config().readEntry("saturation", 50));
+
+    if (!m_initialized)
+    {
+        m_initialized = true;
+
+        KConfigGroup playlistsConfiguration = config().group("Playlists");
+        KConfigGroup metaDataConfiguration = config().group("MetaData");
+        QStringList playlists = playlistsConfiguration.groupList();
+        QStringList tracks = metaDataConfiguration.groupList();
+        int currentPlaylist = 0;
+
+        for (int i = 0; i < tracks.count(); ++i)
+        {
+            KConfigGroup trackConfiguration = metaDataConfiguration.group(tracks.at(i));
+            Track track;
+            track.title = trackConfiguration.readEntry("title", QString());
+            track.artist = trackConfiguration.readEntry("artist", QString());
+            track.duration = trackConfiguration.readEntry("duration", -1);
+
+            MetaDataManager::setMetaData(KUrl(trackConfiguration.readEntry("url", QString())), track);
+        }
+
+        for (int i = 0; i < playlists.count(); ++i)
+        {
+            KConfigGroup playlistConfiguration = playlistsConfiguration.group(playlists.at(i));
+            int playlist = m_playlistManager->createPlaylist(playlistConfiguration.readEntry("title", i18n("Default")), KUrl::List(playlistConfiguration.readEntry("tracks", QStringList())));
+
+            m_playlistManager->playlists().at(playlist)->setCurrentTrack(playlistConfiguration.readEntry("currentTrack", 0));
+            m_playlistManager->playlists().at(playlist)->setPlaybackMode(static_cast<PlaybackMode>(playlistConfiguration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
+
+            if (playlistConfiguration.readEntry("isCurrent", false))
+            {
+                currentPlaylist = playlist;
+            }
+        }
+
+        if (!m_playlistManager->playlists().count())
+        {
+            m_playlistManager->createPlaylist(i18n("Default"), KUrl::List());
+        }
+
+        m_playlistManager->setCurrentPlaylist(currentPlaylist);
+
+        if (config().readEntry("playOnStartup", false) && m_player->playlist() && m_player->playlist()->trackCount())
+        {
+            m_player->play();
+        }
+
+        connect(m_player, SIGNAL(needsSaving()), this, SLOT(configSave()));
+        connect(m_playlistManager, SIGNAL(needsSaving()), this, SLOT(configSave()));
+    }
 
     if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
     {

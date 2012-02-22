@@ -105,6 +105,7 @@ class Applet : public Plasma::Applet
         int m_togglePlaylist;
         int m_hideToolTip;
         int m_updateToolTip;
+        bool m_initialized;
         Ui::general m_generalUi;
         Ui::controls m_controlsUi;
         Ui::jumpToPosition m_jumpToPositionUi;

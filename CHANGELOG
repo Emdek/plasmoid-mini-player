@@ -1,3 +1,8 @@
+2.2 (--.--.2012):
+- improved initialization sequence;
+- set current track marker to first track after finishing playlist in sequential mode;
+- some fixes and other changes.
+
 2.1 (01.01.2012):
 - save and restore sections order;
 - fixed freeze when using sequential playback mode;
