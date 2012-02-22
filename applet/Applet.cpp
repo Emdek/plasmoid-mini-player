@@ -243,7 +243,7 @@ void Applet::init()
         m_player->play();
     }
 
-    QTimer::singleShot(100, this, SLOT(configReset()));
+    QTimer::singleShot(100, this, SLOT(configChanged()));
 
     connect(m_player, SIGNAL(needsSaving()), this, SLOT(configSave()));
     connect(m_playlistManager, SIGNAL(needsSaving()), this, SLOT(configSave()));
@@ -327,7 +327,39 @@ void Applet::configAccepted()
 
     emit configNeedsSaving();
 
-    configReset();
+    configChanged();
+}
+
+void Applet::configChanged()
+{
+    KConfigGroup configuration = config();
+
+    if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
+    {
+        QDBusConnection dbus = QDBusConnection::sessionBus();
+        dbus.unregisterService("org.mpris.PlasmaApplet");
+        dbus.unregisterObject("/PlasmaApplet");
+
+        delete m_playerDBUSHandler;
+        delete m_trackListDBusHandler;
+        delete m_rootDBUSHandler;
+
+        m_playerDBUSHandler = NULL;
+        m_trackListDBusHandler = NULL;
+        m_rootDBUSHandler = NULL;
+    }
+    else if (configuration.readEntry("enableDBus", false) && !m_playerDBUSHandler)
+    {
+        QDBusConnection dbus = QDBusConnection::sessionBus();
+        dbus.registerService("org.mpris.PlasmaApplet");
+        dbus.registerObject("/PlasmaApplet", m_player);
+
+        m_playerDBUSHandler = new PlayerDBusHandler(m_player);
+        m_trackListDBusHandler = new TrackListDBusHandler(m_player);
+        m_rootDBUSHandler = new RootDBusHandler(m_player);
+    }
+
+    updateControls();
 }
 
 void Applet::configSave()
@@ -395,38 +427,6 @@ void Applet::configSave()
     }
 
     emit configNeedsSaving();
-}
-
-void Applet::configReset()
-{
-    KConfigGroup configuration = config();
-
-    if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
-    {
-        QDBusConnection dbus = QDBusConnection::sessionBus();
-        dbus.unregisterService("org.mpris.PlasmaApplet");
-        dbus.unregisterObject("/PlasmaApplet");
-
-        delete m_playerDBUSHandler;
-        delete m_trackListDBusHandler;
-        delete m_rootDBUSHandler;
-
-        m_playerDBUSHandler = NULL;
-        m_trackListDBusHandler = NULL;
-        m_rootDBUSHandler = NULL;
-    }
-    else if (configuration.readEntry("enableDBus", false) && !m_playerDBUSHandler)
-    {
-        QDBusConnection dbus = QDBusConnection::sessionBus();
-        dbus.registerService("org.mpris.PlasmaApplet");
-        dbus.registerObject("/PlasmaApplet", m_player);
-
-        m_playerDBUSHandler = new PlayerDBusHandler(m_player);
-        m_trackListDBusHandler = new TrackListDBusHandler(m_player);
-        m_rootDBUSHandler = new RootDBusHandler(m_player);
-    }
-
-    updateControls();
 }
 
 void Applet::constraintsEvent(Plasma::Constraints constraints)

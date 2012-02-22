@@ -58,6 +58,7 @@ class Applet : public Plasma::Applet
 
     public slots:
         void configAccepted();
+        void configChanged();
         void configSave();
         void toolTipAboutToShow();
         void toolTipHidden();
@@ -75,7 +76,6 @@ class Applet : public Plasma::Applet
         void timerEvent(QTimerEvent *event);
 
     protected slots:
-        void configReset();
         void stateChanged(PlayerState state);
         void videoAvailableChanged(bool videoAvailable);
         void metaDataChanged();
