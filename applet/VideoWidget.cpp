@@ -95,6 +95,8 @@ void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode)
         setWidget(NULL);
     }
 
+    show();
+
     m_pixmapItem->setVisible(!mode);
 
     m_backgroundWidget->setVisible(!mode);

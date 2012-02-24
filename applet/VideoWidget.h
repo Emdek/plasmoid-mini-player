@@ -39,7 +39,7 @@ class VideoWidget : public QGraphicsProxyWidget
         VideoWidget(QGraphicsWidget *parent);
 
     protected slots:
-        void setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode = false);
+        void setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode);
 
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
