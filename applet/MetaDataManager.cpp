@@ -187,6 +187,23 @@ void MetaDataManager::setMetaData(const KUrl &url, const Track &track, bool noti
 
     m_tracks[url] = track;
 
+    QHash<MetaDataKey, QString>::iterator i;
+
+    for (i = m_tracks[url].keys.begin(); i != m_tracks[url].keys.end(); ++i)
+    {
+        if (i.value().isEmpty())
+        {
+            m_tracks[url].keys.remove(i.key());
+        }
+    }
+
+    if (m_tracks[url].keys.isEmpty() && m_tracks[url].duration < 1)
+    {
+        m_tracks.remove(url);
+
+        return;
+    }
+
     if (notify)
     {
         emit urlChanged(url);
