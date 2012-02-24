@@ -42,6 +42,7 @@ class PlaylistManager : public QObject
         PlaylistManager(Player *parent);
 
         void addTracks(const KUrl::List &tracks, int index = -1, PlayerReaction reaction = NoReaction);
+        void removeTracks(const KUrl::List &tracks);
         QList<PlaylistModel*> playlists() const;
         QList<int> sectionsOrder() const;
         QSize dialogSize() const;
@@ -64,6 +65,9 @@ class PlaylistManager : public QObject
         void setSplitterLocked(bool locked);
         void setSplitterState(const QByteArray &state);
         void setHeaderState(const QByteArray &state);
+
+    protected:
+        void timerEvent(QTimerEvent *event);
 
     protected slots:
         void sectionsOrderChanged();
@@ -100,10 +104,12 @@ class PlaylistManager : public QObject
         QHash<QString, QPair<QAction*, QHash<QString, QVariant> > > m_discActions;
         QList<PlaylistModel*> m_playlists;
         QList<int> m_sectionsOrder;
+        QSet<KUrl> m_removedTracks;
         QSize m_size;
         QByteArray m_splitterState;
         QByteArray m_headerState;
         int m_selectedPlaylist;
+        int m_removeTracks;
         bool m_splitterLocked;
         bool m_isEdited;
         Ui::playlist m_playlistUi;

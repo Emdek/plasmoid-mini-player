@@ -52,6 +52,7 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_videoWidget(new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()))),
     m_size(QSize(600, 500)),
     m_selectedPlaylist(-1),
+    m_removeTracks(0),
     m_splitterLocked(true),
     m_isEdited(false)
 {
@@ -71,6 +72,41 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     connect(m_player->action(PlaybackModeMenuAction)->menu(), SIGNAL(triggered(QAction*)), this, SLOT(playbackModeChanged(QAction*)));
     connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceAdded(QString)), this, SLOT(deviceAdded(QString)));
     connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceRemoved(QString)), this, SLOT(deviceRemoved(QString)));
+}
+
+void PlaylistManager::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == m_removeTracks)
+    {
+        m_removeTracks = 0;
+
+        QSet<KUrl> removedTracks = m_removedTracks;
+
+        m_removedTracks.clear();
+
+        QSet<KUrl> existingTracks;
+
+        for (int i = 0; i < m_playlists.count(); ++i)
+        {
+            if (m_playlists[i]->isReadOnly())
+            {
+                continue;
+            }
+
+            existingTracks = existingTracks.unite(m_playlists.at(i)->tracks().toSet());
+        }
+
+        removedTracks = removedTracks.subtract(existingTracks);
+
+        QSet<KUrl>::iterator i;
+
+        for (i = removedTracks.begin(); i != removedTracks.end(); ++i)
+        {
+            MetaDataManager::removeMetaData(*i);
+        }
+    }
+
+    killTimer(event->timerId());
 }
 
 void PlaylistManager::sectionsOrderChanged()
@@ -513,6 +549,18 @@ void PlaylistManager::addTracks(const KUrl::List &tracks, int index, PlayerReact
     m_playlists[visiblePlaylist()]->addTracks(tracks, index, reaction);
 
     updateActions();
+}
+
+void PlaylistManager::removeTracks(const KUrl::List &tracks)
+{
+    if (m_removeTracks)
+    {
+        killTimer(m_removeTracks);
+    }
+
+    m_removedTracks.unite(tracks.toSet());
+
+    m_removeTracks = startTimer(1000);
 }
 
 void PlaylistManager::showDialog(const QPoint &position)

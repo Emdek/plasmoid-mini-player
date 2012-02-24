@@ -1,5 +1,6 @@
-2.2 (--.--.2012):
+2.2 (--.02.2012):
 - improved initialization sequence;
+- remove track meta data after last occurrence is removed;
 - set current track marker to first track after finishing playlist in sequential mode;
 - some fixes and other changes.
 
@@ -28,8 +29,8 @@
 - some other changes.
 
 1.1 (01.12.2011):
-- added toggle play list button to default controls set;
-- added track length infromation to play list (sortable);
+- added toggle playlist button to default controls set;
+- added track length infromation to playlist (sortable);
 - added option to disable D-Bus interace;
 - improved dialog appearance;
 - more friendly install script;
@@ -39,11 +40,11 @@
 1.0 (01.08.2009):
 - added D-Bus interface;
 - added initial support for playing CD Audio, DVD and (S)VCD;
-- added optional controls to play list dialog;
+- added optional controls to playlist dialog;
 - added possibility to show tool tip on track change;
 - added possibility to repeat track only;
 - added support for sorting tracks in ascending or descending order or by drag and drop;
-- added filter bar to play list;
+- added filter bar to playlist;
 - added possibility to set video aspect ratio;
 - added possibility to select audio channel (if available);
 - added possibility to select subtitle (if available);
@@ -54,12 +55,12 @@
  - copy URL;
  - play, pause and stop;
  - remove track;
-- show disc contents as dynamic play list;
+- show disc contents as dynamic playlist;
 - show controls bar in full screen mode;
-- show play list dialog after delay when dragging URL(s) on applet;
-- propagate keyboard events to applet when play list dialog is visible;
-- improved play list layout when showing video in dialog;
-- moved play list handling to model / view architecture;
+- show playlist dialog after delay when dragging URL(s) on applet;
+- propagate keyboard events to applet when playlist dialog is visible;
+- improved playlist layout when showing video in dialog;
+- moved playlist handling to model / view architecture;
 - allow dropping folders and recursively load supported contents;
 - improved behavior in panels;
 - other fixes, improvements and small changes.
@@ -68,27 +69,27 @@
 - added keyboard shortcut for toggling full screen (F);
 - improved context menu layout;
 - remember last played track;
-- toggle play list visibility by single left mouse button click on applet;
+- toggle playlist visibility by single left mouse button click on applet;
 - some other fixes and improvements.
 
 0.9 (12.05.2009):
 - added support for opening URLs and playing streams;
-- added support for multiple play lists in tabs;
-- added possibility to export play list in PLS format;
-- added possibility to import play list in XSPF and ASX formats;
-- added possibility to edit track title in play list;
-- preserve track title defined in play list;
-- improved positioning of play list and volume control dialogs;
-- toggle play list visibility by invoking keyboard shortcut.
+- added support for multiple playlists in tabs;
+- added possibility to export playlist in PLS format;
+- added possibility to import playlist in XSPF and ASX formats;
+- added possibility to edit track title in playlist;
+- preserve track title defined in playlist;
+- improved positioning of playlist and volume control dialogs;
+- toggle playlist visibility by invoking keyboard shortcut.
 
 0.8 (05.05.2009):
-- Play action is always enabled when play list is not empty;
+- Play action is always enabled when playlist is not empty;
 - block screen saver and block non critical notifications during video playback;
 - added Russian translation by Ritt K.;
 - some other changes and fixes.
 
 0.7 (20.04.2009):
-- added possibility to change size of play list dialog;
+- added possibility to change size of playlist dialog;
 - added keyboard shortcut for toggling controls visibility (C);
 - show tool tip with track information not only when hovering video area;
 - fixed problems with position slider.
@@ -104,14 +105,14 @@
  - accessing volume slider (V);
  - accessing file open dialog (O);
  - accessing jump to position dialog (J);
- - accessing play list (P).
+ - accessing playlist (P).
 - query Phonon backend for list of supported MIME types.
 
 0.5 (05.04.2009):
 - ported to new Plasma VideoWidget (for KDE 4.3, using local copy);
 - support for creating player applet by dropping video or audio file on desktop;
 - possibility to automatically hide video area when there is only audio;
-- possibility to remember last used play list and start playback on applet creation;
+- possibility to remember last used playlist and start playback on applet creation;
 - added Jump to position dialog;
 - added tool tip with current track information;
 - added translations support;
@@ -123,7 +124,7 @@
 - other small changes and fixes.
 
 0.3 (23.12.2008):
-- basic play list support:
+- basic playlist support:
  - export in M3U format;
  - basic M3U and PLS import;
  - repeat option;

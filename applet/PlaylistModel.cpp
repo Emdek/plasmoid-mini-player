@@ -60,6 +60,13 @@ void PlaylistModel::addTrack(int position, const KUrl &url)
 
 void PlaylistModel::removeTrack(int position)
 {
+    if (position < 0 || position >= m_tracks.count())
+    {
+        return;
+    }
+
+    m_manager->removeTracks(KUrl::List(m_tracks.at(position)));
+
     m_tracks.removeAt(position);
 
     if (position <= m_currentTrack)
@@ -116,6 +123,8 @@ void PlaylistModel::clear()
     {
         return;
     }
+
+    m_manager->removeTracks(m_tracks);
 
     m_tracks.clear();
 
@@ -590,16 +599,21 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex &index)
         return false;
     }
 
+    KUrl::List removedTracks;
     const int end = (row + count);
 
     beginRemoveRows(index, row, (end - 1));
 
     for (int i = 0; i < (end - row); ++i)
     {
+        removedTracks.append(m_tracks.at(row));
+
         m_tracks.removeAt(row);
     }
 
     endRemoveRows();
+
+    m_manager->removeTracks(removedTracks);
 
     if (row < m_currentTrack)
     {
