@@ -1,6 +1,7 @@
-2.2 (--.02.2012):
+2.2 (25.02.2012):
 - improved initialization sequence;
 - remove track meta data after last occurrence is removed;
+- cache all basic meta data keys;
 - set current track marker to first track after finishing playlist in sequential mode;
 - some fixes and other changes.
 

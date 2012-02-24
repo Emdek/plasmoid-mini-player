@@ -243,7 +243,7 @@ void PlaylistReader::readM3u(QTextStream &stream)
         {
             QStringList information = line.remove(m3uInformation).split(',');
 
-            track.title = information.value(1);
+            track.keys[TitleKey] = information.value(1);
             track.duration = information.value(0).toLongLong();
         }
 
@@ -258,7 +258,7 @@ void PlaylistReader::readM3u(QTextStream &stream)
 
             MetaDataManager::setMetaData(url, track);
 
-            track.title = QString();
+            track.keys.clear();
             track.duration = -1;
 
             if (!url.isLocalFile())
@@ -306,7 +306,7 @@ void PlaylistReader::readPls(QTextStream &stream)
         {
             MetaDataManager::setMetaData(url, track);
 
-            track.title = QString();
+            track.keys.clear();
             track.duration = -1;
         }
 
@@ -320,7 +320,7 @@ void PlaylistReader::readPls(QTextStream &stream)
         }
         else if (line.contains(plsTitle))
         {
-            track.title = line.remove(plsTitle).trimmed();
+            track.keys[TitleKey] = line.remove(plsTitle).trimmed();
         }
         else if (line.contains(plsDuration))
         {
@@ -370,18 +370,17 @@ void PlaylistReader::readXspf(const QByteArray &data)
 
         if (reader.name().toString() == "track")
         {
-            track.title = QString();
-            track.artist = QString();
+            track.keys.clear();
         }
 
         if (reader.name().toString() == "title")
         {
-            track.title = reader.text().toString();
+            track.keys[TitleKey] = reader.text().toString();
         }
 
         if (reader.name().toString() == "creator")
         {
-            track.artist = reader.text().toString();
+            track.keys[ArtistKey] = reader.text().toString();
         }
 
         if (reader.name().toString() == "location")
@@ -432,18 +431,17 @@ void PlaylistReader::readAsx(const QByteArray &data)
 
         if (reader.name().toString() == "entry")
         {
-            track.title = QString();
-            track.artist = QString();
+            track.keys.clear();
         }
 
         if (reader.name().toString() == "title")
         {
-            track.title = reader.text().toString();
+            track.keys[TitleKey] = reader.text().toString();
         }
 
         if (reader.name().toString() == "author")
         {
-            track.artist = reader.text().toString();
+            track.keys[ArtistKey] = reader.text().toString();
         }
 
         if (reader.name().toString() == "ref")

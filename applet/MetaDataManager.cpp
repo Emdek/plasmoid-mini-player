@@ -37,6 +37,13 @@ MetaDataManager::MetaDataManager(QObject *parent) : QObject(parent),
     m_resolveMedia(0),
     m_attempts(0)
 {
+    m_keys << qMakePair(TitleKey, Phonon::TitleMetaData)
+    << qMakePair(ArtistKey, Phonon::ArtistMetaData)
+    << qMakePair(AlbumKey, Phonon::AlbumMetaData)
+    << qMakePair(DateKey, Phonon::DateMetaData)
+    << qMakePair(GenreKey, Phonon::GenreMetaData)
+    << qMakePair(DescriptionKey, Phonon::DescriptionMetaData)
+    << qMakePair(TrackNumberKey, Phonon::TracknumberMetaData);
 }
 
 void MetaDataManager::createInstance(QObject *parent)
@@ -61,16 +68,22 @@ void MetaDataManager::resolveMetaData()
 
     if (m_mediaObject->currentSource().url().isValid())
     {
-        const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
-        const QStringList artists = m_mediaObject->metaData(Phonon::ArtistMetaData);
         Track track;
-        track.title = (titles.isEmpty()?QString():titles.first());
-        track.artist = (artists.isEmpty()?QString():artists.first());
         track.duration = m_mediaObject->totalTime();
+
+        for (int i = 0; i < m_keys.count(); ++i)
+        {
+            const QStringList values = m_mediaObject->metaData(m_keys.at(i).second);
+
+            if (!values.isEmpty())
+            {
+                track.keys[m_keys.at(i).first] = values.first();
+            }
+        }
 
         m_mediaObject->stop();
 
-        if (!track.title.isEmpty() || track.duration > 0)
+        if ((track.keys.contains(TitleKey) && !track.keys[TitleKey].isEmpty()) || track.duration > 0)
         {
             setMetaData(m_mediaObject->currentSource().url(), track);
         }
@@ -125,42 +138,6 @@ void MetaDataManager::addTracks(const KUrl::List &urls)
     }
 }
 
-void MetaDataManager::setTitle(const KUrl &url, const QString &title)
-{
-    if (title.isEmpty())
-    {
-        return;
-    }
-
-    if (!m_tracks.contains(url))
-    {
-        m_tracks[url] = Track();
-        m_tracks[url].duration = -1;
-    }
-
-    m_tracks[url].title = title;
-
-    m_instance->setMetaData(url, m_tracks[url], true);
-}
-
-void MetaDataManager::setArtist(const KUrl &url, const QString &artist)
-{
-    if (artist.isEmpty())
-    {
-        return;
-    }
-
-    if (!m_tracks.contains(url))
-    {
-        m_tracks[url] = Track();
-        m_tracks[url].duration = -1;
-    }
-
-    m_tracks[url].artist = artist;
-
-    m_instance->setMetaData(url, m_tracks[url], true);
-}
-
 void MetaDataManager::setDuration(const KUrl &url, qint64 duration)
 {
     if (duration < 1)
@@ -178,6 +155,24 @@ void MetaDataManager::setDuration(const KUrl &url, qint64 duration)
     m_instance->setMetaData(url, m_tracks[url], true);
 }
 
+void MetaDataManager::setMetaData(const KUrl &url, MetaDataKey key, const QString &value)
+{
+    if (value.isEmpty())
+    {
+        return;
+    }
+
+    if (!m_tracks.contains(url))
+    {
+        m_tracks[url] = Track();
+        m_tracks[url].duration = -1;
+    }
+
+    m_tracks[url].keys[key] = value;
+
+    m_instance->setMetaData(url, m_tracks[url], true);
+}
+
 void MetaDataManager::setMetaData(const KUrl &url, const Track &track)
 {
     m_instance->setMetaData(url, track, !isAvailable(url));
@@ -185,7 +180,7 @@ void MetaDataManager::setMetaData(const KUrl &url, const Track &track)
 
 void MetaDataManager::setMetaData(const KUrl &url, const Track &track, bool notify)
 {
-    if ((track.title.isEmpty() && track.duration < 1) || !url.isValid())
+    if ((track.keys.isEmpty() && track.duration < 1) || !url.isValid())
     {
         return;
     }
@@ -218,6 +213,11 @@ MetaDataManager* MetaDataManager::instance()
     return m_instance;
 }
 
+KUrl::List MetaDataManager::tracks()
+{
+    return m_tracks.keys();
+}
+
 QVariantMap MetaDataManager::metaData(const KUrl &url)
 {
     Phonon::MediaObject mediaObject;
@@ -248,6 +248,37 @@ QVariantMap MetaDataManager::metaData(const KUrl &url)
     metaData["location"] = url.pathOrUrl();
 
     return metaData;
+}
+
+QString MetaDataManager::metaData(const KUrl &url, MetaDataKey key, bool substitute)
+{
+    const bool exists = (m_tracks.contains(url) && m_tracks[url].keys.contains(key) && !m_tracks[url].keys[key].isEmpty());
+
+    if (exists)
+    {
+        return m_tracks[url].keys[key];
+    }
+
+    if (!substitute)
+    {
+        return QString();
+    }
+
+    switch (key)
+    {
+        case TitleKey:
+            return urlToTitle(url);
+        case ArtistKey:
+            return i18n("Unknown artist");
+        case AlbumKey:
+            return i18n("Unknown album");
+        case GenreKey:
+            return i18n("Unknown genre");
+        default:
+            return QString();
+    }
+
+    return QString();
 }
 
 QString MetaDataManager::timeToString(qint64 time)
@@ -296,43 +327,6 @@ QString MetaDataManager::urlToTitle(const KUrl &url)
     return title;
 }
 
-KUrl::List MetaDataManager::tracks()
-{
-    return m_tracks.keys();
-}
-
-QString MetaDataManager::title(const KUrl &url, bool allowSubstitute )
-{
-    QString title;
-
-    if (m_tracks.contains(url) && !m_tracks[url].title.isEmpty())
-    {
-        title = m_tracks[url].title;
-    }
-    else if (allowSubstitute)
-    {
-        title = urlToTitle(url);
-    }
-
-    return title;
-}
-
-QString MetaDataManager::artist(const KUrl &url, bool allowSubstitute )
-{
-    QString artist;
-
-    if (m_tracks.contains(url) && !m_tracks[url].artist.isEmpty())
-    {
-        artist = m_tracks[url].artist;
-    }
-    else if (allowSubstitute)
-    {
-        artist = i18n("Unknown artist");
-    }
-
-    return artist;
-}
-
 KIcon MetaDataManager::icon(const KUrl &url)
 {
     if (url.isValid())
@@ -357,7 +351,7 @@ qint64 MetaDataManager::duration(const KUrl &url)
 
 bool MetaDataManager::isAvailable(const KUrl &url, bool complete)
 {
-    return (m_tracks.contains(url) && !m_tracks[url].title.isEmpty() && (!complete || (!m_tracks[url].title.isEmpty() && !m_tracks[url].duration > 0)));
+    return (m_tracks.contains(url) && !metaData(url, TitleKey, false).isEmpty() && (!complete || (!metaData(url, TitleKey, false).isEmpty() && !m_tracks[url].duration > 0)));
 }
 
 }

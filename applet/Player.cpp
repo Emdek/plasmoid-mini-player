@@ -423,7 +423,7 @@ void Player::availableTitlesChanged()
 
         tracks.append(url);
 
-        MetaDataManager::setTitle(url, i18n("Track %1", i));
+        MetaDataManager::setMetaData(url, TitleKey, i18n("Track %1", i));
     }
 
     emit createDevicePlaylist(udi, tracks);
@@ -847,13 +847,13 @@ QString Player::errorString() const
     return m_mediaObject->errorString();
 }
 
-QString Player::title(bool allowSubstitute) const
+QString Player::title(bool substitute) const
 {
     const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
 
     if (titles.isEmpty() || titles.first().isEmpty())
     {
-        return (allowSubstitute?MetaDataManager::urlToTitle(KUrl(m_mediaObject->currentSource().url())):QString());
+        return (substitute?MetaDataManager::urlToTitle(KUrl(m_mediaObject->currentSource().url())):QString());
     }
     else
     {
@@ -861,13 +861,13 @@ QString Player::title(bool allowSubstitute) const
     }
 }
 
-QString Player::artist(bool allowSubstitute) const
+QString Player::artist(bool substitute) const
 {
     const QStringList artists = m_mediaObject->metaData(Phonon::ArtistMetaData);
 
     if (artists.isEmpty() || artists.first().isEmpty())
     {
-        return (allowSubstitute?i18n("Unknown artist"):QString());
+        return (substitute?i18n("Unknown artist"):QString());
     }
     else
     {

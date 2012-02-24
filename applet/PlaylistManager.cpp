@@ -359,7 +359,7 @@ void PlaylistManager::exportPlaylist()
         for (int i = 0; i < m_playlists[visiblePlaylist()]->trackCount(); ++i)
         {
             KUrl url = m_playlists[visiblePlaylist()]->track(i);
-            QString title = MetaDataManager::title(url, false);
+            QString title = MetaDataManager::metaData(url, TitleKey, false);
             QString duration = ((MetaDataManager::duration(url) > 0)?QString::number(MetaDataManager::duration(url) / 1000):QString("-1"));
 
             if (type == PlsFormat)

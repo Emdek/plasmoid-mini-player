@@ -166,7 +166,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
         case 1:
             for (int i = 0; i < m_tracks.count(); ++i)
             {
-                titleMap.insert(MetaDataManager::title(m_tracks.at(i)), m_tracks.at(i));
+                titleMap.insert(MetaDataManager::metaData(m_tracks.at(i), TitleKey), m_tracks.at(i));
             }
 
             tracks = titleMap.values();
@@ -175,7 +175,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
         case 2:
             for (int i = 0; i < m_tracks.count(); ++i)
             {
-                artistMap.insert(MetaDataManager::artist(m_tracks.at(i)), m_tracks.at(i));
+                artistMap.insert(MetaDataManager::metaData(m_tracks.at(i), ArtistKey), m_tracks.at(i));
             }
 
             tracks = artistMap.values();
@@ -322,16 +322,16 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
         switch (index.column())
         {
             case 1:
-                return MetaDataManager::title(url);
+                return MetaDataManager::metaData(url, TitleKey);
             case 2:
-                return MetaDataManager::artist(url);
+                return MetaDataManager::metaData(url, ArtistKey);
             case 3:
                 return MetaDataManager::timeToString(MetaDataManager::duration(url));
         }
     }
     else if (role == Qt::ToolTipRole)
     {
-        return ((MetaDataManager::duration(url) > 0)?QString("<nobr>%1 - %2 (%3)</nobr>").arg(MetaDataManager::artist(url)).arg(MetaDataManager::title(url)).arg(MetaDataManager::timeToString(MetaDataManager::duration(url))):QString("<nobr>%1 - %2</nobr>").arg(MetaDataManager::artist(url)).arg(MetaDataManager::title(url)));
+        return ((MetaDataManager::duration(url) > 0)?QString("<nobr>%1 - %2 (%3)</nobr>").arg(MetaDataManager::metaData(url, ArtistKey)).arg(MetaDataManager::metaData(url, TitleKey)).arg(MetaDataManager::timeToString(MetaDataManager::duration(url))):QString("<nobr>%1 - %2</nobr>").arg(MetaDataManager::metaData(url, ArtistKey)).arg(MetaDataManager::metaData(url, TitleKey)));
     }
     else if (role == Qt::UserRole)
     {
@@ -518,11 +518,11 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
 
     if (role == Qt::EditRole && index.column() == 1)
     {
-        MetaDataManager::setTitle(m_tracks.at(index.row()), value.toString());
+        MetaDataManager::setMetaData(m_tracks.at(index.row()), TitleKey, value.toString());
     }
     else if (role == Qt::EditRole && index.column() == 2)
     {
-        MetaDataManager::setArtist(m_tracks.at(index.row()), value.toString());
+        MetaDataManager::setMetaData(m_tracks.at(index.row()), ArtistKey, value.toString());
     }
     else
     {

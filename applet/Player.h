@@ -53,8 +53,8 @@ class Player : public QObject
         void registerDialogVideoWidget(VideoWidget *videoWidget);
         void registerFullScreenVideoWidget(QWidget *videoWidget);
         QString errorString() const;
-        QString title(bool allowSubstitute = true) const;
-        QString artist(bool allowSubstitute = true) const;
+        QString title(bool substitute = true) const;
+        QString artist(bool substitute = true) const;
         PlaylistModel* playlist() const;
         QAction* action(PlayerAction action) const;
         QVariantMap metaData() const;

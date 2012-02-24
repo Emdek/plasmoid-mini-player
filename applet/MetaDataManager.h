@@ -32,10 +32,11 @@
 namespace MiniPlayer
 {
 
+enum MetaDataKey { TitleKey = 1, ArtistKey = 2, AlbumKey = 4, DateKey = 8, GenreKey = 16, DescriptionKey = 32, TrackNumberKey = 64 };
+
 struct Track
 {
-    QString title;
-    QString artist;
+    QHash<MetaDataKey, QString> keys;
     qint64 duration;
 };
 
@@ -46,18 +47,16 @@ class MetaDataManager : public QObject
     public:
         static void createInstance(QObject *parent = NULL);
         static void resolveTracks(const KUrl::List &urls);
-        static void setTitle(const KUrl &url, const QString &title);
-        static void setArtist(const KUrl &url, const QString &artist);
         static void setDuration(const KUrl &url, qint64 duration);
+        static void setMetaData(const KUrl &url, MetaDataKey key, const QString &value);
         static void setMetaData(const KUrl &url, const Track &track);
         static void removeMetaData(const KUrl &url);
         static MetaDataManager* instance();
+        static KUrl::List tracks();
+        static QVariantMap metaData(const KUrl &url);
+        static QString metaData(const KUrl &url, MetaDataKey key, bool substitute = true);
         static QString timeToString(qint64 time);
         static QString urlToTitle(const KUrl &url);
-        static QVariantMap metaData(const KUrl &url);
-        static KUrl::List tracks();
-        static QString title(const KUrl &url, bool allowSubstitute = true);
-        static QString artist(const KUrl &url, bool allowSubstitute = true);
         static KIcon icon(const KUrl &url);
         static qint64 duration(const KUrl &url);
         static bool isAvailable(const KUrl &url, bool complete = false);
@@ -72,6 +71,7 @@ class MetaDataManager : public QObject
 
     private:
         Phonon::MediaObject *m_mediaObject;
+        QList<QPair<MetaDataKey, Phonon::MetaData> > m_keys;
         int m_resolveMedia;
         int m_attempts;
 
