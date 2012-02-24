@@ -563,6 +563,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         }
 
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
+        m_playlistUi.tabBar->setCurrentIndex(currentPlaylist());
 
         visiblePlaylistChanged(currentPlaylist());
         setSectionsOrder(m_sectionsOrder);
