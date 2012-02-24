@@ -4,15 +4,14 @@ Requirements:
 KDE4 >= 4.4
 
 Features:
-- basic player controls;
-- basic video settings;
 - multiple playlists support;
-- import support for PLS, M3U, XSPF and ASX playlist formats;
-- export support for PLS and M3U playlist formats;
-- D-BUS interface;
-- drag and drop support;
+- ability to import from PLS, M3U, XSPF and ASX playlist formats;
+- ability to export to PLS and M3U playlist formats;
 - streams support;
 - optical discs support;
+- D-BUS interface to control player;
+- basic video settings;
+- drag and drop support;
 - possibility to start playback of last used playlist on startup;
 - keyboard shortcuts:
  - pausing and playing (Space);
