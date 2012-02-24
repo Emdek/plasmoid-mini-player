@@ -122,8 +122,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 
                 job->start();
 
-                m_remotePlaylistsData[job] = QByteArray();
-                m_remotePlaylistsType[job] = type;
+                m_remotePlaylists[job] = qMakePair(type, QByteArray());
 
                 continue;
             }
@@ -186,24 +185,24 @@ void PlaylistReader::importPlaylist(const KUrl &url, PlaylistFormat type)
 
 void PlaylistReader::importData(KIO::Job *job, const QByteArray &data)
 {
-    m_remotePlaylistsData[job].append(data);
+    m_remotePlaylists[job].second.append(data);
 }
 
 void PlaylistReader::importResult(KJob *job)
 {
-    if (m_remotePlaylistsType[job] == XspfFormat)
+    if (m_remotePlaylists[job].first == XspfFormat)
     {
-        readXspf(m_remotePlaylistsData[job]);
+        readXspf(m_remotePlaylists[job].second);
     }
-    else if (m_remotePlaylistsType[job] == AsxFormat)
+    else if (m_remotePlaylists[job].first == AsxFormat)
     {
-        readAsx(m_remotePlaylistsData[job]);
+        readAsx(m_remotePlaylists[job].second);
     }
     else
     {
-        QTextStream stream(m_remotePlaylistsData[job]);
+        QTextStream stream(m_remotePlaylists[job].second);
 
-        if (m_remotePlaylistsType[job] == PlsFormat)
+        if (m_remotePlaylists[job].first == PlsFormat)
         {
             readPls(stream);
         }
@@ -213,8 +212,7 @@ void PlaylistReader::importResult(KJob *job)
         }
     }
 
-    m_remotePlaylistsData.remove(job);
-    m_remotePlaylistsType.remove(job);
+    m_remotePlaylists.remove(job);
 }
 
 void PlaylistReader::readM3u(QTextStream &stream)
