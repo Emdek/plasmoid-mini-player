@@ -847,32 +847,45 @@ QString Player::errorString() const
     return m_mediaObject->errorString();
 }
 
-QString Player::title(bool substitute) const
+QString Player::metaData(MetaDataKey key, bool substitute) const
 {
-    const QStringList titles = m_mediaObject->metaData(Phonon::TitleMetaData);
+    QStringList values;
 
-    if (titles.isEmpty() || titles.first().isEmpty())
+    switch (key)
     {
-        return (substitute?MetaDataManager::urlToTitle(KUrl(m_mediaObject->currentSource().url())):QString());
-    }
-    else
-    {
-        return titles.first();
-    }
-}
+        case TitleKey:
+            values = m_mediaObject->metaData(Phonon::TitleMetaData);
 
-QString Player::artist(bool substitute) const
-{
-    const QStringList artists = m_mediaObject->metaData(Phonon::ArtistMetaData);
+            return (values.isEmpty()?(substitute?MetaDataManager::urlToTitle(url()):QString()):values.first());
+        case ArtistKey:
+            values = m_mediaObject->metaData(Phonon::ArtistMetaData);
 
-    if (artists.isEmpty() || artists.first().isEmpty())
-    {
-        return (substitute?i18n("Unknown artist"):QString());
+            return (values.isEmpty()?(substitute?i18n("Unknown artist"):QString()):values.first());
+        case AlbumKey:
+            values = m_mediaObject->metaData(Phonon::AlbumMetaData);
+
+            return (values.isEmpty()?(substitute?i18n("Unknown album"):QString()):values.first());
+        case DateKey:
+            values = m_mediaObject->metaData(Phonon::DateMetaData);
+
+            return (values.isEmpty()?QString():values.first());
+        case GenreKey:
+            values = m_mediaObject->metaData(Phonon::GenreMetaData);
+
+            return (values.isEmpty()?(substitute?i18n("Unknown genre"):QString()):values.first());
+        case DescriptionKey:
+            values = m_mediaObject->metaData(Phonon::DescriptionMetaData);
+
+            return (values.isEmpty()?QString():values.first());
+        case TrackNumberKey:
+            values = m_mediaObject->metaData(Phonon::TracknumberMetaData);
+
+            return (values.isEmpty()?QString():values.first());
+        default:
+            return QString();
     }
-    else
-    {
-        return artists.first();
-    }
+
+    return QString();
 }
 
 PlaylistModel* Player::playlist() const

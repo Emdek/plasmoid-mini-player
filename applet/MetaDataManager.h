@@ -29,10 +29,10 @@
 
 #include <Phonon/MediaObject>
 
+#include "Constants.h"
+
 namespace MiniPlayer
 {
-
-enum MetaDataKey { TitleKey = 1, ArtistKey = 2, AlbumKey = 4, DateKey = 8, GenreKey = 16, DescriptionKey = 32, TrackNumberKey = 64 };
 
 struct Track
 {

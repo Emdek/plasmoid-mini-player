@@ -648,8 +648,8 @@ void Applet::metaDataChanged()
     if (!MetaDataManager::isAvailable(m_player->url()), true)
     {
         Track track;
-        track.keys[TitleKey] = m_player->title(false);
-        track.keys[ArtistKey] = m_player->artist(false);
+        track.keys[TitleKey] = m_player->metaData(TitleKey, false);
+        track.keys[ArtistKey] = m_player->metaData(ArtistKey, false);
         track.duration = m_player->duration();
 
         MetaDataManager::setMetaData(m_player->url(), track);
@@ -662,7 +662,7 @@ void Applet::metaDataChanged()
         QTimer::singleShot(500, this, SLOT(showToolTip()));
     }
 
-    emit titleChanged(m_player->title());
+    emit titleChanged(m_player->metaData(TitleKey));
 }
 
 void Applet::openUrl()
@@ -783,7 +783,7 @@ void Applet::toggleFullScreen()
         m_fullScreenUi.muteButton->setDefaultAction(m_player->action(MuteAction));
         m_fullScreenUi.volumeSlider->setPlayer(m_player);
         m_fullScreenUi.fullScreenButton->setDefaultAction(m_player->action(FullScreenAction));
-        m_fullScreenUi.titleLabel->setText(m_player->title());
+        m_fullScreenUi.titleLabel->setText(m_player->metaData(TitleKey));
 
         m_player->registerFullScreenVideoWidget(m_fullScreenUi.videoWidget);
 
@@ -812,9 +812,9 @@ void Applet::toggleFullScreen()
         m_player->setFullScreen(true);
 
         m_fullScreenWidget->showFullScreen();
-        m_fullScreenWidget->setWindowTitle(m_player->title());
+        m_fullScreenWidget->setWindowTitle(m_player->metaData(TitleKey));
 
-        m_fullScreenUi.titleLabel->setText(m_player->title());
+        m_fullScreenUi.titleLabel->setText(m_player->metaData(TitleKey));
         m_fullScreenUi.titleLabel->hide();
         m_fullScreenUi.controlsWidget->hide();
 
@@ -883,7 +883,7 @@ void Applet::updateToolTip()
 
     if (m_player->state() != StoppedState)
     {
-        data.setMainText(QString("%1 - %2").arg(m_player->artist()).arg(m_player->title()));
+        data.setMainText(QString("%1 - %2").arg(m_player->metaData(ArtistKey)).arg(m_player->metaData(TitleKey)));
         data.setSubText((m_player->duration() > 0)?i18n("Position: %1 / %2", MetaDataManager::timeToString(m_player->position()), MetaDataManager::timeToString(m_player->duration())):"");
         data.setImage(MetaDataManager::icon(m_player->url()).pixmap(IconSize(KIconLoader::Desktop)));
         data.setAutohide(true);

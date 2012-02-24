@@ -597,7 +597,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.seekSlider->setPlayer(m_player);
         m_playlistUi.muteButton->setDefaultAction(m_player->action(MuteAction));
         m_playlistUi.volumeSlider->setPlayer(m_player);
-        m_playlistUi.titleLabel->setText(m_player->title());
+        m_playlistUi.titleLabel->setText(m_player->metaData(TitleKey));
         m_playlistUi.splitter->setStretchFactor(0, 1);
         m_playlistUi.splitter->setStretchFactor(1, 10);
         m_playlistUi.splitter->setStretchFactor(2, 1);
