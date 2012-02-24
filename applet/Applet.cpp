@@ -928,7 +928,7 @@ void Applet::showMenu(const QPoint &position)
     {
         menu.addSeparator();
 
-        QAction *lockAction = menu.addAction(KIcon("system-lock-screen"), i18n("Lock widgets"));
+        QAction *lockAction = menu.addAction(KIcon("object-locked"), i18n("Lock widgets"));
         lockAction->setCheckable(true);
         lockAction->setChecked(m_playlistManager->isSplitterLocked());
 
