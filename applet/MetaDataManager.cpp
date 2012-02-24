@@ -28,6 +28,7 @@
 namespace MiniPlayer
 {
 
+QQueue<QPair<KUrl, int> > MetaDataManager::m_queue;
 QHash<KUrl, Track> MetaDataManager::m_tracks;
 MetaDataManager* MetaDataManager::m_instance = NULL;
 
@@ -195,6 +196,21 @@ void MetaDataManager::setMetaData(const KUrl &url, const Track &track, bool noti
     {
         emit urlChanged(url);
     }
+}
+
+void MetaDataManager::removeMetaData(const KUrl &url)
+{
+    QList<QPair<KUrl, int> >::iterator i;
+
+    for (i = m_queue.begin(); i != m_queue.end(); ++i)
+    {
+        if ((*i).first == url)
+        {
+            m_queue.removeAll(*i);
+        }
+    }
+
+    m_tracks.remove(url);
 }
 
 MetaDataManager* MetaDataManager::instance()

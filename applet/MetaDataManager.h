@@ -50,6 +50,7 @@ class MetaDataManager : public QObject
         static void setArtist(const KUrl &url, const QString &artist);
         static void setDuration(const KUrl &url, qint64 duration);
         static void setMetaData(const KUrl &url, const Track &track);
+        static void removeMetaData(const KUrl &url);
         static MetaDataManager* instance();
         static QString timeToString(qint64 time);
         static QString urlToTitle(const KUrl &url);
@@ -71,10 +72,10 @@ class MetaDataManager : public QObject
 
     private:
         Phonon::MediaObject *m_mediaObject;
-        QQueue<QPair<KUrl, int> > m_queue;
         int m_resolveMedia;
         int m_attempts;
 
+        static QQueue<QPair<KUrl, int> > m_queue;
         static QHash<KUrl, Track> m_tracks;
         static MetaDataManager *m_instance;
 
