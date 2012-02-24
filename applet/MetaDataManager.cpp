@@ -220,34 +220,18 @@ KUrl::List MetaDataManager::tracks()
 
 QVariantMap MetaDataManager::metaData(const KUrl &url)
 {
-    Phonon::MediaObject mediaObject;
-    mediaObject.setCurrentSource(Phonon::MediaSource(url));
+    QVariantMap trackData;
+    trackData["title"] = metaData(url, TitleKey, false);
+    trackData["artist"] = metaData(url, ArtistKey, false);
+    trackData["album"] = metaData(url, AlbumKey, false);
+    trackData["date"] = metaData(url, DateKey, false);
+    trackData["genre"] = metaData(url, GenreKey, false);
+    trackData["description"] = metaData(url, DescriptionKey, false);
+    trackData["tracknumber"] = metaData(url, TrackNumberKey, false);
+    trackData["time"] = duration(url);
+    trackData["location"] = url.pathOrUrl();
 
-    QVariantMap metaData;
-    QMultiMap<QString, QString> stringMap = mediaObject.metaData();
-    QMultiMap<QString, QString>::const_iterator i = stringMap.constBegin();
-
-    while (i != stringMap.constEnd())
-    {
-        bool number = false;
-        int value = i.value().toInt(&number);
-
-        if (number && (i.key().toLower() != "tracknumber"))
-        {
-            metaData[i.key().toLower()] = value;
-        }
-        else
-        {
-            metaData[i.key().toLower()] = QVariant(i.value());
-        }
-
-        ++i;
-    }
-
-    metaData["time"] = ((duration(url) > 0)?duration(url):((mediaObject.totalTime() > 0)?(mediaObject.totalTime() / 1000):-1));
-    metaData["location"] = url.pathOrUrl();
-
-    return metaData;
+    return trackData;
 }
 
 QString MetaDataManager::metaData(const KUrl &url, MetaDataKey key, bool substitute)
