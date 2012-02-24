@@ -317,6 +317,7 @@ void Applet::configChanged()
 
             m_playlistManager->playlists().at(playlist)->setCurrentTrack(playlistConfiguration.readEntry("currentTrack", 0));
             m_playlistManager->playlists().at(playlist)->setPlaybackMode(static_cast<PlaybackMode>(playlistConfiguration.readEntry("playbackMode", static_cast<int>(LoopPlaylistMode))));
+            m_playlistManager->setCurrentPlaylist(i);
 
             if (playlistConfiguration.readEntry("isCurrent", false))
             {
