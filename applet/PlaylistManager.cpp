@@ -689,6 +689,7 @@ void PlaylistManager::setSplitterLocked(bool locked)
     {
         if (m_playlistUi.splitter->handle(i))
         {
+            m_playlistUi.splitter->handle(i)->setCursor(locked?Qt::ArrowCursor:Qt::SplitVCursor);
             m_playlistUi.splitter->handle(i)->setEnabled(!locked);
             m_playlistUi.splitter->handle(i)->setVisible(!locked);
         }
