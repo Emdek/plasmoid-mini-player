@@ -154,51 +154,39 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
         return;
     }
 
-    QMultiMap<QString, KUrl> urlMap;
-    QMultiMap<QString, KUrl> titleMap;
-    QMultiMap<QString, KUrl> artistMap;
+    QMultiMap<QString, KUrl> keyMap;
     QMultiMap<qint64, KUrl> durationMap;
     KUrl::List tracks;
     KUrl url = m_tracks.value(m_currentTrack);
 
-    switch (column)
+    if (column == 8)
     {
-        case 1:
-            for (int i = 0; i < m_tracks.count(); ++i)
-            {
-                titleMap.insert(MetaDataManager::metaData(m_tracks.at(i), TitleKey), m_tracks.at(i));
-            }
+        for (int i = 0; i < m_tracks.count(); ++i)
+        {
+            durationMap.insert(MetaDataManager::duration(m_tracks.at(i)), m_tracks.at(i));
+        }
 
-            tracks = titleMap.values();
+        tracks = durationMap.values();
+    }
+    else if (column > 0 && column << 8)
+    {
+        const MetaDataKey key = translateColumn(column);
 
-            break;
-        case 2:
-            for (int i = 0; i < m_tracks.count(); ++i)
-            {
-                artistMap.insert(MetaDataManager::metaData(m_tracks.at(i), ArtistKey), m_tracks.at(i));
-            }
+        for (int i = 0; i < m_tracks.count(); ++i)
+        {
+            keyMap.insert(MetaDataManager::metaData(m_tracks.at(i), key), m_tracks.at(i));
+        }
 
-            tracks = artistMap.values();
+        tracks = keyMap.values();
+    }
+    else
+    {
+        for (int i = 0; i < m_tracks.count(); ++i)
+        {
+            keyMap.insert(m_tracks.at(i).pathOrUrl(), m_tracks.at(i));
+        }
 
-            break;
-        case 3:
-            for (int i = 0; i < m_tracks.count(); ++i)
-            {
-                durationMap.insert(MetaDataManager::duration(m_tracks.at(i)), m_tracks.at(i));
-            }
-
-            tracks = durationMap.values();
-
-            break;
-        default:
-            for (int i = 0; i < m_tracks.count(); ++i)
-            {
-                urlMap.insert(m_tracks.at(i).pathOrUrl(), m_tracks.at(i));
-            }
-
-            tracks = urlMap.values();
-
-            break;
+        tracks = keyMap.values();
     }
 
     if (order == Qt::AscendingOrder)
