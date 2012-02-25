@@ -354,9 +354,9 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
     switch (section)
     {
         case 1:
-            return i18n("Title");
-        case 2:
             return i18n("Artist");
+        case 2:
+            return i18n("Title");
         case 3:
             return i18n("Album");
         case 4:
@@ -527,9 +527,9 @@ MetaDataKey PlaylistModel::translateColumn(int column) const
     switch (column)
     {
         case 1:
-            return TitleKey;
-        case 2:
             return ArtistKey;
+        case 2:
+            return TitleKey;
         case 3:
             return AlbumKey;
         case 4:

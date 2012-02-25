@@ -879,8 +879,8 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             {
                 KMenu menu;
                 QMenu *editMenu = menu.addMenu(KIcon("document-edit"), i18n("Edit"));
-                editMenu->addAction(i18n("Edit title..."))->setData(1);
-                editMenu->addAction(i18n("Edit artist..."))->setData(2);
+                editMenu->addAction(i18n("Edit artist..."))->setData(1);
+                editMenu->addAction(i18n("Edit title..."))->setData(2);
                 editMenu->addAction(i18n("Edit album..."))->setData(3);
                 editMenu->addAction(i18n("Edit track number..."))->setData(4);
                 editMenu->addAction(i18n("Edit genre..."))->setData(5);
