@@ -90,8 +90,7 @@ class PlaylistManager : public QObject
         void moveDownTrack();
         void removeTrack();
         void playTrack(QModelIndex index = QModelIndex());
-        void editTrackTitle();
-        void editTrackArtist();
+        void editTrack(QAction *action);
         void copyTrackUrl();
         void updateActions();
         void updateTheme();

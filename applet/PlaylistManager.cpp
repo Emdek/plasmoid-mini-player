@@ -475,18 +475,11 @@ void PlaylistManager::playTrack(QModelIndex index)
     }
 }
 
-void PlaylistManager::editTrackTitle()
+void PlaylistManager::editTrack(QAction *action)
 {
     m_isEdited = true;
 
-    m_playlistUi.playlistView->edit(m_playlistUi.playlistView->model()->index(m_playlistUi.playlistView->currentIndex().row(), 1));
-}
-
-void PlaylistManager::editTrackArtist()
-{
-    m_isEdited = true;
-
-    m_playlistUi.playlistView->edit(m_playlistUi.playlistView->model()->index(m_playlistUi.playlistView->currentIndex().row(), 2));
+    m_playlistUi.playlistView->edit(m_playlistUi.playlistView->model()->index(m_playlistUi.playlistView->currentIndex().row(), action->data().toInt()));
 }
 
 void PlaylistManager::copyTrackUrl()
@@ -886,8 +879,15 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             {
                 KMenu menu;
                 QMenu *editMenu = menu.addMenu(KIcon("document-edit"), i18n("Edit"));
-                editMenu->addAction(i18n("Edit title..."), this, SLOT(editTrackTitle()));
-                editMenu->addAction(i18n("Edit artist..."), this, SLOT(editTrackArtist()));
+                editMenu->addAction(i18n("Edit title..."))->setData(1);
+                editMenu->addAction(i18n("Edit artist..."))->setData(2);
+                editMenu->addAction(i18n("Edit album..."))->setData(3);
+                editMenu->addAction(i18n("Edit track number..."))->setData(4);
+                editMenu->addAction(i18n("Edit genre..."))->setData(5);
+                editMenu->addAction(i18n("Edit description..."))->setData(6);
+                editMenu->addAction(i18n("Edit date..."))->setData(7);
+
+                connect(editMenu, SIGNAL(triggered(QAction*)), this, SLOT(editTrack(QAction*)));
 
                 menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
                 menu.addSeparator();
