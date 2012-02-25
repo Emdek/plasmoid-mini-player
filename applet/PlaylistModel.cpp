@@ -321,11 +321,26 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     {
         switch (index.column())
         {
+            case 0:
+                if (role == Qt::EditRole)
+                {
+                    return url.pathOrUrl();
+                }
             case 1:
                 return MetaDataManager::metaData(url, TitleKey);
             case 2:
                 return MetaDataManager::metaData(url, ArtistKey);
             case 3:
+                return MetaDataManager::metaData(url, AlbumKey);
+            case 4:
+                return MetaDataManager::metaData(url, TrackNumberKey);
+            case 5:
+                return MetaDataManager::metaData(url, GenreKey);
+            case 6:
+                return MetaDataManager::metaData(url, DescriptionKey);
+            case 7:
+                return MetaDataManager::metaData(url, DateKey);
+            case 8:
                 return MetaDataManager::timeToString(MetaDataManager::duration(url));
         }
     }
@@ -355,6 +370,16 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
         case 2:
             return i18n("Artist");
         case 3:
+            return i18n("Album");
+        case 4:
+            return i18n("Track Number");
+        case 5:
+            return i18n("Genre");
+        case 6:
+            return i18n("Description");
+        case 7:
+            return i18n("Date");
+        case 8:
             return i18n("Length");
     }
 
@@ -501,7 +526,7 @@ int PlaylistModel::trackCount() const
 
 int PlaylistModel::columnCount(const QModelIndex &index) const
 {
-    return (index.isValid()?0:4);
+    return (index.isValid()?0:9);
 }
 
 int PlaylistModel::rowCount(const QModelIndex &index) const
