@@ -303,8 +303,13 @@ void Applet::configChanged()
         {
             KConfigGroup trackConfiguration = metaDataConfiguration.group(tracks.at(i));
             Track track;
-            track.keys[TitleKey] = trackConfiguration.readEntry("title", QString());
             track.keys[ArtistKey] = trackConfiguration.readEntry("artist", QString());
+            track.keys[TitleKey] = trackConfiguration.readEntry("title", QString());
+            track.keys[AlbumKey] = trackConfiguration.readEntry("album", QString());
+            track.keys[TrackNumberKey] = trackConfiguration.readEntry("trackNumber", QString());
+            track.keys[GenreKey] = trackConfiguration.readEntry("genre", QString());
+            track.keys[DescriptionKey] = trackConfiguration.readEntry("description", QString());
+            track.keys[DateKey] = trackConfiguration.readEntry("date", QString());
             track.duration = trackConfiguration.readEntry("duration", -1);
 
             MetaDataManager::setMetaData(KUrl(trackConfiguration.readEntry("url", QString())), track);
@@ -428,8 +433,13 @@ void Applet::configSave()
 
         KConfigGroup trackConfiguration = metaDataConfiguration.group(QString::number(i));
         trackConfiguration.writeEntry("url", tracks.at(i));
-        trackConfiguration.writeEntry("title", MetaDataManager::metaData(tracks.at(i), TitleKey, false));
         trackConfiguration.writeEntry("artist", MetaDataManager::metaData(tracks.at(i), ArtistKey, false));
+        trackConfiguration.writeEntry("title", MetaDataManager::metaData(tracks.at(i), TitleKey, false));
+        trackConfiguration.writeEntry("album", MetaDataManager::metaData(tracks.at(i), AlbumKey, false));
+        trackConfiguration.writeEntry("trackNumber", MetaDataManager::metaData(tracks.at(i), TrackNumberKey, false));
+        trackConfiguration.writeEntry("genre", MetaDataManager::metaData(tracks.at(i), GenreKey, false));
+        trackConfiguration.writeEntry("description", MetaDataManager::metaData(tracks.at(i), DescriptionKey, false));
+        trackConfiguration.writeEntry("date", MetaDataManager::metaData(tracks.at(i), DateKey, false));
         trackConfiguration.writeEntry("duration", MetaDataManager::duration(tracks.at(i)));
     }
 
@@ -648,8 +658,13 @@ void Applet::metaDataChanged()
     if (!MetaDataManager::isAvailable(m_player->url()), true)
     {
         Track track;
-        track.keys[TitleKey] = m_player->metaData(TitleKey, false);
         track.keys[ArtistKey] = m_player->metaData(ArtistKey, false);
+        track.keys[TitleKey] = m_player->metaData(TitleKey, false);
+        track.keys[AlbumKey] = m_player->metaData(AlbumKey, false);
+        track.keys[TrackNumberKey] = m_player->metaData(TrackNumberKey, false);
+        track.keys[GenreKey] = m_player->metaData(GenreKey, false);
+        track.keys[DescriptionKey] = m_player->metaData(DescriptionKey, false);
+        track.keys[DateKey] = m_player->metaData(DateKey, false);
         track.duration = m_player->duration();
 
         MetaDataManager::setMetaData(m_player->url(), track);
