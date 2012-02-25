@@ -962,7 +962,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
         {
             const int index = m_playlistUi.playlistView->horizontalHeader()->visualIndex(i);
 
-            menu.addAction((m_sectionsVisibility.contains(i)?i18n("Hide section \"%1\""):i18n("Show section \"%1\"")).arg(m_playlistUi.playlistView->model()->headerData(index, Qt::Horizontal).toString(), Qt::EditRole))->setData(index);
+            menu.addAction((m_sectionsVisibility.contains(i)?i18n("Hide column \"%1\""):i18n("Show column \"%1\"")).arg(m_playlistUi.playlistView->model()->headerData(index, Qt::Horizontal).toString(), Qt::EditRole))->setData(index);
         }
 
         connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(toggleSectionVisibility(QAction*)));
