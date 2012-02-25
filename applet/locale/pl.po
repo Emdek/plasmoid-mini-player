@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
 "POT-Creation-Date: 2012-02-25 19:19+0100\n"
-"PO-Revision-Date: 2012-02-25 19:19+0100\n"
+"PO-Revision-Date: 2012-02-25 19:29+0100\n"
 "Last-Translator: Michał D. aka Emdek <emdeck@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -504,11 +504,11 @@ msgstr "Usuń"
 
 #: PlaylistManager.cpp:965
 msgid "Hide column \"%1\""
-msgstr "Pokaż kolumnę \"%1\""
+msgstr "Ukryj kolumnę \"%1\""
 
 #: PlaylistManager.cpp:965
 msgid "Show column \"%1\""
-msgstr "Ukryj kolumnę \"%1\""
+msgstr "Pokaż kolumnę \"%1\""
 
 #: PlaylistManager.cpp:999
 msgid "Rename playlist..."
