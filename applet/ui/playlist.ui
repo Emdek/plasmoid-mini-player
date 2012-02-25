@@ -333,16 +333,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="editButton">
-         <property name="toolTip">
-          <string>Edit track title</string>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="Line" name="line1">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

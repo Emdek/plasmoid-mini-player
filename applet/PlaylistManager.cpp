@@ -501,7 +501,6 @@ void PlaylistManager::updateActions()
 
     m_playlistUi.addButton->setEnabled(!m_playlists[visiblePlaylist()]->isReadOnly());
     m_playlistUi.removeButton->setEnabled(!selectedIndexes.isEmpty());
-    m_playlistUi.editButton->setEnabled(!selectedIndexes.isEmpty() && !m_playlists[visiblePlaylist()]->isReadOnly());
     m_playlistUi.moveUpButton->setEnabled((m_playlists[visiblePlaylist()]->trackCount() > 1) && !selectedIndexes.isEmpty() && selectedIndexes.first().row() != 0);
     m_playlistUi.moveDownButton->setEnabled((m_playlists[visiblePlaylist()]->trackCount() > 1) && !selectedIndexes.isEmpty() && selectedIndexes.last().row() != (m_playlists[visiblePlaylist()]->trackCount() - 1));
     m_playlistUi.clearButton->setEnabled(hasTracks && !m_playlists[visiblePlaylist()]->isReadOnly());
@@ -576,7 +575,6 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.addButton->setIcon(KIcon("list-add"));
         m_playlistUi.addButton->setDelayedMenu(m_player->action(OpenMenuAction)->menu());
         m_playlistUi.removeButton->setIcon(KIcon("list-remove"));
-        m_playlistUi.editButton->setIcon(KIcon("document-edit"));
         m_playlistUi.moveUpButton->setIcon(KIcon("arrow-up"));
         m_playlistUi.moveDownButton->setIcon(KIcon("arrow-down"));
         m_playlistUi.newButton->setIcon(KIcon("document-new"));
@@ -632,7 +630,6 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.closeButton, SIGNAL(clicked()), m_dialog, SLOT(close()));
         connect(m_playlistUi.addButton, SIGNAL(clicked()), m_player->action(OpenFileAction), SLOT(trigger()));
         connect(m_playlistUi.removeButton, SIGNAL(clicked()), this, SLOT(removeTrack()));
-        connect(m_playlistUi.editButton, SIGNAL(clicked()), this, SLOT(editTrackTitle()));
         connect(m_playlistUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveUpTrack()));
         connect(m_playlistUi.moveDownButton, SIGNAL(clicked()), this, SLOT(moveDownTrack()));
         connect(m_playlistUi.newButton, SIGNAL(clicked()), this, SLOT(newPlaylist()));
