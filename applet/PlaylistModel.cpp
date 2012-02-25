@@ -319,29 +319,17 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     }
     else if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-        switch (index.column())
+        if (index.column() == 0)
         {
-            case 0:
-                if (role == Qt::EditRole)
-                {
-                    return url.pathOrUrl();
-                }
-            case 1:
-                return MetaDataManager::metaData(url, TitleKey);
-            case 2:
-                return MetaDataManager::metaData(url, ArtistKey);
-            case 3:
-                return MetaDataManager::metaData(url, AlbumKey);
-            case 4:
-                return MetaDataManager::metaData(url, TrackNumberKey);
-            case 5:
-                return MetaDataManager::metaData(url, GenreKey);
-            case 6:
-                return MetaDataManager::metaData(url, DescriptionKey);
-            case 7:
-                return MetaDataManager::metaData(url, DateKey);
-            case 8:
-                return MetaDataManager::timeToString(MetaDataManager::duration(url));
+            return url.pathOrUrl();
+        }
+        else if (index.column() == 8)
+        {
+            return MetaDataManager::timeToString(MetaDataManager::duration(url));
+        }
+        else
+        {
+            return MetaDataManager::metaData(url, translateColumn(index.column()));
         }
     }
     else if (role == Qt::ToolTipRole)
@@ -410,7 +398,7 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const
 
     if (index.isValid())
     {
-        if (index.column() == 1 || index.column() == 2)
+        if (index.column() > 0 && index.column() < 8)
         {
             return (defaultFlags | Qt::ItemIsDragEnabled | Qt::ItemIsEditable);
         }
@@ -534,25 +522,39 @@ int PlaylistModel::rowCount(const QModelIndex &index) const
     return (index.isValid()?0:m_tracks.count());
 }
 
+MetaDataKey PlaylistModel::translateColumn(int column) const
+{
+    switch (column)
+    {
+        case 1:
+            return TitleKey;
+        case 2:
+            return ArtistKey;
+        case 3:
+            return AlbumKey;
+        case 4:
+            return TrackNumberKey;
+        case 5:
+            return GenreKey;
+        case 6:
+            return DescriptionKey;
+        case 7:
+            return DateKey;
+        default:
+            return InvalidKey;
+    }
+
+    return InvalidKey;
+}
+
 bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() || value.toString().isEmpty() || index.row() >= m_tracks.count())
+    if (!index.isValid() || index.row() >= m_tracks.count() || role != Qt::EditRole || index.column() < 1 || index.column() > 7)
     {
         return false;
     }
 
-    if (role == Qt::EditRole && index.column() == 1)
-    {
-        MetaDataManager::setMetaData(m_tracks.at(index.row()), TitleKey, value.toString());
-    }
-    else if (role == Qt::EditRole && index.column() == 2)
-    {
-        MetaDataManager::setMetaData(m_tracks.at(index.row()), ArtistKey, value.toString());
-    }
-    else
-    {
-        return false;
-    }
+    MetaDataManager::setMetaData(m_tracks.at(index.row()), translateColumn(index.column()), value.toString());
 
     emit needsSaving();
 

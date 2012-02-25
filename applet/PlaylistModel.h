@@ -83,6 +83,7 @@ class PlaylistModel : public QAbstractTableModel
     protected:
         int randomTrack() const;
         int findTrack(const KUrl &url) const;
+        MetaDataKey translateColumn(int column) const;
 
     protected slots:
         void processedTracks(const KUrl::List &tracks, int position, PlayerReaction reaction = NoReaction);
