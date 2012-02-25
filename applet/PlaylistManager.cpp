@@ -56,7 +56,8 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_splitterLocked(true),
     m_isEdited(false)
 {
-    m_sectionsOrder << 0 << 1 << 2 << 3;
+    m_sectionsOrder << 0 << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8;
+    m_sectionsVisibility << 0 << 1 << 2 << 8;
 
     m_videoWidget->hide();
 
@@ -606,6 +607,7 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         visiblePlaylistChanged(currentPlaylist());
         setSectionsOrder(m_sectionsOrder);
+        setSectionsVisibility(m_sectionsVisibility);
         setSplitterLocked(m_splitterLocked);
         setSplitterState(m_splitterState);
         setHeaderState(m_headerState);
@@ -710,6 +712,23 @@ void PlaylistManager::setSectionsOrder(const QList<int> &order)
     }
 }
 
+void PlaylistManager::setSectionsVisibility(const QList<int> &visibility)
+{
+    m_sectionsVisibility = visibility;
+
+    emit needsSaving();
+
+    if (!m_dialog)
+    {
+        return;
+    }
+
+    for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
+    {
+        m_playlistUi.playlistView->horizontalHeader()->setSectionHidden(i, !m_sectionsVisibility.contains(i));
+    }
+}
+
 void PlaylistManager::setSplitterLocked(bool locked)
 {
     m_splitterLocked = locked;
@@ -769,6 +788,11 @@ QList<PlaylistModel*> PlaylistManager::playlists() const
 QList<int> PlaylistManager::sectionsOrder() const
 {
     return m_sectionsOrder;
+}
+
+QList<int> PlaylistManager::sectionsVisibility() const
+{
+    return m_sectionsVisibility;
 }
 
 QSize PlaylistManager::dialogSize() const
