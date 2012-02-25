@@ -271,10 +271,6 @@ QString MetaDataManager::metaData(const KUrl &url, MetaDataKey key, bool substit
             return urlToTitle(url);
         case ArtistKey:
             return i18n("Unknown artist");
-        case AlbumKey:
-            return i18n("Unknown album");
-        case GenreKey:
-            return i18n("Unknown genre");
         default:
             return QString();
     }

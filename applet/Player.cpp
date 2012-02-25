@@ -864,7 +864,7 @@ QString Player::metaData(MetaDataKey key, bool substitute) const
         case AlbumKey:
             values = m_mediaObject->metaData(Phonon::AlbumMetaData);
 
-            return (values.isEmpty()?(substitute?i18n("Unknown album"):QString()):values.first());
+            return (values.isEmpty()?QString():values.first());
         case DateKey:
             values = m_mediaObject->metaData(Phonon::DateMetaData);
 
@@ -872,7 +872,7 @@ QString Player::metaData(MetaDataKey key, bool substitute) const
         case GenreKey:
             values = m_mediaObject->metaData(Phonon::GenreMetaData);
 
-            return (values.isEmpty()?(substitute?i18n("Unknown genre"):QString()):values.first());
+            return (values.isEmpty()?QString():values.first());
         case DescriptionKey:
             values = m_mediaObject->metaData(Phonon::DescriptionMetaData);
 
