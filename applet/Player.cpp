@@ -900,31 +900,18 @@ QAction* Player::action(PlayerAction action) const
 
 QVariantMap Player::metaData() const
 {
-    QVariantMap metaData;
-    QMultiMap<QString, QString> stringMap = m_mediaObject->metaData();
-    QMultiMap<QString, QString>::const_iterator i = stringMap.constBegin();
+    QVariantMap trackData;
+    trackData["title"] = metaData(TitleKey, false);
+    trackData["artist"] = metaData(ArtistKey, false);
+    trackData["album"] = metaData(AlbumKey, false);
+    trackData["date"] = metaData(DateKey, false);
+    trackData["genre"] = metaData(GenreKey, false);
+    trackData["description"] = metaData(DescriptionKey, false);
+    trackData["tracknumber"] = metaData(TrackNumberKey, false);
+    trackData["time"] = duration();
+    trackData["location"] = url().pathOrUrl();
 
-    while (i != stringMap.constEnd())
-    {
-        bool number = false;
-        int value = i.value().toInt(&number);
-
-        if (number && (i.key().toLower() != "tracknumber"))
-        {
-            metaData[i.key().toLower()] = value;
-        }
-        else
-        {
-            metaData[i.key().toLower()] = QVariant(i.value());
-        }
-
-        ++i;
-    }
-
-    metaData["time"] = ((duration() > 0)?duration():MetaDataManager::duration(url()));
-    metaData["location"] = url().pathOrUrl();
-
-    return metaData;
+    return trackData;
 }
 
 KUrl Player::url() const
