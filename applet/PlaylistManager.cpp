@@ -158,6 +158,23 @@ void PlaylistManager::playbackModeChanged(QAction *action)
     m_playlists[visiblePlaylist()]->setPlaybackMode(static_cast<PlaybackMode>(action->data().toInt()));
 }
 
+void PlaylistManager::toggleSectionVisibility(QAction *action)
+{
+    QList<int> visibility;
+
+    m_playlistUi.playlistView->horizontalHeader()->setSectionHidden(action->data().toInt(), !m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(action->data().toInt()));
+
+    for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
+    {
+        if (!m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(i))
+        {
+            visibility.append(i);
+        }
+    }
+
+    setSectionsVisibility(visibility);
+}
+
 void PlaylistManager::openDisc(QAction *action)
 {
     const QString udi = action->data().toString();
@@ -572,6 +589,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.graphicsView->scene()->addItem(m_videoWidget);
         m_playlistUi.graphicsView->installEventFilter(this);
         m_playlistUi.playlistView->installEventFilter(this);
+        m_playlistUi.playlistView->horizontalHeader()->installEventFilter(this);
         m_playlistUi.closeButton->setIcon(KIcon("window-close"));
         m_playlistUi.addButton->setIcon(KIcon("list-add"));
         m_playlistUi.addButton->setDelayedMenu(m_player->action(OpenMenuAction)->menu());
@@ -930,6 +948,22 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
                 return true;
             }
         }
+    }
+    else if (object == m_playlistUi.playlistView->horizontalHeader() && event->type() == QEvent::ContextMenu)
+    {
+        KMenu menu;
+
+        for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
+        {
+            const int index = m_playlistUi.playlistView->horizontalHeader()->visualIndex(i);
+            menu.addAction((m_sectionsVisibility.contains(i)?i18n("Hide section \"%1\""):i18n("Show section \"%1\"")).arg(m_playlistUi.playlistView->model()->headerData(index, Qt::Horizontal).toString(), Qt::EditRole))->setData(index);
+        }
+
+        connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(toggleSectionVisibility(QAction*)));
+
+        menu.exec(QCursor::pos());
+
+        return true;
     }
     else if (object == m_playlistUi.graphicsView)
     {

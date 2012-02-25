@@ -334,13 +334,15 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 
 QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
+    if (orientation != Qt::Horizontal || !(role == Qt::DisplayRole || role == Qt::EditRole))
     {
         return QVariant();
     }
 
     switch (section)
     {
+        case 0:
+            return ((role == Qt::DisplayRole)?i18n("File Type"):QString());
         case 1:
             return i18n("Artist");
         case 2:

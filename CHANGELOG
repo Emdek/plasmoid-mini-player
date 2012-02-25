@@ -1,5 +1,5 @@
 2.2 (25.02.2012):
-- allow to display more meta data in playlist;
+- allow to display more meta data in playlist (visible columns can be selected using context menu of header view);
 - improved initialization sequence;
 - remove track meta data after last occurrence is removed;
 - cache all basic meta data keys;
