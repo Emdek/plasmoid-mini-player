@@ -918,13 +918,18 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             {
                 KMenu menu;
                 QMenu *editMenu = menu.addMenu(KIcon("document-edit"), i18n("Edit"));
-                editMenu->addAction(i18n("Edit artist..."))->setData(1);
-                editMenu->addAction(i18n("Edit title..."))->setData(2);
-                editMenu->addAction(i18n("Edit album..."))->setData(3);
-                editMenu->addAction(i18n("Edit track number..."))->setData(4);
-                editMenu->addAction(i18n("Edit genre..."))->setData(5);
-                editMenu->addAction(i18n("Edit description..."))->setData(6);
-                editMenu->addAction(i18n("Edit date..."))->setData(7);
+
+                for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
+                {
+                    const int index = m_playlistUi.playlistView->horizontalHeader()->visualIndex(i);
+
+                    if (m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(index) || index < 1 || index > 7)
+                    {
+                        continue;
+                    }
+
+                    editMenu->addAction(i18n("Edit field \"%1\"...").arg(m_playlistUi.playlistView->model()->headerData(index, Qt::Horizontal).toString(), Qt::EditRole))->setData(index);
+                }
 
                 connect(editMenu, SIGNAL(triggered(QAction*)), this, SLOT(editTrack(QAction*)));
 
@@ -956,6 +961,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
         for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
         {
             const int index = m_playlistUi.playlistView->horizontalHeader()->visualIndex(i);
+
             menu.addAction((m_sectionsVisibility.contains(i)?i18n("Hide section \"%1\""):i18n("Show section \"%1\"")).arg(m_playlistUi.playlistView->model()->headerData(index, Qt::Horizontal).toString(), Qt::EditRole))->setData(index);
         }
 
