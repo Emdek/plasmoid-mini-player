@@ -694,10 +694,20 @@ void Player::playNext()
 
 void Player::setPlaylist(PlaylistModel *playlist)
 {
+    if (playlist == m_playlist)
+    {
+        return;
+    }
+
     if (m_playlist)
     {
         disconnect(m_playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
         disconnect(m_playlist, SIGNAL(currentTrackChanged(int,PlayerReaction)), this, SLOT(currentTrackChanged(int,PlayerReaction)));
+    }
+
+    if (state() != StoppedState)
+    {
+        stop();
     }
 
     m_playlist = playlist;
