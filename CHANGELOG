@@ -1,3 +1,9 @@
+2.3 (--.04.2012):
+- added column with entry path;
+- improved filtering (works for all visible columns);
+- more friendly way to store columns order and visibility;
+- some other fixes.
+
 2.2 (25.02.2012):
 - allow to display more meta data in playlist (visible columns can be selected using context menu of header view);
 - improved initialization sequence;
@@ -7,7 +13,7 @@
 - some fixes and other changes.
 
 2.1 (01.01.2012):
-- save and restore sections order;
+- save and restore columns order;
 - fixed freeze when using sequential playback mode;
 - added workaround for video not updated before going full screen;
 - some other fixes.
