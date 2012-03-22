@@ -821,9 +821,9 @@ void PlaylistManager::setHeaderState(const QByteArray &state)
 {
     if (m_dialog)
     {
-        m_playlistUi.playlistView->horizontalHeader()->resizeSection(1, 250);
-        m_playlistUi.playlistView->horizontalHeader()->resizeSection(2, 200);
-        m_playlistUi.playlistView->horizontalHeader()->resizeSection(3, 80);
+        m_playlistUi.playlistView->horizontalHeader()->resizeSection(ArtistColumn, 200);
+        m_playlistUi.playlistView->horizontalHeader()->resizeSection(TitleColumn, 250);
+        m_playlistUi.playlistView->horizontalHeader()->resizeSection(DurationColumn, 80);
         m_playlistUi.playlistView->horizontalHeader()->restoreState(state);
     }
     else
