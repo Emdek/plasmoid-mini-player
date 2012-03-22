@@ -21,7 +21,6 @@
 #ifndef MINIPLAYERPLAYLISTMODEL_HEADER
 #define MINIPLAYERPLAYLISTMODEL_HEADER
 
-#include <QtCore/QHash>
 #include <QtCore/QVariant>
 #include <QtCore/QMimeData>
 #include <QtCore/QAbstractTableModel>

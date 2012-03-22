@@ -54,7 +54,7 @@ class PlaylistReader : public QObject
         void readDirectory(const KUrl &url, int level = 0);
 
     private:
-        QHash<KJob*, QPair<PlaylistFormat, QByteArray> > m_remotePlaylists;
+        QMap<KJob*, QPair<PlaylistFormat, QByteArray> > m_remotePlaylists;
         KUrl::List m_tracks;
         PlayerReaction m_reaction;
         int m_imports;

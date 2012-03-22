@@ -139,7 +139,7 @@ class Player : public QObject
         QActionGroup *m_audioChannelGroup;
         QActionGroup *m_subtitlesGroup;
         QActionGroup *m_anglesGroup;
-        QHash<PlayerAction, QAction*> m_actions;
+        QMap<PlayerAction, QAction*> m_actions;
         AspectRatio m_aspectRatio;
         int m_stopSleepCookie;
         bool m_videoMode;

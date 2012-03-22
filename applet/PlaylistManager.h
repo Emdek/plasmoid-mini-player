@@ -103,7 +103,7 @@ class PlaylistManager : public QObject
         Player *m_player;
         Plasma::Dialog *m_dialog;
         VideoWidget *m_videoWidget;
-        QHash<QString, QPair<QAction*, QHash<QString, QVariant> > > m_discActions;
+        QMap<QString, QPair<QAction*, QMap<QString, QVariant> > > m_discActions;
         QList<PlaylistModel*> m_playlists;
         QStringList m_columnsOrder;
         QStringList m_columnsVisibility;

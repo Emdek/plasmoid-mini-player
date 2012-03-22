@@ -240,7 +240,7 @@ void PlaylistManager::deviceAdded(const QString &udi)
         return;
     }
 
-    QHash<QString, QVariant> description;
+    QMap<QString, QVariant> description;
     description["title"] = title;
     description["source"] = source;
     description["udi"] = udi;

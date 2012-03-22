@@ -97,7 +97,7 @@ class Applet : public Plasma::Applet
         PlayerDBusHandler *m_playerDBUSHandler;
         TrackListDBusHandler *m_trackListDBusHandler;
         RootDBusHandler *m_rootDBUSHandler;
-        QHash<QString, QGraphicsWidget*> m_controls;
+        QMap<QString, QGraphicsWidget*> m_controls;
         QList<QAction*> m_actions;
         QWidget *m_fullScreenWidget;
         KDialog *m_jumpToPositionDialog;

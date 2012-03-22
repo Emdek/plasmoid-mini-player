@@ -915,7 +915,7 @@ void Applet::updateControls()
     controls << "open" << "playPause" << "stop" << "position" << "volume" << "playlist";
     controls = config().readEntry("controls", controls);
 
-    QHash<QString, QGraphicsWidget*>::iterator iterator;
+    QMap<QString, QGraphicsWidget*>::iterator iterator;
     bool visible = false;
 
     for (iterator = m_controls.begin(); iterator != m_controls.end(); ++iterator)

@@ -36,7 +36,7 @@ namespace MiniPlayer
 
 struct Track
 {
-    QHash<MetaDataKey, QString> keys;
+    QMap<MetaDataKey, QString> keys;
     qint64 duration;
 };
 
@@ -76,7 +76,7 @@ class MetaDataManager : public QObject
         int m_attempts;
 
         static QQueue<QPair<KUrl, int> > m_queue;
-        static QHash<KUrl, Track> m_tracks;
+        static QMap<KUrl, Track> m_tracks;
         static MetaDataManager *m_instance;
 
     signals:
