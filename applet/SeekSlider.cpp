@@ -176,14 +176,20 @@ void SeekSlider::mediaChanged()
         setEnabled(true);
         setSingleStep(qMin((qint64) 1, (m_player->duration() / 300000)));
         setPageStep(qMin((qint64) 1, (m_player->duration() / 30000)));
-
-        m_updatePosition = startTimer(250);
     }
     else
     {
         setEnabled(false);
         setToolTip(QString());
+    }
+
+    if (m_player->position() < 1)
+    {
         triggerAction(QAbstractSlider::SliderToMinimum);
+    }
+    else
+    {
+        m_updatePosition = startTimer(250);
     }
 }
 
