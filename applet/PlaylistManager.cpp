@@ -56,8 +56,18 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
     m_splitterLocked(true),
     m_isEdited(false)
 {
-    m_sectionsOrder << 0 << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8;
-    m_sectionsVisibility << 0 << 1 << 2 << 8;
+    m_columnsOrder << "fileType" << "fileName" << "artist" << "title" << "album" << "trackNumber" << "genre" << "description" << "date" << "duration";
+    m_columnsVisibility << "fileType" << "artist" << "title" << "duration";
+    m_columns[FileTypeColumn] = "fileType";
+    m_columns[FileNameColumn] = "fileName";
+    m_columns[ArtistColumn] = "artist";
+    m_columns[TitleColumn] = "title";
+    m_columns[AlbumColumn] = "album";
+    m_columns[TrackNumberColumn] = "trackNumber";
+    m_columns[GenreColumn] = "genre";
+    m_columns[DescriptionColumn] = "description";
+    m_columns[DateColumn] = "date";
+    m_columns[DurationColumn] = "duration";
 
     m_videoWidget->hide();
 
@@ -110,21 +120,21 @@ void PlaylistManager::timerEvent(QTimerEvent *event)
     killTimer(event->timerId());
 }
 
-void PlaylistManager::sectionsOrderChanged()
+void PlaylistManager::columnsOrderChanged()
 {
     if (!m_dialog)
     {
         return;
     }
 
-    QList<int> order;
+    QStringList order;
 
     for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
     {
-        order.append(m_playlistUi.playlistView->horizontalHeader()->visualIndex(i));
+        order.append(m_columns[static_cast<PlaylistColumn>(m_playlistUi.playlistView->horizontalHeader()->visualIndex(i))]);
     }
 
-    m_sectionsOrder = order;
+    m_columnsOrder = order;
 
     emit needsSaving();
 }
@@ -158,9 +168,9 @@ void PlaylistManager::playbackModeChanged(QAction *action)
     m_playlists[visiblePlaylist()]->setPlaybackMode(static_cast<PlaybackMode>(action->data().toInt()));
 }
 
-void PlaylistManager::toggleSectionVisibility(QAction *action)
+void PlaylistManager::toggleColumnVisibility(QAction *action)
 {
-    QList<int> visibility;
+    QStringList visibility;
 
     m_playlistUi.playlistView->horizontalHeader()->setSectionHidden(action->data().toInt(), !m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(action->data().toInt()));
 
@@ -168,11 +178,11 @@ void PlaylistManager::toggleSectionVisibility(QAction *action)
     {
         if (!m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(i))
         {
-            visibility.append(i);
+            visibility.append(m_columns[static_cast<PlaylistColumn>(i)]);
         }
     }
 
-    setSectionsVisibility(visibility);
+    setColumnsVisibility(visibility);
 }
 
 void PlaylistManager::openDisc(QAction *action)
@@ -624,8 +634,8 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.tabBar->setCurrentIndex(currentPlaylist());
 
         visiblePlaylistChanged(currentPlaylist());
-        setSectionsOrder(m_sectionsOrder);
-        setSectionsVisibility(m_sectionsVisibility);
+        setColumnsOrder(m_columnsOrder);
+        setColumnsVisibility(m_columnsVisibility);
         setSplitterLocked(m_splitterLocked);
         setSplitterState(m_splitterState);
         setHeaderState(m_headerState);
@@ -658,7 +668,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.shuffleButton, SIGNAL(clicked()), this, SLOT(shufflePlaylist()));
         connect(m_playlistUi.playlistView, SIGNAL(pressed(QModelIndex)), this, SLOT(updateActions()));
         connect(m_playlistUi.playlistView, SIGNAL(activated(QModelIndex)), this, SLOT(playTrack(QModelIndex)));
-        connect(m_playlistUi.playlistView->horizontalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(sectionsOrderChanged()));
+        connect(m_playlistUi.playlistView->horizontalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(columnsOrderChanged()));
         connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
         connect(m_player->parent(), SIGNAL(titleChanged(QString)), m_playlistUi.titleLabel, SLOT(setText(QString)));
         connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(updateVideoView()));
@@ -713,9 +723,9 @@ void PlaylistManager::setDialogSize(const QSize &size)
     }
 }
 
-void PlaylistManager::setSectionsOrder(const QList<int> &order)
+void PlaylistManager::setColumnsOrder(const QStringList &order)
 {
-    m_sectionsOrder = order;
+    m_columnsOrder = order;
 
     emit needsSaving();
 
@@ -726,13 +736,13 @@ void PlaylistManager::setSectionsOrder(const QList<int> &order)
 
     for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
     {
-        m_playlistUi.playlistView->horizontalHeader()->moveSection(m_playlistUi.playlistView->horizontalHeader()->visualIndex(order.value(i, i)), i);
+        m_playlistUi.playlistView->horizontalHeader()->moveSection(m_playlistUi.playlistView->horizontalHeader()->visualIndex(m_columns.key(order.value(i, QString()), static_cast<PlaylistColumn>(i))), i);
     }
 }
 
-void PlaylistManager::setSectionsVisibility(const QList<int> &visibility)
+void PlaylistManager::setColumnsVisibility(const QStringList &visibility)
 {
-    m_sectionsVisibility = visibility;
+    m_columnsVisibility = visibility;
 
     emit needsSaving();
 
@@ -743,7 +753,7 @@ void PlaylistManager::setSectionsVisibility(const QList<int> &visibility)
 
     for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
     {
-        m_playlistUi.playlistView->horizontalHeader()->setSectionHidden(i, !m_sectionsVisibility.contains(i));
+        m_playlistUi.playlistView->horizontalHeader()->setSectionHidden(i, !m_columnsVisibility.contains(m_columns[static_cast<PlaylistColumn>(i)]));
     }
 }
 
@@ -803,14 +813,14 @@ QList<PlaylistModel*> PlaylistManager::playlists() const
     return m_playlists;
 }
 
-QList<int> PlaylistManager::sectionsOrder() const
+QStringList PlaylistManager::columnsOrder() const
 {
-    return m_sectionsOrder;
+    return m_columnsOrder;
 }
 
-QList<int> PlaylistManager::sectionsVisibility() const
+QStringList PlaylistManager::columnsVisibility() const
 {
-    return m_sectionsVisibility;
+    return m_columnsVisibility;
 }
 
 QSize PlaylistManager::dialogSize() const
@@ -965,7 +975,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             menu.addAction((m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(index)?i18n("Show column \"%1\""):i18n("Hide column \"%1\"")).arg(m_playlistUi.playlistView->model()->headerData(index, Qt::Horizontal).toString(), Qt::EditRole))->setData(index);
         }
 
-        connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(toggleSectionVisibility(QAction*)));
+        connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(toggleColumnVisibility(QAction*)));
 
         menu.exec(QCursor::pos());
 

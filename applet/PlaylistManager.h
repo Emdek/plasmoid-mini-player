@@ -44,8 +44,8 @@ class PlaylistManager : public QObject
         void addTracks(const KUrl::List &tracks, int index = -1, PlayerReaction reaction = NoReaction);
         void removeTracks(const KUrl::List &tracks);
         QList<PlaylistModel*> playlists() const;
-        QList<int> sectionsOrder() const;
-        QList<int> sectionsVisibility() const;
+        QStringList columnsOrder() const;
+        QStringList columnsVisibility() const;
         QSize dialogSize() const;
         QByteArray splitterState() const;
         QByteArray headerState() const;
@@ -62,8 +62,8 @@ class PlaylistManager : public QObject
         void closeDialog();
         void setCurrentPlaylist(int position);
         void setDialogSize(const QSize &size);
-        void setSectionsOrder(const QList<int> &order);
-        void setSectionsVisibility(const QList<int> &visibility);
+        void setColumnsOrder(const QStringList &order);
+        void setColumnsVisibility(const QStringList &visibility);
         void setSplitterLocked(bool locked);
         void setSplitterState(const QByteArray &state);
         void setHeaderState(const QByteArray &state);
@@ -72,10 +72,10 @@ class PlaylistManager : public QObject
         void timerEvent(QTimerEvent *event);
 
     protected slots:
-        void sectionsOrderChanged();
+        void columnsOrderChanged();
         void visiblePlaylistChanged(int position);
         void playbackModeChanged(QAction *action);
-        void toggleSectionVisibility(QAction *action);
+        void toggleColumnVisibility(QAction *action);
         void openDisc(QAction *action);
         void deviceAdded(const QString &udi);
         void deviceRemoved(const QString &udi);
@@ -105,9 +105,10 @@ class PlaylistManager : public QObject
         VideoWidget *m_videoWidget;
         QHash<QString, QPair<QAction*, QHash<QString, QVariant> > > m_discActions;
         QList<PlaylistModel*> m_playlists;
-        QList<int> m_sectionsOrder;
-        QList<int> m_sectionsVisibility;
+        QStringList m_columnsOrder;
+        QStringList m_columnsVisibility;
         QSet<KUrl> m_removedTracks;
+        QMap<PlaylistColumn, QString> m_columns;
         QSize m_size;
         QByteArray m_splitterState;
         QByteArray m_headerState;
