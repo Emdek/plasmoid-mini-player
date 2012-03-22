@@ -293,7 +293,31 @@ void PlaylistManager::filterPlaylist(const QString &text)
 {
     for (int i = 0; i < m_playlists[visiblePlaylist()]->trackCount(); ++i)
     {
-        m_playlistUi.playlistView->setRowHidden(i, (!text.isEmpty() && !m_playlists[visiblePlaylist()]->index(i, 1).data(Qt::DisplayRole).toString().contains(text, Qt::CaseInsensitive)));
+        bool hide = true;
+
+        if (text.isEmpty())
+        {
+            hide = false;
+        }
+        else
+        {
+            for (int j = 1; j < m_playlistUi.playlistView->horizontalHeader()->count(); ++j)
+            {
+                if (m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(j))
+                {
+                    continue;
+                }
+
+                if (m_playlists[visiblePlaylist()]->index(i, j).data(Qt::DisplayRole).toString().contains(text, Qt::CaseInsensitive))
+                {
+                    hide = false;
+
+                    break;
+                }
+            }
+        }
+
+        m_playlistUi.playlistView->setRowHidden(i, hide);
     }
 }
 

@@ -1,4 +1,3 @@
-- update slider position even for non seekable media;
 - try to guess title and artist using "-" separator;
 - add track properties dialog;
 - use TagLib to fetch and set meta data (?);
