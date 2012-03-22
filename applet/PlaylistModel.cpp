@@ -159,7 +159,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
     KUrl::List tracks;
     KUrl url = m_tracks.value(m_currentTrack);
 
-    if (column == 8)
+    if (column == DurationColumn)
     {
         for (int i = 0; i < m_tracks.count(); ++i)
         {
@@ -168,7 +168,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
 
         tracks = durationMap.values();
     }
-    else if (column > 0 && column << 8)
+    else if (column > FileNameColumn && column < DurationColumn)
     {
         const MetaDataKey key = translateColumn(column);
 
@@ -307,11 +307,11 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     }
     else if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-        if (index.column() == 0)
+        if (index.column() == FileTypeColumn || index.column() == FileNameColumn)
         {
             return url.pathOrUrl();
         }
-        else if (index.column() == 8)
+        else if (index.column() == DurationColumn)
         {
             return MetaDataManager::timeToString(MetaDataManager::duration(url));
         }
@@ -341,23 +341,25 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 
     switch (section)
     {
-        case 0:
+        case FileTypeColumn:
             return ((role == Qt::DisplayRole)?i18n("File Type"):QString());
-        case 1:
+        case FileNameColumn:
+            return i18n("Path");
+        case ArtistColumn:
             return i18n("Artist");
-        case 2:
+        case TitleColumn:
             return i18n("Title");
-        case 3:
+        case AlbumColumn:
             return i18n("Album");
-        case 4:
+        case TrackNumberColumn:
             return i18n("Track Number");
-        case 5:
+        case GenreColumn:
             return i18n("Genre");
-        case 6:
+        case DescriptionColumn:
             return i18n("Description");
-        case 7:
+        case DateColumn:
             return i18n("Date");
-        case 8:
+        case DurationColumn:
             return i18n("Length");
     }
 
@@ -504,7 +506,7 @@ int PlaylistModel::trackCount() const
 
 int PlaylistModel::columnCount(const QModelIndex &index) const
 {
-    return (index.isValid()?0:9);
+    return (index.isValid()?0:10);
 }
 
 int PlaylistModel::rowCount(const QModelIndex &index) const
@@ -516,19 +518,19 @@ MetaDataKey PlaylistModel::translateColumn(int column) const
 {
     switch (column)
     {
-        case 1:
+        case ArtistColumn:
             return ArtistKey;
-        case 2:
+        case TitleColumn:
             return TitleKey;
-        case 3:
+        case AlbumColumn:
             return AlbumKey;
-        case 4:
+        case TrackNumberColumn:
             return TrackNumberKey;
-        case 5:
+        case GenreColumn:
             return GenreKey;
-        case 6:
+        case DescriptionColumn:
             return DescriptionKey;
-        case 7:
+        case DateColumn:
             return DateKey;
         default:
             return InvalidKey;
