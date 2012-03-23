@@ -75,7 +75,7 @@ void MetaDataManager::resolveMetaData()
         {
             const QStringList values = m_mediaObject->metaData(m_keys.at(i).second);
 
-            if (!values.isEmpty())
+            if (!values.isEmpty() && !values.first().isEmpty())
             {
                 track.keys[m_keys.at(i).first] = values.first();
             }
@@ -83,15 +83,37 @@ void MetaDataManager::resolveMetaData()
 
         m_mediaObject->stop();
 
-        if ((track.keys.contains(TitleKey) && !track.keys[TitleKey].isEmpty()) || track.duration > 0)
+        if (track.keys.contains(TitleKey) && !track.keys[TitleKey].isEmpty())
         {
             setMetaData(m_mediaObject->currentSource().url(), track);
         }
-        else if (m_attempts < 6)
+        else if (m_attempts < 5)
         {
             ++m_attempts;
 
             m_queue.insert(m_attempts, qMakePair(KUrl(m_mediaObject->currentSource().url()), m_attempts));
+        }
+        else
+        {
+            const QString path = urlToTitle(KUrl(m_mediaObject->currentSource().url()));
+            QRegExp trackExpression("^(?:\\s*(.+)\\s*-)?\\s*(.+)\\s*-\\s*(.+)\\s*$");
+
+            if (trackExpression.exactMatch(path))
+            {
+                if (!trackExpression.cap(1).isEmpty())
+                {
+                    track.keys[TrackNumberKey] = trackExpression.cap(1).simplified();
+                }
+
+                track.keys[ArtistKey] = trackExpression.cap(2).simplified();
+                track.keys[TitleKey] = trackExpression.cap(3).simplified();
+            }
+            else
+            {
+                track.keys[TitleKey] = path.simplified();
+            }
+
+            setMetaData(m_mediaObject->currentSource().url(), track);
         }
     }
 

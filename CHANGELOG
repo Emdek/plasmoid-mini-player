@@ -2,6 +2,7 @@
 - added column with entry path;
 - improved filtering (works for all visible columns);
 - more friendly way to store columns order and visibility;
+- try to guess data from file name when there is no meta data;
 - some other fixes.
 
 2.2 (25.02.2012):
