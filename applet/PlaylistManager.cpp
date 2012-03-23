@@ -957,7 +957,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
                 {
                     const int index = m_playlistUi.playlistView->horizontalHeader()->visualIndex(i);
 
-                    if (m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(index) || index < 1 || index > 7)
+                    if (m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(index) || index < ArtistColumn || index > DateColumn)
                     {
                         continue;
                     }

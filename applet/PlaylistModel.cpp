@@ -390,7 +390,7 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const
 
     if (index.isValid())
     {
-        if (index.column() > 0 && index.column() < 8)
+        if (index.column() > FileNameColumn && index.column() < DurationColumn)
         {
             return (defaultFlags | Qt::ItemIsDragEnabled | Qt::ItemIsEditable);
         }
