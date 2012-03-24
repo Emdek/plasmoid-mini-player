@@ -94,6 +94,7 @@ class Player : public QObject
         void setAspectRatio(AspectRatio ratio);
         void setVideoMode(bool mode);
         void setFullScreen(bool enable);
+        void setInhibitNotifications(bool inhibit);
         void setBrightness(int value);
         void setContrast(int value);
         void setHue(int value);
@@ -142,6 +143,7 @@ class Player : public QObject
         QMap<PlayerAction, QAction*> m_actions;
         AspectRatio m_aspectRatio;
         int m_stopSleepCookie;
+        bool m_inhibitNotifications;
         bool m_videoMode;
         bool m_fullScreenMode;
 

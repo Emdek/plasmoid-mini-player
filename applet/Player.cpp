@@ -53,6 +53,7 @@ Player::Player(QObject *parent) : QObject(parent),
     m_anglesGroup(new QActionGroup(this)),
     m_aspectRatio(AutomaticRatio),
     m_stopSleepCookie(0),
+    m_inhibitNotifications(false),
     m_videoMode(false),
     m_fullScreenMode(false)
 {
@@ -471,7 +472,7 @@ void Player::stateChanged(Phonon::State state)
     mediaChanged();
     videoChanged();
 
-    if (isVideoAvailable() && translatedState == PlayingState)
+    if (isVideoAvailable() && translatedState == PlayingState && !m_inhibitNotifications)
     {
         m_stopSleepCookie = Solid::PowerManagement::beginSuppressingSleep("Plasma MiniPlayerApplet: playing video");
 
@@ -814,6 +815,13 @@ void Player::setFullScreen(bool enable)
     m_fullScreenMode = enable;
 
     setVideoMode(m_videoMode);
+}
+
+void Player::setInhibitNotifications(bool inhibit)
+{
+    m_inhibitNotifications = inhibit;
+
+    stateChanged(m_mediaObject->state());
 }
 
 void Player::setBrightness(int value)

@@ -208,9 +208,10 @@ void Applet::createConfigurationInterface(KConfigDialog *parent)
     m_generalUi.setupUi(generalWidget);
     m_controlsUi.setupUi(controlsWidget);
 
-    m_generalUi.playOnStartup->setChecked(configuration.readEntry("playOnStartup", false));
-    m_generalUi.enableDBUS->setChecked(configuration.readEntry("enableDBus", false));
-    m_generalUi.showToolTipOnTrackChange->setValue(configuration.readEntry("showToolTipOnTrackChange", 3));
+    m_generalUi.startPlaybackCheckBox->setChecked(configuration.readEntry("playOnStartup", false));
+    m_generalUi.dbusCheckBox->setChecked(configuration.readEntry("enableDBus", false));
+    m_generalUi.inhibitNotificationsCheckBox->setChecked(configuration.readEntry("inhibitNotifications", false));
+    m_generalUi.showTooltipOnTrackChange->setValue(configuration.readEntry("showToolTipOnTrackChange", 3));
 
     m_controlsUi.openCheckBox->setChecked(controls.contains("open"));
     m_controlsUi.playPauseCheckBox->setChecked(controls.contains("playPause"));
@@ -268,9 +269,10 @@ void Applet::configAccepted()
     }
 
     configuration.writeEntry("controls", controls);
-    configuration.writeEntry("playOnStartup", m_generalUi.playOnStartup->isChecked());
-    configuration.writeEntry("enableDBus", m_generalUi.enableDBUS->isChecked());
-    configuration.writeEntry("showToolTipOnTrackChange", m_generalUi.showToolTipOnTrackChange->value());
+    configuration.writeEntry("playOnStartup", m_generalUi.startPlaybackCheckBox->isChecked());
+    configuration.writeEntry("enableDBus", m_generalUi.dbusCheckBox->isChecked());
+    configuration.writeEntry("inhibitNotifications", m_generalUi.inhibitNotificationsCheckBox->isChecked());
+    configuration.writeEntry("showToolTipOnTrackChange", m_generalUi.showTooltipOnTrackChange->value());
 
     emit configNeedsSaving();
 
@@ -283,6 +285,7 @@ void Applet::configChanged()
 
     m_player->setAspectRatio(static_cast<AspectRatio>(config().readEntry("aspectRatio", static_cast<int>(AutomaticRatio))));
     m_player->setAudioMuted(config().readEntry("mute", false));
+    m_player->setInhibitNotifications(config().readEntry("inhibitNotifications", false));
     m_player->setVolume(config().readEntry("volume", 50));
     m_player->setBrightness(config().readEntry("brightness", 50));
     m_player->setContrast(config().readEntry("contrast", 50));
