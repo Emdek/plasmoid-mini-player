@@ -24,6 +24,7 @@
 #include "MetaDataManager.h"
 
 #include <QtCore/QDateTime>
+#include <QtCore/QFileInfo>
 
 #include <KLocale>
 #include <KMimeType>
@@ -301,7 +302,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 
     KUrl url(m_tracks.at(index.row()));
 
-    if (role == Qt::DecorationRole && index.column() == 0 && url.isValid())
+    if (role == Qt::DecorationRole && index.column() == FileTypeColumn && url.isValid())
     {
         return ((index.row() == m_currentTrack)?KIcon((m_manager->state() != StoppedState && isCurrent())?"media-playback-start":"arrow-right"):MetaDataManager::icon(url));
     }
@@ -309,6 +310,11 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     {
         if (index.column() == FileTypeColumn || index.column() == FileNameColumn)
         {
+            if (index.column() == FileNameColumn && role == Qt::DisplayRole)
+            {
+                return QFileInfo(url.pathOrUrl()).fileName();
+            }
+
             return url.pathOrUrl();
         }
         else if (index.column() == DurationColumn)
@@ -344,7 +350,7 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
         case FileTypeColumn:
             return ((role == Qt::DisplayRole)?i18n("File Type"):QString());
         case FileNameColumn:
-            return i18n("Path");
+            return i18n("File Name");
         case ArtistColumn:
             return i18n("Artist");
         case TitleColumn:
