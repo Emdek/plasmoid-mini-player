@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_miniplayer\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-02-25 19:19+0100\n"
+"POT-Creation-Date: 2012-03-25 14:28+0200\n"
 "PO-Revision-Date: 2009-04-10 16:23+0200\n"
 "Last-Translator: Stefan Asserhäll <stefan.asserhall@comhem.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -18,54 +18,54 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: Applet.cpp:161 Applet.cpp:321 Applet.cpp:335
+#: Applet.cpp:161 Applet.cpp:324 Applet.cpp:338
 msgid "Default"
 msgstr ""
 
 #. i18n: file: ui/general.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, general)
-#: Applet.cpp:223 locale/rc.cpp:30 rc.cpp:30
+#: Applet.cpp:224 locale/rc.cpp:30 rc.cpp:30
 msgid "General"
 msgstr "Allmänt"
 
 #. i18n: file: ui/controls.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, controls)
-#: Applet.cpp:224 locale/rc.cpp:3 rc.cpp:3
+#: Applet.cpp:225 locale/rc.cpp:3 rc.cpp:3
 msgid "Visible Controls"
 msgstr ""
 
-#: Applet.cpp:686
+#: Applet.cpp:689
 msgid "Open URL"
 msgstr ""
 
-#: Applet.cpp:686
+#: Applet.cpp:689
 msgid "Enter a URL:"
 msgstr ""
 
 #. i18n: file: ui/jumpToPosition.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, jumpToPosition)
-#: Applet.cpp:730 locale/rc.cpp:45 rc.cpp:45
+#: Applet.cpp:733 locale/rc.cpp:51 rc.cpp:51
 #, fuzzy
 msgid "Jump to Position"
 msgstr "Gå till position"
 
-#: Applet.cpp:820 Player.cpp:190
+#: Applet.cpp:823 Player.cpp:191
 msgid "Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:838
+#: Applet.cpp:841
 msgid "Exit Full Screen Mode"
 msgstr ""
 
-#: Applet.cpp:904
+#: Applet.cpp:907
 msgid "Position: %1 / %2"
 msgstr "Position: %1 / %2"
 
-#: Applet.cpp:948
+#: Applet.cpp:951
 msgid "Lock widgets"
 msgstr ""
 
-#: Applet.cpp:956
+#: Applet.cpp:959
 #, fuzzy
 msgid "Settings"
 msgstr "Videoinställningar"
@@ -120,430 +120,509 @@ msgstr ""
 msgid "Full Screen"
 msgstr ""
 
-#. i18n: file: ui/general.ui:33
-#. i18n: ectx: property (text), widget (QCheckBox, playOnStartup)
+#. i18n: file: ui/general.ui:20
+#. i18n: ectx: property (text), widget (QCheckBox, startPlaybackCheckBox)
 #: locale/rc.cpp:33 rc.cpp:33
-msgid "Start playing on startup"
+#, fuzzy
+msgid "Start playback on startup"
 msgstr "Börja spela vid start"
 
-#. i18n: file: ui/general.ui:40
-#. i18n: ectx: property (text), widget (QLabel, showToolTipOnTrackChangeLabel)
+#. i18n: file: ui/general.ui:27
+#. i18n: ectx: property (text), widget (QCheckBox, dbusCheckBox)
 #: locale/rc.cpp:36 rc.cpp:36
-msgid "Show tooltip when changing track for:"
-msgstr ""
-
-#. i18n: file: ui/general.ui:47
-#. i18n: ectx: property (suffix), widget (QSpinBox, showToolTipOnTrackChange)
-#: locale/rc.cpp:39 rc.cpp:39
-msgid " s"
-msgstr ""
-
-#. i18n: file: ui/general.ui:54
-#. i18n: ectx: property (text), widget (QCheckBox, enableDBUS)
-#: locale/rc.cpp:42 rc.cpp:42
 msgid "Enable D-Bus interface to control player"
+msgstr ""
+
+#. i18n: file: ui/general.ui:34
+#. i18n: ectx: property (text), widget (QCheckBox, inhibitNotificationsCheckBox)
+#: locale/rc.cpp:39 rc.cpp:39
+msgid "Inhibit notifications and screensaver while playing video"
+msgstr ""
+
+#. i18n: file: ui/general.ui:43
+#. i18n: ectx: property (text), widget (QLabel, showTooltipOnTrackChangeLabel)
+#: locale/rc.cpp:42 rc.cpp:42
+msgid "Tooltip display time after changing track:"
+msgstr ""
+
+#. i18n: file: ui/general.ui:53
+#. i18n: ectx: property (specialValueText), widget (QSpinBox, showTooltipOnTrackChange)
+#: locale/rc.cpp:45 rc.cpp:45
+msgid "Disable"
+msgstr ""
+
+#. i18n: file: ui/general.ui:56
+#. i18n: ectx: property (suffix), widget (QSpinBox, showTooltipOnTrackChange)
+#: locale/rc.cpp:48 rc.cpp:48
+msgid " s"
 msgstr ""
 
 #. i18n: file: ui/jumpToPosition.ui:20
 #. i18n: ectx: property (text), widget (QLabel, positionLabel)
-#: locale/rc.cpp:48 rc.cpp:48
+#: locale/rc.cpp:54 rc.cpp:54
 msgid "Jump to:"
 msgstr "Gå till:"
 
 #. i18n: file: ui/jumpToPosition.ui:36
 #. i18n: ectx: property (displayFormat), widget (QTimeEdit, position)
-#: locale/rc.cpp:51 rc.cpp:51
+#: locale/rc.cpp:57 rc.cpp:57
 msgid "HH:mm:ss"
 msgstr "TT:mm:ss"
 
 #. i18n: file: ui/playlist.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, playlist)
-#: locale/rc.cpp:54 Player.cpp:79 PlaylistManager.cpp:582 rc.cpp:54
+#: locale/rc.cpp:60 Player.cpp:80 PlaylistManager.cpp:658 rc.cpp:60
 #, fuzzy
 msgid "Playlist"
 msgstr "Spellista"
 
 #. i18n: file: ui/playlist.ui:49
 #. i18n: ectx: property (toolTip), widget (QToolButton, closeButton)
-#: locale/rc.cpp:57 rc.cpp:57
+#: locale/rc.cpp:63 rc.cpp:63
 #, fuzzy
 msgid "Close"
 msgstr "Rensa"
 
-#. i18n: file: ui/playlist.ui:292
+#. i18n: file: ui/playlist.ui:298
 #. i18n: ectx: property (clickMessage), widget (KLineEdit, playlistViewFilter)
-#: locale/rc.cpp:60 rc.cpp:60
+#: locale/rc.cpp:66 rc.cpp:66
 msgid "Search..."
 msgstr ""
 
-#. i18n: file: ui/playlist.ui:318
+#. i18n: file: ui/playlist.ui:324
 #. i18n: ectx: property (toolTip), widget (KPushButton, addButton)
-#: locale/rc.cpp:63 rc.cpp:63
+#: locale/rc.cpp:69 rc.cpp:69
 msgid "Add tracks..."
 msgstr ""
 
-#. i18n: file: ui/playlist.ui:328
+#. i18n: file: ui/playlist.ui:334
 #. i18n: ectx: property (toolTip), widget (QToolButton, removeButton)
-#: locale/rc.cpp:66 rc.cpp:66
+#: locale/rc.cpp:72 rc.cpp:72
 #, fuzzy
 msgid "Remove track"
 msgstr "Ta bort"
 
-#. i18n: file: ui/playlist.ui:345
+#. i18n: file: ui/playlist.ui:344
+#. i18n: ectx: property (toolTip), widget (QToolButton, editButton)
+#: locale/rc.cpp:75 rc.cpp:75
+#, fuzzy
+msgid "Edit track..."
+msgstr "Spellista"
+
+#. i18n: file: ui/playlist.ui:361
 #. i18n: ectx: property (toolTip), widget (QToolButton, moveUpButton)
-#: locale/rc.cpp:69 rc.cpp:69
+#: locale/rc.cpp:78 rc.cpp:78
 #, fuzzy
 msgid "Move down track"
 msgstr "Flytta ner"
 
-#. i18n: file: ui/playlist.ui:358
+#. i18n: file: ui/playlist.ui:374
 #. i18n: ectx: property (toolTip), widget (QToolButton, moveDownButton)
-#: locale/rc.cpp:72 rc.cpp:72
+#: locale/rc.cpp:81 rc.cpp:81
 #, fuzzy
 msgid "Move up track"
 msgstr "Flytta upp"
 
-#. i18n: file: ui/playlist.ui:378
+#. i18n: file: ui/playlist.ui:394
 #. i18n: ectx: property (toolTip), widget (QToolButton, newButton)
-#: locale/rc.cpp:75 PlaylistManager.cpp:994 rc.cpp:75
+#: locale/rc.cpp:84 PlaylistManager.cpp:1075 rc.cpp:84
 #, fuzzy
 msgid "New playlist..."
 msgstr "Spellista"
 
-#. i18n: file: ui/playlist.ui:388
+#. i18n: file: ui/playlist.ui:404
 #. i18n: ectx: property (toolTip), widget (QToolButton, exportButton)
-#: locale/rc.cpp:78 rc.cpp:78
+#: locale/rc.cpp:87 rc.cpp:87
 #, fuzzy
 msgid "Export playlist..."
 msgstr "Spellista"
 
-#. i18n: file: ui/playlist.ui:398
+#. i18n: file: ui/playlist.ui:414
 #. i18n: ectx: property (toolTip), widget (QToolButton, clearButton)
-#: locale/rc.cpp:81 rc.cpp:81
+#: locale/rc.cpp:90 rc.cpp:90
 #, fuzzy
 msgid "Clear playlist"
 msgstr "Spellista"
 
-#. i18n: file: ui/playlist.ui:415
+#. i18n: file: ui/playlist.ui:431
 #. i18n: ectx: property (toolTip), widget (QToolButton, shuffleButton)
-#: locale/rc.cpp:84 rc.cpp:84
+#: locale/rc.cpp:93 rc.cpp:93
 #, fuzzy
 msgid "Shuffle playlist"
 msgstr "Spellista"
 
-#. i18n: file: ui/playlist.ui:435
+#. i18n: file: ui/playlist.ui:451
 #. i18n: ectx: property (toolTip), widget (QToolButton, playbackModeButton)
-#: locale/rc.cpp:87 rc.cpp:87
+#: locale/rc.cpp:96 rc.cpp:96
 msgid "Set repeat mode"
+msgstr ""
+
+#. i18n: file: ui/track.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, track)
+#: locale/rc.cpp:99 rc.cpp:99
+msgid "Track"
+msgstr ""
+
+#. i18n: file: ui/track.ui:23
+#. i18n: ectx: property (text), widget (QLabel, pathLabel)
+#: locale/rc.cpp:102 rc.cpp:102
+msgid "Path:"
+msgstr ""
+
+#. i18n: file: ui/track.ui:40
+#. i18n: ectx: property (text), widget (QLabel, artistLabel)
+#: locale/rc.cpp:105 rc.cpp:105
+msgid "Artist:"
+msgstr ""
+
+#. i18n: file: ui/track.ui:53
+#. i18n: ectx: property (text), widget (QLabel, titleLabel)
+#: locale/rc.cpp:108 rc.cpp:108
+msgid "Title:"
+msgstr ""
+
+#. i18n: file: ui/track.ui:66
+#. i18n: ectx: property (text), widget (QLabel, albumLabel)
+#: locale/rc.cpp:111 rc.cpp:111
+msgid "Album:"
+msgstr ""
+
+#. i18n: file: ui/track.ui:79
+#. i18n: ectx: property (text), widget (QLabel, trackNumberLabel)
+#: locale/rc.cpp:114 rc.cpp:114
+msgid "Track number:"
+msgstr ""
+
+#. i18n: file: ui/track.ui:96
+#. i18n: ectx: property (text), widget (QLabel, genreLabel)
+#: locale/rc.cpp:117 rc.cpp:117
+msgid "Genre:"
+msgstr ""
+
+#. i18n: file: ui/track.ui:109
+#. i18n: ectx: property (text), widget (QLabel, descriptionLabel)
+#: locale/rc.cpp:120 rc.cpp:120
+msgid "Description:"
+msgstr ""
+
+#. i18n: file: ui/track.ui:122
+#. i18n: ectx: property (text), widget (QLabel, yearLabel)
+#: locale/rc.cpp:123 rc.cpp:123
+msgid "Year:"
 msgstr ""
 
 #. i18n: file: ui/volume.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, volume)
-#: locale/rc.cpp:90 Player.cpp:97 rc.cpp:90
+#: locale/rc.cpp:126 Player.cpp:98 rc.cpp:126
 msgid "Volume"
 msgstr "Volym"
 
-#: locale/rc.cpp:91 rc.cpp:91
+#: locale/rc.cpp:127 rc.cpp:127
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
 msgstr ""
 
-#: locale/rc.cpp:92 rc.cpp:92
+#: locale/rc.cpp:128 rc.cpp:128
 msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
 msgstr ""
 
-#: MetaDataManager.cpp:256 Player.cpp:863
+#: MetaDataManager.cpp:278 Player.cpp:881
 msgid "Unknown artist"
 msgstr ""
 
-#: Player.cpp:66
+#: Player.cpp:67
 #, fuzzy
 msgid "Open"
 msgstr "Öppna fil"
 
-#: Player.cpp:68
+#: Player.cpp:69
 #, fuzzy
 msgid "Open File..."
 msgstr "Öppna fil"
 
-#: Player.cpp:70
+#: Player.cpp:71
 msgid "Open URL..."
 msgstr ""
 
-#: Player.cpp:73 Player.cpp:313 PlaylistManager.cpp:946
+#: Player.cpp:74 Player.cpp:314 PlaylistManager.cpp:1027
 msgid "Play"
 msgstr "Spela"
 
-#: Player.cpp:76
+#: Player.cpp:77
 msgid "Stop"
 msgstr "Stoppa"
 
-#: Player.cpp:82
+#: Player.cpp:83
 msgid "Navigation"
 msgstr ""
 
-#: Player.cpp:85
+#: Player.cpp:86
 msgid "Chapter"
 msgstr ""
 
-#: Player.cpp:88
+#: Player.cpp:89
 msgid "Previous"
 msgstr ""
 
-#: Player.cpp:89
+#: Player.cpp:90
 msgid "Next"
 msgstr ""
 
-#: Player.cpp:91
+#: Player.cpp:92
 msgid "Seek Backward"
 msgstr ""
 
-#: Player.cpp:92
+#: Player.cpp:93
 msgid "Seek Forward"
 msgstr ""
 
-#: Player.cpp:94
+#: Player.cpp:95
 #, fuzzy
 msgid "Jump to Position..."
 msgstr "Gå till position"
 
-#: Player.cpp:99
+#: Player.cpp:100
 msgid "Audio"
 msgstr ""
 
-#: Player.cpp:101
+#: Player.cpp:102
 msgid "Channel"
 msgstr ""
 
-#: Player.cpp:104
+#: Player.cpp:105
 msgid "Increase Volume"
 msgstr ""
 
-#: Player.cpp:105
+#: Player.cpp:106
 msgid "Decrease Volume"
 msgstr ""
 
-#: Player.cpp:107
+#: Player.cpp:108
 #, fuzzy
 msgid "Mute Volume"
 msgstr "Volym"
 
-#: Player.cpp:111
+#: Player.cpp:112
 msgid "Video"
 msgstr "Video"
 
-#: Player.cpp:114
+#: Player.cpp:115
 msgid "Properties"
 msgstr ""
 
-#: Player.cpp:158
+#: Player.cpp:159
 msgid "Aspect Ratio"
 msgstr ""
 
-#: Player.cpp:161
+#: Player.cpp:162
 msgid "Automatic"
 msgstr ""
 
-#: Player.cpp:165
+#: Player.cpp:166
 msgid "4:3"
 msgstr ""
 
-#: Player.cpp:169
+#: Player.cpp:170
 msgid "16:9"
 msgstr ""
 
-#: Player.cpp:173
+#: Player.cpp:174
 msgid "Fit to Window"
 msgstr ""
 
-#: Player.cpp:183
+#: Player.cpp:184
 msgid "Subtitle"
 msgstr ""
 
-#: Player.cpp:186
+#: Player.cpp:187
 msgid "Angle"
 msgstr ""
 
-#: Player.cpp:194
+#: Player.cpp:195
 msgid "Playback Mode"
 msgstr ""
 
-#: Player.cpp:197
+#: Player.cpp:198
 #, fuzzy
 msgid "No Repeat"
 msgstr "Upprepa"
 
-#: Player.cpp:201
+#: Player.cpp:202
 #, fuzzy
 msgid "Repeat Track"
 msgstr "Upprepa"
 
-#: Player.cpp:205
+#: Player.cpp:206
 #, fuzzy
 msgid "Repeat Playlist"
 msgstr "Spellista"
 
-#: Player.cpp:209
+#: Player.cpp:210
 #, fuzzy
 msgid "Random Track"
 msgstr "Upprepa"
 
-#: Player.cpp:270 VolumeSlider.cpp:109
+#: Player.cpp:271 VolumeSlider.cpp:109
 msgid "Muted"
 msgstr "Tyst"
 
-#: Player.cpp:276 VolumeSlider.cpp:109
+#: Player.cpp:277 VolumeSlider.cpp:109
 msgid "Volume: %1%"
 msgstr "Volym: %1 %"
 
-#: Player.cpp:313
+#: Player.cpp:314
 msgid "Pause"
 msgstr "Paus"
 
-#: Player.cpp:332
+#: Player.cpp:333
 msgid "Chapter %1"
 msgstr ""
 
-#: Player.cpp:404
+#: Player.cpp:405
 msgid "Angle %1"
 msgstr ""
 
-#: Player.cpp:426
+#: Player.cpp:427
 msgid "Track %1"
 msgstr ""
 
-#: Player.cpp:546
+#: Player.cpp:547
 #, fuzzy
 msgid "Brightness: %1%"
 msgstr "Ljusstyrka:"
 
-#: Player.cpp:547
+#: Player.cpp:548
 #, fuzzy
 msgid "Contrast: %1%"
 msgstr "Kontrast:"
 
-#: Player.cpp:548
+#: Player.cpp:549
 #, fuzzy
 msgid "Hue: %1%"
 msgstr "Volym: %1 %"
 
-#: Player.cpp:549
+#: Player.cpp:550
 #, fuzzy
 msgid "Saturation: %1%"
 msgstr "Färgmättnad:"
 
-#: PlaylistManager.cpp:207
+#: PlaylistManager.cpp:217
 msgid "Disc %1"
 msgstr ""
 
-#: PlaylistManager.cpp:213
+#: PlaylistManager.cpp:223
 msgid "Open DVD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:219
+#: PlaylistManager.cpp:229
 msgid "Open VCD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:225
+#: PlaylistManager.cpp:235
 msgid "Open Audio CD: %1"
 msgstr ""
 
-#: PlaylistManager.cpp:297
+#: PlaylistManager.cpp:331
 #, fuzzy
 msgid "Rename Playlist"
 msgstr "Spellista"
 
-#: PlaylistManager.cpp:297 PlaylistManager.cpp:416
+#: PlaylistManager.cpp:331 PlaylistManager.cpp:450
 msgid "Enter name:"
 msgstr ""
 
-#: PlaylistManager.cpp:410
+#: PlaylistManager.cpp:444
 msgid "Cannot open file for writing."
 msgstr "Kan inte öppna fil för skrivning."
 
-#: PlaylistManager.cpp:416
+#: PlaylistManager.cpp:450
 #, fuzzy
 msgid "New playlist"
 msgstr "Spellista"
 
-#: PlaylistManager.cpp:920
+#: PlaylistManager.cpp:998
 msgid "Edit"
 msgstr ""
 
-#: PlaylistManager.cpp:931
+#: PlaylistManager.cpp:1000
+#, fuzzy
+msgid "Edit all properties..."
+msgstr "Spellista"
+
+#: PlaylistManager.cpp:1012
 msgid "Edit field \"%1\"..."
 msgstr ""
 
-#: PlaylistManager.cpp:936
+#: PlaylistManager.cpp:1017
 msgid "Copy URL"
 msgstr ""
 
-#: PlaylistManager.cpp:950
+#: PlaylistManager.cpp:1031
 msgid "Remove"
 msgstr "Ta bort"
 
-#: PlaylistManager.cpp:965
-msgid "Hide column \"%1\""
-msgstr ""
-
-#: PlaylistManager.cpp:965
+#: PlaylistManager.cpp:1046
 msgid "Show column \"%1\""
 msgstr ""
 
-#: PlaylistManager.cpp:999
+#: PlaylistManager.cpp:1046
+msgid "Hide column \"%1\""
+msgstr ""
+
+#: PlaylistManager.cpp:1080
 #, fuzzy
 msgid "Rename playlist..."
 msgstr "Spellista"
 
-#: PlaylistManager.cpp:1001
+#: PlaylistManager.cpp:1082
 #, fuzzy
 msgid "Close playlist"
 msgstr "Spellista"
 
-#: PlaylistModel.cpp:345
+#: PlaylistModel.cpp:351
 msgid "File Type"
 msgstr ""
 
-#: PlaylistModel.cpp:347
-msgid "Artist"
-msgstr ""
-
-#: PlaylistModel.cpp:349
-msgid "Title"
-msgstr ""
-
-#: PlaylistModel.cpp:351
-msgid "Album"
-msgstr ""
-
 #: PlaylistModel.cpp:353
-msgid "Track Number"
+msgid "File Name"
 msgstr ""
 
 #: PlaylistModel.cpp:355
-msgid "Genre"
+msgid "Artist"
 msgstr ""
 
 #: PlaylistModel.cpp:357
-msgid "Description"
+msgid "Title"
 msgstr ""
 
 #: PlaylistModel.cpp:359
-msgid "Date"
+msgid "Album"
 msgstr ""
 
 #: PlaylistModel.cpp:361
+msgid "Track Number"
+msgstr ""
+
+#: PlaylistModel.cpp:363
+msgid "Genre"
+msgstr ""
+
+#: PlaylistModel.cpp:365
+msgid "Description"
+msgstr ""
+
+#: PlaylistModel.cpp:367
+msgid "Date"
+msgstr ""
+
+#: PlaylistModel.cpp:369
 msgid "Length"
 msgstr ""
 
 #: PlaylistReader.cpp:154
 msgid "Cannot open file for reading."
 msgstr "Kan inte öppna fil för läsning."
-
-#, fuzzy
-#~ msgid "Edit artist..."
-#~ msgstr "Spellista"
 
 #~ msgid "File saved successfully."
 #~ msgstr "Filen sparad med lyckat resultat."
