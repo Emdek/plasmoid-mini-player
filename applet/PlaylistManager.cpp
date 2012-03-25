@@ -529,9 +529,50 @@ void PlaylistManager::playTrack(QModelIndex index)
 
 void PlaylistManager::editTrack(QAction *action)
 {
-    m_isEdited = true;
+    if (action && action->data().toInt() > 0)
+    {
+        m_isEdited = true;
 
-    m_playlistUi.playlistView->edit(m_playlistUi.playlistView->model()->index(m_playlistUi.playlistView->currentIndex().row(), action->data().toInt()));
+        m_playlistUi.playlistView->edit(m_playlistUi.playlistView->model()->index(m_playlistUi.playlistView->currentIndex().row(), action->data().toInt()));
+    }
+    else if (m_playlistUi.playlistView->currentIndex().row() >= 0)
+    {
+        const KUrl url(m_playlists[visiblePlaylist()]->tracks().at(m_playlistUi.playlistView->currentIndex().row()));
+        QWidget *trackWidget = new QWidget;
+
+        m_trackUi.setupUi(trackWidget);
+        m_trackUi.pathLineEdit->setText(url.pathOrUrl());
+        m_trackUi.artistLineEdit->setText(MetaDataManager::metaData(url, ArtistKey, false));
+        m_trackUi.titleLineEdit->setText(MetaDataManager::metaData(url, TitleKey, false));
+        m_trackUi.albumLineEdit->setText(MetaDataManager::metaData(url, AlbumKey, false));
+        m_trackUi.genreLineEdit->setText(MetaDataManager::metaData(url, GenreKey, false));
+        m_trackUi.descriptionLineEdit->setText(MetaDataManager::metaData(url, DescriptionKey, false));
+        m_trackUi.trackNumberSpinBox->setValue(MetaDataManager::metaData(url, TrackNumberKey, false).toInt());
+        m_trackUi.yearSpinBox->setValue(MetaDataManager::metaData(url, DateKey, false).toInt());
+
+        KDialog *trackDialog = new KDialog;
+        trackDialog->setMainWidget(trackWidget);
+        trackDialog->setButtons(KDialog::Cancel | KDialog::Ok);
+
+        connect(trackDialog, SIGNAL(okClicked()), this, SLOT(saveTrack()));
+        connect(trackDialog, SIGNAL(finished()), trackDialog, SLOT(deleteLater()));
+
+        trackDialog->setWindowTitle(QFileInfo(url.pathOrUrl()).fileName());
+        trackDialog->show();
+    }
+}
+
+void PlaylistManager::saveTrack()
+{
+    const KUrl url(m_trackUi.pathLineEdit->text());
+
+    MetaDataManager::setMetaData(url, ArtistKey, m_trackUi.artistLineEdit->text());
+    MetaDataManager::setMetaData(url, TitleKey, m_trackUi.titleLineEdit->text());
+    MetaDataManager::setMetaData(url, AlbumKey, m_trackUi.albumLineEdit->text());
+    MetaDataManager::setMetaData(url, GenreKey, m_trackUi.genreLineEdit->text());
+    MetaDataManager::setMetaData(url, DescriptionKey, m_trackUi.descriptionLineEdit->text());
+    MetaDataManager::setMetaData(url, TrackNumberKey, QString::number(m_trackUi.trackNumberSpinBox->value()));
+    MetaDataManager::setMetaData(url, DateKey, QString::number(m_trackUi.yearSpinBox->value()));
 }
 
 void PlaylistManager::copyTrackUrl()
@@ -553,6 +594,7 @@ void PlaylistManager::updateActions()
 
     m_playlistUi.addButton->setEnabled(!m_playlists[visiblePlaylist()]->isReadOnly());
     m_playlistUi.removeButton->setEnabled(!selectedIndexes.isEmpty());
+    m_playlistUi.editButton->setEnabled(!selectedIndexes.isEmpty() && !m_playlists[visiblePlaylist()]->isReadOnly());
     m_playlistUi.moveUpButton->setEnabled((m_playlists[visiblePlaylist()]->trackCount() > 1) && !selectedIndexes.isEmpty() && selectedIndexes.first().row() != 0);
     m_playlistUi.moveDownButton->setEnabled((m_playlists[visiblePlaylist()]->trackCount() > 1) && !selectedIndexes.isEmpty() && selectedIndexes.last().row() != (m_playlists[visiblePlaylist()]->trackCount() - 1));
     m_playlistUi.clearButton->setEnabled(hasTracks && !m_playlists[visiblePlaylist()]->isReadOnly());
@@ -628,6 +670,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.addButton->setIcon(KIcon("list-add"));
         m_playlistUi.addButton->setDelayedMenu(m_player->action(OpenMenuAction)->menu());
         m_playlistUi.removeButton->setIcon(KIcon("list-remove"));
+        m_playlistUi.editButton->setIcon(KIcon("document-edit"));
         m_playlistUi.moveUpButton->setIcon(KIcon("arrow-up"));
         m_playlistUi.moveDownButton->setIcon(KIcon("arrow-down"));
         m_playlistUi.newButton->setIcon(KIcon("document-new"));
@@ -684,6 +727,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.closeButton, SIGNAL(clicked()), m_dialog, SLOT(close()));
         connect(m_playlistUi.addButton, SIGNAL(clicked()), m_player->action(OpenFileAction), SLOT(trigger()));
         connect(m_playlistUi.removeButton, SIGNAL(clicked()), this, SLOT(removeTrack()));
+        connect(m_playlistUi.editButton, SIGNAL(clicked()), this, SLOT(editTrack()));
         connect(m_playlistUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveUpTrack()));
         connect(m_playlistUi.moveDownButton, SIGNAL(clicked()), this, SLOT(moveDownTrack()));
         connect(m_playlistUi.newButton, SIGNAL(clicked()), this, SLOT(newPlaylist()));
@@ -952,6 +996,9 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             {
                 KMenu menu;
                 QMenu *editMenu = menu.addMenu(KIcon("document-edit"), i18n("Edit"));
+                editMenu->setEnabled(!m_playlists[visiblePlaylist()]->isReadOnly());
+                editMenu->addAction(i18n("Edit all properties..."));
+                editMenu->addSeparator();
 
                 for (int i = 0; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
                 {

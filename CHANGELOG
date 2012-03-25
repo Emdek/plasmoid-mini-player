@@ -1,8 +1,9 @@
-2.3 (--.04.2012):
-- added column with entry path;
+2.3 (25.03.2012):
+- added track properties dialog;
 - improved filtering (works for all visible columns);
-- more friendly way to store columns order and visibility;
 - try to guess data from file name when there is no meta data;
+- added column with track file name;
+- more friendly way to store columns order and visibility;
 - some other fixes.
 
 2.2 (25.02.2012):

@@ -56,6 +56,12 @@
       </layout>
      </widget>
      <widget class="QGraphicsView" name="graphicsView">
+      <property name="minimumSize">
+       <size>
+        <width>75</width>
+        <height>100</height>
+       </size>
+      </property>
       <property name="palette">
        <palette>
         <active>
@@ -326,6 +332,16 @@
         <widget class="QToolButton" name="removeButton">
          <property name="toolTip">
           <string>Remove track</string>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="editButton">
+         <property name="toolTip">
+          <string>Edit track...</string>
          </property>
          <property name="autoRaise">
           <bool>true</bool>

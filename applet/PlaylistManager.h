@@ -26,6 +26,7 @@
 #include "Constants.h"
 
 #include "ui_playlist.h"
+#include "ui_track.h"
 
 namespace MiniPlayer
 {
@@ -93,7 +94,8 @@ class PlaylistManager : public QObject
         void moveDownTrack();
         void removeTrack();
         void playTrack(QModelIndex index = QModelIndex());
-        void editTrack(QAction *action);
+        void editTrack(QAction *action = NULL);
+        void saveTrack();
         void copyTrackUrl();
         void updateActions();
         void updateTheme();
@@ -117,6 +119,7 @@ class PlaylistManager : public QObject
         bool m_splitterLocked;
         bool m_isEdited;
         Ui::playlist m_playlistUi;
+        Ui::track m_trackUi;
 
     signals:
         void needsSaving();
