@@ -171,15 +171,15 @@ void SeekSlider::mediaChanged()
 
     killTimer(m_updatePosition);
 
+    setEnabled(m_player->isSeekable() && m_player->state() != StoppedState);
+
     if (m_player->isSeekable())
     {
-        setEnabled(true);
         setSingleStep(qMin((qint64) 1, (m_player->duration() / 300000)));
         setPageStep(qMin((qint64) 1, (m_player->duration() / 30000)));
     }
     else
     {
-        setEnabled(false);
         setToolTip(QString());
     }
 
