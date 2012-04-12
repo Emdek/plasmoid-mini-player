@@ -151,10 +151,17 @@ void PlaylistManager::visiblePlaylistChanged(int position)
         setCurrentPlaylist(position);
     }
 
+    if (m_playlistUi.playlistView->model())
+    {
+        disconnect(m_playlistUi.playlistView->model(), SIGNAL(needsSaving()), this, SLOT(filterPlaylist()));
+    }
+
     m_playlistUi.playlistView->setModel(m_playlists[visiblePlaylist()]);
     m_playlistUi.playlistView->horizontalHeader()->setMovable(true);
     m_playlistUi.playlistView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
     m_playlistUi.playlistView->horizontalHeader()->resizeSection(0, 22);
+
+    connect(m_playlists[visiblePlaylist()], SIGNAL(needsSaving()), this, SLOT(filterPlaylist()));
 
     filterPlaylist(m_playlistUi.playlistViewFilter->text());
 
@@ -287,6 +294,14 @@ void PlaylistManager::playlistMoved(int from, int to)
     m_playlists.swap(from, to);
 
     emit needsSaving();
+}
+
+void PlaylistManager::filterPlaylist()
+{
+    if (!m_playlistUi.playlistViewFilter->text().isEmpty())
+    {
+        filterPlaylist(m_playlistUi.playlistViewFilter->text());
+    }
 }
 
 void PlaylistManager::filterPlaylist(const QString &text)

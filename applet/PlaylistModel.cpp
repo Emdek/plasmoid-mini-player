@@ -78,6 +78,8 @@ void PlaylistModel::removeTrack(int position)
     {
         setCurrentTrack(m_currentTrack);
     }
+
+    emit needsSaving();
 }
 
 void PlaylistModel::addTracks(const KUrl::List &tracks, int position, PlayerReaction reaction)

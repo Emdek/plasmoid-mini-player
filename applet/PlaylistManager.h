@@ -82,6 +82,7 @@ class PlaylistManager : public QObject
         void deviceRemoved(const QString &udi);
         void createDevicePlaylist(const QString &udi, const KUrl::List &tracks);
         void playlistMoved(int from, int to);
+        void filterPlaylist();
         void filterPlaylist(const QString &text);
         void renamePlaylist(int position = -1);
         void removePlaylist(int position = -1);
