@@ -86,8 +86,8 @@ Player::Player(QObject *parent) : QObject(parent),
     m_actions[ChapterMenuAction] = m_actions[NavigationMenuAction]->menu()->addAction(i18n("Chapter"));
     m_actions[ChapterMenuAction]->setMenu(new KMenu());
     m_actions[ChapterMenuAction]->setEnabled(false);
-    m_actions[PlayNextAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-skip-backward"), i18n("Previous"), this, SLOT(playPrevious()), QKeySequence(Qt::Key_PageDown));
-    m_actions[PlayPreviousAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-skip-forward"), i18n("Next"), this, SLOT(playNext()), QKeySequence(Qt::Key_PageUp));
+    m_actions[PlayPreviousAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-skip-backward"), i18n("Previous"), this, SLOT(playPrevious()), QKeySequence(Qt::Key_PageDown));
+    m_actions[PlayNextAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-skip-forward"), i18n("Next"), this, SLOT(playNext()), QKeySequence(Qt::Key_PageUp));
     m_actions[NavigationMenuAction]->menu()->addSeparator();
     m_actions[SeekBackwardAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-seek-backward"), i18n("Seek Backward"), this, SLOT(seekBackward()), QKeySequence(Qt::Key_Left));
     m_actions[SeekForwardAction] = m_actions[NavigationMenuAction]->menu()->addAction(KIcon("media-seek-forward"), i18n("Seek Forward"), this, SLOT(seekForward()), QKeySequence(Qt::Key_Right));
@@ -677,9 +677,7 @@ void Player::playPrevious()
 {
     if (m_playlist)
     {
-        m_playlist->previous();
-
-        play();
+        m_playlist->previous(PlayReaction);
     }
 }
 
@@ -687,9 +685,7 @@ void Player::playNext()
 {
     if (m_playlist)
     {
-        m_playlist->next();
-
-        play();
+        m_playlist->next(PlayReaction);
     }
 }
 
