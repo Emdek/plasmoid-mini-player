@@ -47,7 +47,7 @@ class Player : public QObject
     Q_OBJECT
 
     public:
-        Player(QObject *parent);
+        explicit Player(QObject *parent);
 
         void registerAppletVideoWidget(VideoWidget *videoWidget);
         void registerDialogVideoWidget(VideoWidget *videoWidget);

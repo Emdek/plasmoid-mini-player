@@ -40,7 +40,7 @@ class PlaylistModel : public QAbstractTableModel
     Q_OBJECT
 
     public:
-        PlaylistModel(PlaylistManager *parent, const QString &title, PlaylistSource source = LocalSource);
+        explicit PlaylistModel(PlaylistManager *parent, const QString &title, PlaylistSource source = LocalSource);
 
         void addTrack(int position, const KUrl &url);
         void removeTrack(int position);

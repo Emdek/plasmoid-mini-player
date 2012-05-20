@@ -34,10 +34,6 @@
 #include "ui_fullScreen.h"
 #include "ui_volume.h"
 
-class PlayerDBusHandler;
-class TrackListDBusHandler;
-class RootDBusHandler;
-
 namespace MiniPlayer
 {
 
@@ -48,8 +44,7 @@ class Applet : public Plasma::Applet
     Q_OBJECT
 
     public:
-        Applet(QObject *parent, const QVariantList &args);
-        ~Applet();
+        explicit Applet(QObject *parent, const QVariantList &args);
 
         void init();
         QList<QAction*> contextualActions();
@@ -94,9 +89,6 @@ class Applet : public Plasma::Applet
         Player *m_player;
         PlaylistManager *m_playlistManager;
         Plasma::Dialog *m_volumeDialog;
-        PlayerDBusHandler *m_playerDBUSHandler;
-        TrackListDBusHandler *m_trackListDBusHandler;
-        RootDBusHandler *m_rootDBUSHandler;
         QMap<QString, QGraphicsWidget*> m_controls;
         QList<QAction*> m_actions;
         QWidget *m_fullScreenWidget;

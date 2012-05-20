@@ -33,7 +33,7 @@ class VolumeSlider : public QSlider
     Q_OBJECT
 
     public:
-        VolumeSlider(QWidget *parent = NULL);
+        explicit VolumeSlider(QWidget *parent = NULL);
 
         void setPlayer(Player *player);
 

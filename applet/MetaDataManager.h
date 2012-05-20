@@ -62,7 +62,7 @@ class MetaDataManager : public QObject
         static bool isAvailable(const KUrl &url, bool complete = false);
 
     protected:
-        MetaDataManager(QObject *parent);
+        explicit MetaDataManager(QObject *parent);
 
         void timerEvent(QTimerEvent *event);
         void resolveMetaData();

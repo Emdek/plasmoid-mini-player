@@ -33,7 +33,7 @@ class SeekSlider : public QSlider
     Q_OBJECT
 
     public:
-        SeekSlider(QWidget *parent = NULL);
+        explicit SeekSlider(QWidget *parent = NULL);
 
         void setPlayer(Player *player);
 

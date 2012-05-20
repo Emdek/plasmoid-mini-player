@@ -62,9 +62,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_player(new Player(this)),
     m_playlistManager(new PlaylistManager(m_player)),
     m_volumeDialog(NULL),
-    m_playerDBUSHandler(NULL),
-    m_trackListDBusHandler(NULL),
-    m_rootDBUSHandler(NULL),
     m_fullScreenWidget(NULL),
     m_jumpToPositionDialog(NULL),
     m_hideFullScreenControls(0),
@@ -166,16 +163,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     resize(250, 50);
 }
 
-Applet::~Applet()
-{
-    if (m_playerDBUSHandler)
-    {
-        delete m_playerDBUSHandler;
-        delete m_trackListDBusHandler;
-        delete m_rootDBUSHandler;
-    }
-}
-
 void Applet::init()
 {
     QTimer::singleShot(100, this, SLOT(configChanged()));
@@ -209,7 +196,6 @@ void Applet::createConfigurationInterface(KConfigDialog *parent)
     m_controlsUi.setupUi(controlsWidget);
 
     m_generalUi.startPlaybackCheckBox->setChecked(configuration.readEntry("playOnStartup", false));
-    m_generalUi.dbusCheckBox->setChecked(configuration.readEntry("enableDBus", false));
     m_generalUi.inhibitNotificationsCheckBox->setChecked(configuration.readEntry("inhibitNotifications", false));
     m_generalUi.showTooltipOnTrackChange->setValue(configuration.readEntry("showToolTipOnTrackChange", 3));
 
@@ -270,7 +256,6 @@ void Applet::configAccepted()
 
     configuration.writeEntry("controls", controls);
     configuration.writeEntry("playOnStartup", m_generalUi.startPlaybackCheckBox->isChecked());
-    configuration.writeEntry("enableDBus", m_generalUi.dbusCheckBox->isChecked());
     configuration.writeEntry("inhibitNotifications", m_generalUi.inhibitNotificationsCheckBox->isChecked());
     configuration.writeEntry("showToolTipOnTrackChange", m_generalUi.showTooltipOnTrackChange->value());
 
@@ -349,30 +334,13 @@ void Applet::configChanged()
         connect(m_playlistManager, SIGNAL(needsSaving()), this, SLOT(configSave()));
     }
 
-    if (!configuration.readEntry("enableDBus", false) && m_playerDBUSHandler)
-    {
-        QDBusConnection dbus = QDBusConnection::sessionBus();
-        dbus.unregisterService("org.mpris.PlasmaApplet");
-        dbus.unregisterObject("/PlasmaApplet");
-
-        delete m_playerDBUSHandler;
-        delete m_trackListDBusHandler;
-        delete m_rootDBUSHandler;
-
-        m_playerDBUSHandler = NULL;
-        m_trackListDBusHandler = NULL;
-        m_rootDBUSHandler = NULL;
-    }
-    else if (configuration.readEntry("enableDBus", false) && !m_playerDBUSHandler)
-    {
-        QDBusConnection dbus = QDBusConnection::sessionBus();
-        dbus.registerService("org.mpris.PlasmaApplet");
-        dbus.registerObject("/PlasmaApplet", m_player);
-
-        m_playerDBUSHandler = new PlayerDBusHandler(m_player);
-        m_trackListDBusHandler = new TrackListDBusHandler(m_player);
-        m_rootDBUSHandler = new RootDBusHandler(m_player);
-    }
+//         QDBusConnection dbus = QDBusConnection::sessionBus();
+//         dbus.registerService("org.mpris.PlasmaApplet");
+//         dbus.registerObject("/PlasmaApplet", m_player);
+//
+//         m_playerDBUSHandler = new PlayerDBusHandler(m_player);
+//         m_trackListDBusHandler = new TrackListDBusHandler(m_player);
+//         m_rootDBUSHandler = new RootDBusHandler(m_player);
 
     updateControls();
 }

@@ -40,7 +40,7 @@ class PlaylistManager : public QObject
     Q_OBJECT
 
     public:
-        PlaylistManager(Player *parent);
+        explicit PlaylistManager(Player *parent);
 
         void addTracks(const KUrl::List &tracks, int index = -1, PlayerReaction reaction = NoReaction);
         void removeTracks(const KUrl::List &tracks);

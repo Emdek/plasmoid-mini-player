@@ -38,7 +38,7 @@ class PlaylistReader : public QObject
     Q_OBJECT
 
     public:
-        PlaylistReader(QObject *parent, const KUrl::List &urls, int index, PlayerReaction reaction);
+        explicit PlaylistReader(QObject *parent, const KUrl::List &urls, int index, PlayerReaction reaction);
 
     public slots:
         void importData(KIO::Job *job, const QByteArray &data);
