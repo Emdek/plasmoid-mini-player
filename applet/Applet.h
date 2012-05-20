@@ -31,7 +31,6 @@
 #include "ui_general.h"
 #include "ui_controls.h"
 #include "ui_jumpToPosition.h"
-#include "ui_fullScreen.h"
 #include "ui_volume.h"
 
 namespace MiniPlayer
@@ -72,7 +71,6 @@ class Applet : public Plasma::Applet
 
     protected slots:
         void stateChanged(PlayerState state);
-        void videoAvailableChanged(bool videoAvailable);
         void metaDataChanged();
         void openFiles();
         void openUrl();
@@ -82,6 +80,7 @@ class Applet : public Plasma::Applet
         void toggleFullScreen();
         void togglePlaylistDialog();
         void showToolTip();
+        void hideToolTip();
         void updateToolTip();
         void updateControls();
 
@@ -91,9 +90,7 @@ class Applet : public Plasma::Applet
         Plasma::Dialog *m_volumeDialog;
         QMap<QString, QGraphicsWidget*> m_controls;
         QList<QAction*> m_actions;
-        QWidget *m_fullScreenWidget;
         KDialog *m_jumpToPositionDialog;
-        int m_hideFullScreenControls;
         int m_togglePlaylist;
         int m_hideToolTip;
         int m_updateToolTip;
@@ -101,11 +98,7 @@ class Applet : public Plasma::Applet
         Ui::general m_generalUi;
         Ui::controls m_controlsUi;
         Ui::jumpToPosition m_jumpToPositionUi;
-        Ui::fullScreen m_fullScreenUi;
         Ui::volume m_volumeUi;
-
-    signals:
-        void titleChanged(QString title);
 };
 
 }

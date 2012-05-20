@@ -26,9 +26,6 @@
 #include "PlaylistModel.h"
 #include "PlaylistReader.h"
 #include "SeekSlider.h"
-#include "RootDBusHandler.h"
-#include "PlayerDBusHandler.h"
-#include "TrackListDBusHandler.h"
 
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
@@ -62,9 +59,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_player(new Player(this)),
     m_playlistManager(new PlaylistManager(m_player)),
     m_volumeDialog(NULL),
-    m_fullScreenWidget(NULL),
     m_jumpToPositionDialog(NULL),
-    m_hideFullScreenControls(0),
     m_togglePlaylist(0),
     m_hideToolTip(0),
     m_updateToolTip(0),
@@ -170,10 +165,10 @@ void Applet::init()
     connect(this, SIGNAL(activate()), this, SLOT(togglePlaylistDialog()));
     connect(m_player, SIGNAL(trackChanged()), this, SLOT(showToolTip()));
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(stateChanged(PlayerState)));
-    connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(videoAvailableChanged(bool)));
     connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(metaDataChanged()));
     connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(metaDataChanged()));
     connect(m_player, SIGNAL(requestMenu(QPoint)), this, SLOT(showMenu(QPoint)));
+    connect(m_player, SIGNAL(fullScreenChanged(bool)), this, SLOT(hideToolTip()));
     connect(m_player->action(OpenFileAction), SIGNAL(triggered()), this, SLOT(openFiles()));
     connect(m_player->action(OpenUrlAction), SIGNAL(triggered()), this, SLOT(openUrl()));
     connect(m_player->action(SeekToAction), SIGNAL(triggered()), this, SLOT(toggleJumpToPosition()));
@@ -510,9 +505,9 @@ void Applet::keyPressEvent(QKeyEvent *event)
 
             break;
         case Qt::Key_Escape:
-            if (m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
+            if (m_player->isFullScreen())
             {
-                toggleFullScreen();
+                m_player->setFullScreen(false);
             }
             else if (m_playlistManager->isDialogVisible())
             {
@@ -521,7 +516,7 @@ void Applet::keyPressEvent(QKeyEvent *event)
 
             break;
         case Qt::Key_F:
-            toggleFullScreen();
+            m_player->setFullScreen(!m_player->isFullScreen());
 
             break;
         case Qt::Key_G:
@@ -561,15 +556,7 @@ void Applet::keyPressEvent(QKeyEvent *event)
 
 void Applet::timerEvent(QTimerEvent *event)
 {
-    if (event->timerId() == m_hideFullScreenControls && m_fullScreenWidget && !m_fullScreenUi.controlsWidget->underMouse())
-    {
-        m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::BlankCursor));
-        m_fullScreenUi.titleLabel->hide();
-        m_fullScreenUi.controlsWidget->hide();
-
-        killTimer(event->timerId());
-    }
-    else if (event->timerId() == m_togglePlaylist)
+    if (event->timerId() == m_togglePlaylist)
     {
         togglePlaylistDialog();
 
@@ -605,18 +592,6 @@ void Applet::stateChanged(PlayerState state)
     else if (state == StoppedState)
     {
         Plasma::ToolTipManager::self()->clearContent(this);
-
-        videoAvailableChanged(false);
-
-        emit titleChanged(QString());
-    }
-}
-
-void Applet::videoAvailableChanged(bool videoAvailable)
-{
-    if (!videoAvailable && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
-    {
-        toggleFullScreen();
     }
 }
 
@@ -648,8 +623,6 @@ void Applet::metaDataChanged()
 
         QTimer::singleShot(500, this, SLOT(showToolTip()));
     }
-
-    emit titleChanged(m_player->metaData(TitleKey));
 }
 
 void Applet::openUrl()
@@ -758,58 +731,7 @@ void Applet::toggleVolumeDialog()
 
 void Applet::toggleFullScreen()
 {
-    if (!m_fullScreenWidget)
-    {
-        m_fullScreenWidget = new QWidget;
-        m_fullScreenWidget->installEventFilter(this);
-
-        m_fullScreenUi.setupUi(m_fullScreenWidget);
-        m_fullScreenUi.playPauseButton->setDefaultAction(m_player->action(PlayPauseAction));
-        m_fullScreenUi.stopButton->setDefaultAction(m_player->action(StopAction));
-        m_fullScreenUi.seekSlider->setPlayer(m_player);
-        m_fullScreenUi.muteButton->setDefaultAction(m_player->action(MuteAction));
-        m_fullScreenUi.volumeSlider->setPlayer(m_player);
-        m_fullScreenUi.fullScreenButton->setDefaultAction(m_player->action(FullScreenAction));
-        m_fullScreenUi.titleLabel->setText(m_player->metaData(TitleKey));
-
-        m_player->registerFullScreenVideoWidget(m_fullScreenUi.videoWidget);
-
-        connect(this, SIGNAL(titleChanged(QString)), m_fullScreenUi.titleLabel, SLOT(setText(QString)));
-        connect(this, SIGNAL(destroyed()), m_fullScreenWidget, SLOT(deleteLater()));
-    }
-
-    if (m_fullScreenWidget->isFullScreen() || !m_player->isVideoAvailable())
-    {
-        killTimer(m_hideFullScreenControls);
-
-        m_player->setFullScreen(false);
-
-        m_fullScreenWidget->showNormal();
-        m_fullScreenWidget->hide();
-
-        m_player->action(FullScreenAction)->setIcon(KIcon("view-fullscreen"));
-        m_player->action(FullScreenAction)->setText(i18n("Full Screen Mode"));
-
-        m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
-    }
-    else
-    {
-        Plasma::ToolTipManager::self()->hide(this);
-
-        m_player->setFullScreen(true);
-
-        m_fullScreenWidget->showFullScreen();
-        m_fullScreenWidget->setWindowTitle(m_player->metaData(TitleKey));
-
-        m_fullScreenUi.titleLabel->setText(m_player->metaData(TitleKey));
-        m_fullScreenUi.titleLabel->hide();
-        m_fullScreenUi.controlsWidget->hide();
-
-        m_player->action(FullScreenAction)->setIcon(KIcon("view-restore"));
-        m_player->action(FullScreenAction)->setText(i18n("Exit Full Screen Mode"));
-
-        m_hideFullScreenControls = startTimer(2000);
-    }
+    m_player->setFullScreen(!m_player->isFullScreen());
 }
 
 void Applet::togglePlaylistDialog()
@@ -858,6 +780,11 @@ void Applet::showToolTip()
 
         m_hideToolTip = startTimer(time);
     }
+}
+
+void Applet::hideToolTip()
+{
+    Plasma::ToolTipManager::self()->hide(this);
 }
 
 void Applet::updateToolTip()
@@ -912,7 +839,7 @@ void Applet::showMenu(const QPoint &position)
     KMenu menu;
     menu.addActions(contextualActions());
 
-    if (m_playlistManager->isDialogVisible() && (!m_fullScreenWidget || !m_fullScreenWidget->isFullScreen()))
+    if (m_playlistManager->isDialogVisible() && !m_player->isFullScreen())
     {
         menu.addSeparator();
 
@@ -975,17 +902,7 @@ Player* Applet::player()
 
 bool Applet::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::MouseMove && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
-    {
-        killTimer(m_hideFullScreenControls);
-
-        m_hideFullScreenControls = startTimer(2000);
-
-        m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
-        m_fullScreenUi.titleLabel->show();
-        m_fullScreenUi.controlsWidget->show();
-    }
-    else if (event->type() == QEvent::KeyPress)
+    if (event->type() == QEvent::KeyPress)
     {
         keyPressEvent(static_cast<QKeyEvent*>(event));
 

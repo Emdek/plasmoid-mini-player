@@ -36,6 +36,8 @@
 
 #include "Constants.h"
 
+#include "ui_fullScreen.h"
+
 namespace MiniPlayer
 {
 
@@ -51,7 +53,6 @@ class Player : public QObject
 
         void registerAppletVideoWidget(VideoWidget *videoWidget);
         void registerDialogVideoWidget(VideoWidget *videoWidget);
-        void registerFullScreenVideoWidget(QWidget *videoWidget);
         QString errorString() const;
         QString metaData(MetaDataKey key, bool substitute = true) const;
         PlaylistModel* playlist() const;
@@ -72,6 +73,7 @@ class Player : public QObject
         bool isAudioAvailable() const;
         bool isVideoAvailable() const;
         bool isSeekable() const;
+        bool isFullScreen() const;
         bool eventFilter(QObject *object, QEvent *event);
 
     public slots:
@@ -101,6 +103,7 @@ class Player : public QObject
         void setSaturation(int value);
 
     protected:
+        void timerEvent(QTimerEvent *event);
         PlayerState translateState(Phonon::State state) const;
 
     protected slots:
@@ -121,6 +124,7 @@ class Player : public QObject
         void changeAngle(QAction *action);
         void trackFinished();
         void updateSliders();
+        void updateTitle();
 
     private:
         Phonon::MediaObject *m_mediaObject;
@@ -131,7 +135,7 @@ class Player : public QObject
         KNotificationRestrictions *m_notificationRestrictions;
         VideoWidget *m_appletVideoWidget;
         VideoWidget *m_dialogVideoWidget;
-        QWidget *m_fullScreenVideoWidget;
+        QWidget *m_fullScreenWidget;
         QSlider *m_brightnessSlider;
         QSlider *m_contrastSlider;
         QSlider *m_hueSlider;
@@ -143,9 +147,10 @@ class Player : public QObject
         QMap<PlayerAction, QAction*> m_actions;
         AspectRatio m_aspectRatio;
         int m_stopSleepCookie;
+        int m_hideFullScreenControls;
         bool m_inhibitNotifications;
         bool m_videoMode;
-        bool m_fullScreenMode;
+        Ui::fullScreen m_fullScreenUi;
 
     signals:
         void needsSaving();
@@ -156,6 +161,7 @@ class Player : public QObject
         void audioMutedChanged(bool muted);
         void audioAvailableChanged(bool available);
         void videoAvailableChanged(bool available);
+        void fullScreenChanged(bool enabled);
         void seekableChanged(bool seekable);
         void stateChanged(PlayerState state);
         void errorOccured(QString error);

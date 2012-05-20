@@ -46,16 +46,16 @@ Player::Player(QObject *parent) : QObject(parent),
     m_notificationRestrictions(NULL),
     m_appletVideoWidget(NULL),
     m_dialogVideoWidget(NULL),
-    m_fullScreenVideoWidget(NULL),
+    m_fullScreenWidget(NULL),
     m_chaptersGroup(new QActionGroup(this)),
     m_audioChannelGroup(new QActionGroup(this)),
     m_subtitlesGroup(new QActionGroup(this)),
     m_anglesGroup(new QActionGroup(this)),
     m_aspectRatio(AutomaticRatio),
     m_stopSleepCookie(0),
+    m_hideFullScreenControls(0),
     m_inhibitNotifications(false),
-    m_videoMode(false),
-    m_fullScreenMode(false)
+    m_videoMode(false)
 {
     m_videoWidget->setScaleMode(Phonon::VideoWidget::FitInView);
     m_videoWidget->setWindowIcon(KIcon("applications-multimedia"));
@@ -234,6 +234,7 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_mediaObject, SIGNAL(finished()), this, SLOT(trackFinished()));
     connect(m_mediaObject, SIGNAL(stateChanged(Phonon::State,Phonon::State)), this, SLOT(stateChanged(Phonon::State)));
     connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
+    connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SLOT(updateTitle()));
     connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SIGNAL(durationChanged(qint64)));
     connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), this, SIGNAL(videoAvailableChanged(bool)));
     connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), this, SLOT(videoChanged()));
@@ -255,6 +256,18 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
     connect(this, SIGNAL(audioAvailableChanged(bool)), this, SLOT(volumeChanged()));
     connect(this, SIGNAL(destroyed()), m_videoWidget, SLOT(deleteLater()));
+}
+
+void Player::timerEvent(QTimerEvent *event)
+{
+    if (m_fullScreenWidget && !m_fullScreenUi.controlsWidget->underMouse())
+    {
+        m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::BlankCursor));
+        m_fullScreenUi.titleLabel->hide();
+        m_fullScreenUi.controlsWidget->hide();
+    }
+
+    killTimer(event->timerId());
 }
 
 void Player::volumeChanged(qreal volume)
@@ -301,7 +314,14 @@ void Player::volumeChanged(qreal volume)
 
 void Player::videoChanged()
 {
-    setVideoMode(m_videoMode);
+    if (!isVideoAvailable() && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
+    {
+        setFullScreen(false);
+    }
+    else
+    {
+        setVideoMode(m_videoMode);
+    }
 }
 
 void Player::mediaChanged()
@@ -496,6 +516,11 @@ void Player::stateChanged(Phonon::State state)
         emit errorOccured(m_mediaObject->errorString());
     }
 
+    if (translatedState == StoppedState && isFullScreen())
+    {
+        m_fullScreenUi.titleLabel->clear();
+    }
+
     emit stateChanged(translatedState);
     emit audioAvailableChanged(translatedState != StoppedState);
 }
@@ -555,6 +580,14 @@ void Player::updateSliders()
     connect(m_saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
 }
 
+void Player::updateTitle()
+{
+    if (isFullScreen())
+    {
+        m_fullScreenUi.titleLabel->setText(metaData(TitleKey));
+    }
+}
+
 void Player::registerAppletVideoWidget(VideoWidget *videoWidget)
 {
     m_appletVideoWidget = videoWidget;
@@ -565,12 +598,6 @@ void Player::registerDialogVideoWidget(VideoWidget *videoWidget)
 {
     m_dialogVideoWidget = videoWidget;
     m_dialogVideoWidget->installEventFilter(this);
-}
-
-void Player::registerFullScreenVideoWidget(QWidget *videoWidget)
-{
-    m_fullScreenVideoWidget = videoWidget;
-    m_fullScreenVideoWidget->installEventFilter(this);
 }
 
 void Player::seekBackward()
@@ -769,21 +796,21 @@ void Player::setVideoMode(bool mode)
     m_videoWidget->setParent(NULL);
     m_videoWidget->hide();
 
-    if (m_fullScreenMode && m_fullScreenVideoWidget)
+    if (isFullScreen())
     {
         m_appletVideoWidget->setVideoWidget(NULL, false);
 
         m_dialogVideoWidget->setVideoWidget(NULL, false);
 
-        m_fullScreenVideoWidget->layout()->addWidget(m_videoWidget);
+        m_fullScreenUi.videoWidget->layout()->addWidget(m_videoWidget);
 
         m_videoWidget->show();
     }
     else
     {
-        if (m_fullScreenVideoWidget)
+        if (m_fullScreenWidget)
         {
-            m_fullScreenVideoWidget->layout()->removeWidget(m_videoWidget);
+            m_fullScreenUi.videoWidget->layout()->removeWidget(m_videoWidget);
         }
 
         const bool mode = (state() != StoppedState && isVideoAvailable());
@@ -808,7 +835,60 @@ void Player::setVideoMode(bool mode)
 
 void Player::setFullScreen(bool enable)
 {
-    m_fullScreenMode = enable;
+    if (enable)
+    {
+        if (!isVideoAvailable())
+        {
+            return;
+        }
+
+        if (!m_fullScreenWidget)
+        {
+            m_fullScreenWidget = new QWidget;
+            m_fullScreenWidget->installEventFilter(this);
+            m_fullScreenWidget->installEventFilter(parent());
+
+            m_fullScreenUi.setupUi(m_fullScreenWidget);
+            m_fullScreenUi.playPauseButton->setDefaultAction(m_actions[PlayPauseAction]);
+            m_fullScreenUi.stopButton->setDefaultAction(m_actions[StopAction]);
+            m_fullScreenUi.seekSlider->setPlayer(this);
+            m_fullScreenUi.muteButton->setDefaultAction(m_actions[MuteAction]);
+            m_fullScreenUi.volumeSlider->setPlayer(this);
+            m_fullScreenUi.fullScreenButton->setDefaultAction(m_actions[FullScreenAction]);
+            m_fullScreenUi.titleLabel->setText(metaData(TitleKey));
+            m_fullScreenUi.videoWidget->installEventFilter(this);
+
+            connect(this, SIGNAL(destroyed()), m_fullScreenWidget, SLOT(deleteLater()));
+        }
+
+        emit fullScreenChanged(true);
+
+        m_fullScreenWidget->showFullScreen();
+        m_fullScreenWidget->setWindowTitle(metaData(TitleKey));
+
+        m_fullScreenUi.titleLabel->setText(metaData(TitleKey));
+        m_fullScreenUi.titleLabel->hide();
+        m_fullScreenUi.controlsWidget->hide();
+
+        m_actions[FullScreenAction]->setIcon(KIcon("view-restore"));
+        m_actions[FullScreenAction]->setText(i18n("Exit Full Screen Mode"));
+
+        m_hideFullScreenControls = startTimer(2000);
+    }
+    else
+    {
+        killTimer(m_hideFullScreenControls);
+
+        emit fullScreenChanged(false);
+
+        m_fullScreenWidget->showNormal();
+        m_fullScreenWidget->hide();
+
+        m_actions[FullScreenAction]->setIcon(KIcon("view-fullscreen"));
+        m_actions[FullScreenAction]->setText(i18n("Full Screen Mode"));
+
+        m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
+    }
 
     setVideoMode(m_videoMode);
 }
@@ -1011,9 +1091,24 @@ bool Player::isSeekable() const
     return m_mediaObject->isSeekable();
 }
 
+bool Player::isFullScreen() const
+{
+    return (m_fullScreenWidget && m_fullScreenWidget->isFullScreen());
+}
+
 bool Player::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::ContextMenu || event->type() == QEvent::GraphicsSceneContextMenu)
+    if (event->type() == QEvent::MouseMove && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
+    {
+        killTimer(m_hideFullScreenControls);
+
+        m_hideFullScreenControls = startTimer(2000);
+
+        m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
+        m_fullScreenUi.titleLabel->show();
+        m_fullScreenUi.controlsWidget->show();
+    }
+    else if (event->type() == QEvent::ContextMenu || event->type() == QEvent::GraphicsSceneContextMenu)
     {
         emit requestMenu(QCursor::pos());
 
