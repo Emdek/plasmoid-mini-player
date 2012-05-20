@@ -53,6 +53,7 @@ class Player : public QObject
 
         void registerAppletVideoWidget(VideoWidget *videoWidget);
         void registerDialogVideoWidget(VideoWidget *videoWidget);
+        QStringList supportedMimeTypes() const;
         QString errorString() const;
         QString metaData(MetaDataKey key, bool substitute = true) const;
         PlaylistModel* playlist() const;
