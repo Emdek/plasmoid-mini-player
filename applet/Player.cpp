@@ -452,7 +452,7 @@ void Player::availableTitlesChanged()
         MetaDataManager::setMetaData(url, TitleKey, i18n("Track %1", i));
     }
 
-    emit createDevicePlaylist(udi, tracks);
+    emit requestDevicePlaylist(udi, tracks);
 }
 
 void Player::currentTrackChanged(int track, PlayerReaction reaction)

@@ -78,7 +78,7 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
         deviceAdded(device.udi());
     }
 
-    connect(m_player, SIGNAL(createDevicePlaylist(QString,KUrl::List)), this, SLOT(createDevicePlaylist(QString,KUrl::List)));
+    connect(m_player, SIGNAL(requestDevicePlaylist(QString,KUrl::List)), this, SLOT(createDevicePlaylist(QString,KUrl::List)));
     connect(m_player->action(OpenMenuAction)->menu(), SIGNAL(triggered(QAction*)), this, SLOT(openDisc(QAction*)));
     connect(m_player->action(PlaybackModeMenuAction)->menu(), SIGNAL(triggered(QAction*)), this, SLOT(playbackModeChanged(QAction*)));
     connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceAdded(QString)), this, SLOT(deviceAdded(QString)));

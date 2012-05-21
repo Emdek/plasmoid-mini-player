@@ -168,7 +168,7 @@ class Player : public QObject
         void stateChanged(PlayerState state);
         void errorOccured(QString error);
         void requestMenu(QPoint position);
-        void createDevicePlaylist(QString udi, KUrl::List tracks);
+        void requestDevicePlaylist(QString udi, KUrl::List tracks);
 };
 
 }
