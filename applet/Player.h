@@ -94,6 +94,7 @@ class Player : public QObject
         void setPosition(qint64 position);
         void setVolume(int volume);
         void setAudioMuted(bool muted);
+        void setPlaybackMode(PlaybackMode mode);
         void setAspectRatio(AspectRatio ratio);
         void setVideoMode(bool mode);
         void setFullScreen(bool enable);

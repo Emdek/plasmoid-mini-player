@@ -763,6 +763,14 @@ void Player::setAudioMuted(bool muted)
     m_audioOutput->setMuted(muted);
 }
 
+void Player::setPlaybackMode(PlaybackMode mode)
+{
+    if (m_playlist)
+    {
+        m_playlist->setPlaybackMode(mode);
+    }
+}
+
 void Player::setAspectRatio(AspectRatio ratio)
 {
     m_aspectRatio = ratio;
