@@ -1057,6 +1057,11 @@ PlayerState Player::translateState(Phonon::State state) const
     }
 }
 
+PlaybackMode Player::playbackMode() const
+{
+    return (m_playlist?m_playlist->playbackMode():SequentialMode);
+}
+
 AspectRatio Player::aspectRatio() const
 {
     return m_aspectRatio;
