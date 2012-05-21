@@ -32,6 +32,17 @@ namespace MiniPlayer
 DBusPlayerAdaptor::DBusPlayerAdaptor(QObject *parent, Player *player) : QDBusAbstractAdaptor(parent),
     m_player(player)
 {
+    m_properties["PlaybackStatus"] = PlaybackStatus();
+    m_properties["LoopStatus"] = LoopStatus();
+    m_properties["Shuffle"] = Shuffle();
+    m_properties["Metadata"] = Metadata();
+    m_properties["Volume"] = Volume();
+    m_properties["CanGoNext"] = CanGoNext();
+    m_properties["CanGoPrevious"] = CanGoPrevious();
+    m_properties["CanPlay"] = CanPlay();
+    m_properties["CanPause"] = CanPause();
+    m_properties["CanSeek"] = CanSeek();
+
     connect(m_player, SIGNAL(positionChanged(qint64)), this, SIGNAL(Seeked(qint64)));
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(playbackModeChanged(PlaybackMode)), this, SLOT(updateProperties()));
