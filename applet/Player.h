@@ -159,6 +159,7 @@ class Player : public QObject
         void metaDataChanged();
         void trackChanged();
         void durationChanged(qint64 duration);
+        void positionChanged(qint64 position);
         void volumeChanged(int volume);
         void audioMutedChanged(bool muted);
         void audioAvailableChanged(bool available);

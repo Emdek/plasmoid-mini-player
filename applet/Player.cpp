@@ -750,7 +750,12 @@ void Player::setPlaylist(PlaylistModel *playlist)
 
 void Player::setPosition(qint64 position)
 {
-    m_mediaObject->seek(position);
+    if (isSeekable())
+    {
+        m_mediaObject->seek(position);
+
+        emit positionChanged(position);
+    }
 }
 
 void Player::setVolume(int volume)
