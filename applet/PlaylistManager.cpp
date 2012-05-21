@@ -637,6 +637,14 @@ void PlaylistManager::updateTheme()
     m_dialog->setPalette(palette);
 }
 
+void PlaylistManager::updateTitle()
+{
+    if (m_dialog)
+    {
+        m_playlistUi.titleLabel->setText(m_player->metaData(TitleKey));
+    }
+}
+
 void PlaylistManager::updateVideoView()
 {
     m_videoWidget->resize(m_playlistUi.graphicsView->size());
@@ -753,7 +761,8 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.playlistView, SIGNAL(activated(QModelIndex)), this, SLOT(playTrack(QModelIndex)));
         connect(m_playlistUi.playlistView->horizontalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(columnsOrderChanged()));
         connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
-        connect(m_player->parent(), SIGNAL(titleChanged(QString)), m_playlistUi.titleLabel, SLOT(setText(QString)));
+        connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(updateTitle()));
+        connect(m_player, SIGNAL(trackChanged()), this, SLOT(updateTitle()));
         connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(updateVideoView()));
         connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
         connect(this, SIGNAL(destroyed()), m_dialog, SLOT(deleteLater()));
