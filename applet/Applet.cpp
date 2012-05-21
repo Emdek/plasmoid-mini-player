@@ -26,6 +26,7 @@
 #include "PlaylistModel.h"
 #include "PlaylistReader.h"
 #include "SeekSlider.h"
+#include "DBusInterface.h"
 
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
@@ -325,17 +326,11 @@ void Applet::configChanged()
             m_player->play();
         }
 
+        new DBusInterface(this);
+
         connect(m_player, SIGNAL(needsSaving()), this, SLOT(configSave()));
         connect(m_playlistManager, SIGNAL(needsSaving()), this, SLOT(configSave()));
     }
-
-//         QDBusConnection dbus = QDBusConnection::sessionBus();
-//         dbus.registerService("org.mpris.PlasmaApplet");
-//         dbus.registerObject("/PlasmaApplet", m_player);
-//
-//         m_playerDBUSHandler = new PlayerDBusHandler(m_player);
-//         m_trackListDBusHandler = new TrackListDBusHandler(m_player);
-//         m_rootDBUSHandler = new RootDBusHandler(m_player);
 
     updateControls();
 }
