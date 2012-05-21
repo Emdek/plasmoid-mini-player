@@ -98,6 +98,7 @@ class PlaylistModel : public QAbstractTableModel
     signals:
         void needsSaving();
         void currentTrackChanged(int track, PlayerReaction reaction);
+        void playbackModeChanged(PlaybackMode mode);
 
     friend class Player;
 };

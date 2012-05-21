@@ -265,6 +265,7 @@ void PlaylistModel::setPlaybackMode(PlaybackMode mode)
 {
     m_playbackMode = mode;
 
+    emit playbackModeChanged(mode);
     emit needsSaving();
 }
 

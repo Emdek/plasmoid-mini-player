@@ -167,6 +167,7 @@ class Player : public QObject
         void fullScreenChanged(bool enabled);
         void seekableChanged(bool seekable);
         void stateChanged(PlayerState state);
+        void playbackModeChanged(PlaybackMode mode);
         void errorOccured(QString error);
         void requestMenu(QPoint position);
         void requestDevicePlaylist(QString udi, KUrl::List tracks);
