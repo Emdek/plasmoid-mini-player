@@ -730,9 +730,10 @@ void Player::setPlaylist(PlaylistModel *playlist)
 
     if (m_playlist)
     {
+        disconnect(m_playlist, SIGNAL(playbackModeChanged(PlaybackMode)), this, SIGNAL(playbackModeChanged(PlaybackMode)));
+        disconnect(m_playlist, SIGNAL(needsSaving()), this, SIGNAL(playlistChanged()));
         disconnect(m_playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
         disconnect(m_playlist, SIGNAL(currentTrackChanged(int,PlayerReaction)), this, SLOT(currentTrackChanged(int,PlayerReaction)));
-        disconnect(m_playlist, SIGNAL(playbackModeChanged(PlaybackMode)), this, SIGNAL(playbackModeChanged(PlaybackMode)));
     }
 
     if (state() != StoppedState)
@@ -745,9 +746,12 @@ void Player::setPlaylist(PlaylistModel *playlist)
     currentTrackChanged(playlist->currentTrack(), NoReaction);
     mediaChanged();
 
+    emit playlistChanged();
+
+    connect(playlist, SIGNAL(playbackModeChanged(PlaybackMode)), this, SIGNAL(playbackModeChanged(PlaybackMode)));
+    connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(playlistChanged()));
     connect(playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
     connect(playlist, SIGNAL(currentTrackChanged(int,PlayerReaction)), this, SLOT(currentTrackChanged(int,PlayerReaction)));
-    connect(playlist, SIGNAL(playbackModeChanged(PlaybackMode)), this, SIGNAL(playbackModeChanged(PlaybackMode)));
 }
 
 void Player::setPosition(qint64 position)

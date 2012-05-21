@@ -158,6 +158,7 @@ class Player : public QObject
         void needsSaving();
         void metaDataChanged();
         void trackChanged();
+        void playlistChanged();
         void durationChanged(qint64 duration);
         void positionChanged(qint64 position);
         void volumeChanged(int volume);
