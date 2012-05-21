@@ -483,7 +483,7 @@ int PlaylistModel::currentTrack() const
 
 int PlaylistModel::nextTrack() const
 {
-    if (m_tracks.isEmpty())
+    if (m_tracks.isEmpty() || m_playbackMode == CurrentTrackOnceMode)
     {
         return -1;
     }

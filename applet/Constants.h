@@ -27,7 +27,7 @@ namespace MiniPlayer
 enum PlayerAction { OpenMenuAction, OpenFileAction, OpenUrlAction, PlayPauseAction, StopAction, VolumeToggleAction, PlaylistToggleAction, NavigationMenuAction, ChapterMenuAction, PlayNextAction, PlayPreviousAction, SeekBackwardAction, SeekForwardAction, SeekToAction, AudioMenuAction, AudioChannelMenuAction, IncreaseVolumeAction, DecreaseVolumeAction, MuteAction, VideoMenuAction, VideoPropepertiesMenu, AspectRatioMenuAction, SubtitleMenuAction, AngleMenuAction, FullScreenAction, PlaybackModeMenuAction };
 enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
 enum PlayerReaction { NoReaction, PlayReaction, PauseReaction, StopReaction };
-enum PlaybackMode { SequentialMode = 0, LoopTrackMode = 1, LoopPlaylistMode = 2, RandomMode = 3 };
+enum PlaybackMode { SequentialMode = 0, LoopTrackMode = 1, LoopPlaylistMode = 2, RandomMode = 3, CurrentTrackOnceMode = 4 };
 enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio = 3 };
 enum PlaylistFormat { None = 0, PlsFormat, M3uFormat, XspfFormat, AsxFormat };
 enum PlaylistSource { LocalSource = 0, CdSource, VcdSource, DvdSource };

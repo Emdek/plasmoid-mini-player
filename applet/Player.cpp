@@ -199,6 +199,10 @@ Player::Player(QObject *parent) : QObject(parent),
     noRepeatAction->setCheckable(true);
     noRepeatAction->setData(SequentialMode);
 
+    QAction *currentTrackOnceAction = m_actions[PlaybackModeMenuAction]->menu()->addAction(KIcon("audio-x-generic"), i18n("Current Track Once"));
+    currentTrackOnceAction->setCheckable(true);
+    currentTrackOnceAction->setData(CurrentTrackOnceMode);
+
     QAction *repeatTrackAction = m_actions[PlaybackModeMenuAction]->menu()->addAction(KIcon("audio-x-generic"), i18n("Repeat Track"));
     repeatTrackAction->setCheckable(true);
     repeatTrackAction->setData(LoopTrackMode);
@@ -213,6 +217,7 @@ Player::Player(QObject *parent) : QObject(parent),
 
     QActionGroup *playbackModeActionGroup = new QActionGroup(m_actions[PlaybackModeMenuAction]->menu());
     playbackModeActionGroup->addAction(noRepeatAction);
+    playbackModeActionGroup->addAction(currentTrackOnceAction);
     playbackModeActionGroup->addAction(repeatTrackAction);
     playbackModeActionGroup->addAction(repeatPlaylistAction);
     playbackModeActionGroup->addAction(randomTrackAction);
