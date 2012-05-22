@@ -25,7 +25,6 @@
 #include "MetaDataManager.h"
 #include "PlaylistManager.h"
 #include "PlaylistModel.h"
-#include "PlaylistReader.h"
 #include "SeekSlider.h"
 #include "DBusInterface.h"
 
@@ -37,7 +36,6 @@
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QGraphicsSceneResizeEvent>
 #include <QtGui/QGraphicsSceneDragDropEvent>
-#include <QtDBus/QDBusConnection>
 
 #include <KIcon>
 #include <KMenu>
