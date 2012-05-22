@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "Applet.h"
+#include "Configuration.h"
 #include "Player.h"
 #include "VideoWidget.h"
 #include "MetaDataManager.h"
@@ -182,85 +183,10 @@ void Applet::init()
 
 void Applet::createConfigurationInterface(KConfigDialog *parent)
 {
-    KConfigGroup configuration = config();
-    QWidget *generalWidget = new QWidget;
-    QWidget *controlsWidget = new QWidget;
-    QStringList controls;
-    controls << "open" << "playPause" << "stop" << "position" << "volume" << "playlist";
-    controls = configuration.readEntry("controls", controls);
+    Configuration *configuration = new Configuration(this, parent);
 
-    m_generalUi.setupUi(generalWidget);
-    m_controlsUi.setupUi(controlsWidget);
-
-    m_generalUi.startPlaybackCheckBox->setChecked(configuration.readEntry("playOnStartup", false));
-    m_generalUi.dbusCheckBox->setChecked(configuration.readEntry("enableDBus", false));
-    m_generalUi.inhibitNotificationsCheckBox->setChecked(configuration.readEntry("inhibitNotifications", false));
-    m_generalUi.showTooltipOnTrackChange->setValue(configuration.readEntry("showToolTipOnTrackChange", 3));
-
-    m_controlsUi.openCheckBox->setChecked(controls.contains("open"));
-    m_controlsUi.playPauseCheckBox->setChecked(controls.contains("playPause"));
-    m_controlsUi.stopCheckBox->setChecked(controls.contains("stop"));
-    m_controlsUi.positionCheckBox->setChecked(controls.contains("position"));
-    m_controlsUi.volumeCheckBox->setChecked(controls.contains("volume"));
-    m_controlsUi.playlistCheckBox->setChecked(controls.contains("playlist"));
-    m_controlsUi.fullScreenCheckBox->setChecked(controls.contains("fullScreen"));
-
-    parent->addPage(generalWidget, i18n("General"), "go-home");
-    parent->addPage(controlsWidget, i18n("Visible Controls"), "media-playback-start");
-
-    connect(parent, SIGNAL(applyClicked()), this, SLOT(configAccepted()));
-    connect(parent, SIGNAL(okClicked()), this, SLOT(configAccepted()));
-}
-
-void Applet::configAccepted()
-{
-    KConfigGroup configuration = config();
-    QStringList controls;
-
-    if (m_controlsUi.openCheckBox->isChecked())
-    {
-        controls.append("open");
-    }
-
-    if (m_controlsUi.playPauseCheckBox->isChecked())
-    {
-        controls.append("playPause");
-    }
-
-    if (m_controlsUi.stopCheckBox->isChecked())
-    {
-        controls.append("stop");
-    }
-
-    if (m_controlsUi.positionCheckBox->isChecked())
-    {
-        controls.append("position");
-    }
-
-    if (m_controlsUi.volumeCheckBox->isChecked())
-    {
-        controls.append("volume");
-    }
-
-    if (m_controlsUi.playlistCheckBox->isChecked())
-    {
-        controls.append("playlist");
-    }
-
-    if (m_controlsUi.fullScreenCheckBox->isChecked())
-    {
-        controls.append("fullScreen");
-    }
-
-    configuration.writeEntry("controls", controls);
-    configuration.writeEntry("playOnStartup", m_generalUi.startPlaybackCheckBox->isChecked());
-    configuration.writeEntry("enableDBus", m_generalUi.dbusCheckBox->isChecked());
-    configuration.writeEntry("inhibitNotifications", m_generalUi.inhibitNotificationsCheckBox->isChecked());
-    configuration.writeEntry("showToolTipOnTrackChange", m_generalUi.showTooltipOnTrackChange->value());
-
-    emit configNeedsSaving();
-
-    configChanged();
+    connect(configuration, SIGNAL(accepted()), this, SIGNAL(needsSaving()));
+    connect(configuration, SIGNAL(accepted()), this, SLOT(configChanged()));
 }
 
 void Applet::configChanged()

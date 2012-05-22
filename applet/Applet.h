@@ -28,8 +28,6 @@
 
 #include "Constants.h"
 
-#include "ui_general.h"
-#include "ui_controls.h"
 #include "ui_jumpToPosition.h"
 #include "ui_volume.h"
 
@@ -52,7 +50,6 @@ class Applet : public Plasma::Applet
         bool eventFilter(QObject *object, QEvent *event);
 
     public slots:
-        void configAccepted();
         void configChanged();
         void configSave();
         void toolTipAboutToShow();
@@ -97,8 +94,6 @@ class Applet : public Plasma::Applet
         int m_hideToolTip;
         int m_updateToolTip;
         bool m_initialized;
-        Ui::general m_generalUi;
-        Ui::controls m_controlsUi;
         Ui::jumpToPosition m_jumpToPositionUi;
         Ui::volume m_volumeUi;
 };
