@@ -490,7 +490,7 @@ void Player::currentTrackChanged(int track, PlayerReaction reaction)
                 break;
         }
 
-        emit trackChanged();
+        emit currentTrackChanged();
     }
     else if (m_mediaObject->currentSource().type() != Phonon::MediaSource::Disc)
     {
@@ -675,7 +675,7 @@ void Player::openDisc(const QString &device, PlaylistSource type)
     m_mediaObject->setCurrentSource(Phonon::MediaSource(discType, device));
     m_mediaObject->play();
 
-    emit trackChanged();
+    emit currentTrackChanged();
 
     if (m_mediaController->availableTitles())
     {
@@ -754,7 +754,10 @@ void Player::setPlaylist(PlaylistModel *playlist)
     if (m_playlist)
     {
         disconnect(m_playlist, SIGNAL(playbackModeChanged(PlaybackMode)), this, SIGNAL(playbackModeChanged(PlaybackMode)));
-        disconnect(m_playlist, SIGNAL(needsSaving()), this, SIGNAL(playlistChanged()));
+        disconnect(m_playlist, SIGNAL(trackAdded(int)), this, SIGNAL(trackAdded(int)));
+        disconnect(m_playlist, SIGNAL(trackRemoved(int)), this, SIGNAL(trackRemoved(int)));
+        disconnect(m_playlist, SIGNAL(trackChanged(int)), this, SIGNAL(trackChanged(int)));
+        disconnect(m_playlist, SIGNAL(tracksChanged()), this, SIGNAL(playlistChanged()));
         disconnect(m_playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
         disconnect(m_playlist, SIGNAL(currentTrackChanged(int,PlayerReaction)), this, SLOT(currentTrackChanged(int,PlayerReaction)));
     }
@@ -772,7 +775,10 @@ void Player::setPlaylist(PlaylistModel *playlist)
     emit playlistChanged();
 
     connect(playlist, SIGNAL(playbackModeChanged(PlaybackMode)), this, SIGNAL(playbackModeChanged(PlaybackMode)));
-    connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(playlistChanged()));
+    connect(playlist, SIGNAL(trackAdded(int)), this, SIGNAL(trackAdded(int)));
+    connect(playlist, SIGNAL(trackRemoved(int)), this, SIGNAL(trackRemoved(int)));
+    connect(playlist, SIGNAL(trackChanged(int)), this, SIGNAL(trackChanged(int)));
+    connect(playlist, SIGNAL(tracksChanged()), this, SIGNAL(playlistChanged()));
     connect(playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
     connect(playlist, SIGNAL(currentTrackChanged(int,PlayerReaction)), this, SLOT(currentTrackChanged(int,PlayerReaction)));
 }

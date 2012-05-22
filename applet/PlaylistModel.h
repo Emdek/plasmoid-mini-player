@@ -85,6 +85,7 @@ class PlaylistModel : public QAbstractTableModel
         MetaDataKey translateColumn(int column) const;
 
     protected slots:
+        void metaDataChanged(const KUrl &url);
         void processedTracks(const KUrl::List &tracks, int position, PlayerReaction reaction = NoReaction);
 
     private:
@@ -97,6 +98,10 @@ class PlaylistModel : public QAbstractTableModel
 
     signals:
         void needsSaving();
+        void tracksChanged();
+        void trackAdded(int track);
+        void trackRemoved(int track);
+        void trackChanged(int track);
         void currentTrackChanged(int track, PlayerReaction reaction);
         void playbackModeChanged(PlaybackMode mode);
 

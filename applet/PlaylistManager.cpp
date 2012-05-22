@@ -762,7 +762,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.playlistView->horizontalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(columnsOrderChanged()));
         connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
         connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(updateTitle()));
-        connect(m_player, SIGNAL(trackChanged()), this, SLOT(updateTitle()));
+        connect(m_player, SIGNAL(currentTrackChanged()), this, SLOT(updateTitle()));
         connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(updateVideoView()));
         connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
         connect(this, SIGNAL(destroyed()), m_dialog, SLOT(deleteLater()));

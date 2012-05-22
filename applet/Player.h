@@ -158,8 +158,11 @@ class Player : public QObject
     signals:
         void needsSaving();
         void metaDataChanged();
-        void trackChanged();
         void playlistChanged();
+        void currentTrackChanged();
+        void trackAdded(int track);
+        void trackRemoved(int track);
+        void trackChanged(int track);
         void durationChanged(qint64 duration);
         void positionChanged(qint64 position);
         void volumeChanged(int volume);

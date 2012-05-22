@@ -127,7 +127,7 @@ void SeekSlider::setPlayer(Player *player)
 {
     if (m_player)
     {
-        disconnect(m_player, SIGNAL(trackChanged()), this, SLOT(mediaChanged()));
+        disconnect(m_player, SIGNAL(currentTrackChanged()), this, SLOT(mediaChanged()));
         disconnect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(mediaChanged()));
         disconnect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(mediaChanged()));
     }
@@ -145,7 +145,7 @@ void SeekSlider::setPlayer(Player *player)
 
     mediaChanged();
 
-    connect(m_player, SIGNAL(trackChanged()), this, SLOT(mediaChanged()));
+    connect(m_player, SIGNAL(currentTrackChanged()), this, SLOT(mediaChanged()));
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(mediaChanged()));
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(mediaChanged()));
 }

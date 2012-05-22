@@ -166,7 +166,7 @@ void Applet::init()
     QTimer::singleShot(100, this, SLOT(configChanged()));
 
     connect(this, SIGNAL(activate()), this, SLOT(togglePlaylistDialog()));
-    connect(m_player, SIGNAL(trackChanged()), this, SLOT(showToolTip()));
+    connect(m_player, SIGNAL(currentTrackChanged()), this, SLOT(showToolTip()));
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(stateChanged(PlayerState)));
     connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(metaDataChanged()));
     connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(metaDataChanged()));

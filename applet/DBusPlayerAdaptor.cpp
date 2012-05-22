@@ -46,10 +46,12 @@ DBusPlayerAdaptor::DBusPlayerAdaptor(QObject *parent, Player *player) : QDBusAbs
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(playbackModeChanged(PlaybackMode)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(volumeChanged(int)), this, SLOT(updateProperties()));
+    connect(m_player, SIGNAL(trackAdded(int)), this, SLOT(updateProperties()));
+    connect(m_player, SIGNAL(trackRemoved(int)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(playlistChanged()), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(emitMetaDataChanged()));
-    connect(m_player, SIGNAL(trackChanged()), this, SLOT(emitMetaDataChanged()));
+    connect(m_player, SIGNAL(currentTrackChanged()), this, SLOT(emitMetaDataChanged()));
     connect(m_player, SIGNAL(positionChanged(qint64)), this, SLOT(emitSeeked(qint64)));
 }
 
@@ -90,7 +92,7 @@ void DBusPlayerAdaptor::Seek(qint64 offset) const
 
 void DBusPlayerAdaptor::SetPosition(const QDBusObjectPath &trackId, qint64 position) const
 {
-    if (QCryptographicHash::hash(m_player->url().pathOrUrl().toLocal8Bit(), QCryptographicHash::Md5) == trackId.path())
+    if (m_player->playlist() && QString("/track_%1").arg(m_player->playlist()->currentTrack()) == trackId.path())
     {
         m_player->setPosition(position / 1000);
     }
@@ -231,12 +233,12 @@ QVariantMap DBusPlayerAdaptor::Metadata() const
     QVariantMap metaData;
     const KUrl url(m_player->url());
 
-    if (!url.isValid() || m_player->state() == StoppedState || m_player->state() == ErrorState)
+    if (!url.isValid() || m_player->state() == StoppedState || m_player->state() == ErrorState || !m_player->playlist())
     {
         return metaData;
     }
 
-    metaData["mpris:trackid"] = QCryptographicHash::hash(url.pathOrUrl().toLocal8Bit(), QCryptographicHash::Md5);
+    metaData["mpris:trackid"] = QString("/track_%1").arg(m_player->playlist()->currentTrack());
     metaData["mpris:length"] = (m_player->duration() * 1000);
     metaData["xesam:url"] = url.pathOrUrl();
     metaData["xesam:title"] = m_player->metaData(TitleKey);

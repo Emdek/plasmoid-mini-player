@@ -44,7 +44,7 @@ PlaylistModel::PlaylistModel(PlaylistManager *parent, const QString &title, Play
     setPlaybackMode(m_playbackMode);
 
     connect(this, SIGNAL(needsSaving()), this, SIGNAL(layoutChanged()));
-    connect(MetaDataManager::instance(), SIGNAL(urlChanged(KUrl)), this, SIGNAL(layoutChanged()));
+    connect(MetaDataManager::instance(), SIGNAL(urlChanged(KUrl)), this, SLOT(metaDataChanged(KUrl)));
 }
 
 void PlaylistModel::addTrack(int position, const KUrl &url)
@@ -56,6 +56,7 @@ void PlaylistModel::addTrack(int position, const KUrl &url)
         setCurrentTrack(qMin((position + 1), (m_tracks.count() - 1)));
     }
 
+    emit trackAdded(position);
     emit needsSaving();
 }
 
@@ -79,6 +80,7 @@ void PlaylistModel::removeTrack(int position)
         setCurrentTrack(m_currentTrack);
     }
 
+    emit trackRemoved(position);
     emit needsSaving();
 }
 
@@ -90,6 +92,28 @@ void PlaylistModel::addTracks(const KUrl::List &tracks, int position, PlayerReac
     }
 
     new PlaylistReader(this, tracks, position, reaction);
+}
+
+void PlaylistModel::metaDataChanged(const KUrl &url)
+{
+    if (!m_tracks.contains(url))
+    {
+        return;
+    }
+
+    int index = 0;
+
+    while (index != -1)
+    {
+        index = m_tracks.indexOf(url, index);
+
+        if (index >= 0)
+        {
+            emit trackChanged(index);
+        }
+    }
+
+    emit layoutChanged();
 }
 
 void PlaylistModel::processedTracks(const KUrl::List &tracks, int position, PlayerReaction reaction)
@@ -117,6 +141,7 @@ void PlaylistModel::processedTracks(const KUrl::List &tracks, int position, Play
 
     MetaDataManager::resolveTracks(tracks);
 
+    emit tracksChanged();
     emit needsSaving();
 }
 
@@ -131,6 +156,7 @@ void PlaylistModel::clear()
 
     m_tracks.clear();
 
+    emit tracksChanged();
     emit needsSaving();
 }
 
@@ -207,6 +233,8 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
     m_tracks = tracks;
 
     setCurrentTrack(findTrack(url));
+
+    emit tracksChanged();
 }
 
 void PlaylistModel::next(PlayerReaction reaction)

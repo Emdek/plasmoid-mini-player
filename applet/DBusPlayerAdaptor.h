@@ -55,7 +55,7 @@ class DBusPlayerAdaptor : public QDBusAbstractAdaptor
     public:
         explicit DBusPlayerAdaptor(QObject *parent, Player *player);
 
-        void setLoopStatus(const QString& loopStatus) const;
+        void setLoopStatus(const QString &loopStatus) const;
         void setRate(double rate) const;
         void setShuffle(bool shuffle) const;
         void setVolume(double volume) const;

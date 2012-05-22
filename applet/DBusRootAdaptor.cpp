@@ -131,7 +131,7 @@ bool DBusRootAdaptor::CanRaise() const
 
 bool DBusRootAdaptor::HasTrackList() const
 {
-    return false;
+    return true;
 }
 
 }

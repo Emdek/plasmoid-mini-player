@@ -21,6 +21,7 @@
 #include "DBusInterface.h"
 #include "DBusRootAdaptor.h"
 #include "DBusPlayerAdaptor.h"
+#include "DBusTrackListAdaptor.h"
 #include "Applet.h"
 #include "Player.h"
 
@@ -37,6 +38,7 @@ DBusInterface::DBusInterface(Applet* applet) : QObject(applet),
 {
     new DBusRootAdaptor(this, m_player);
     new DBusPlayerAdaptor(this, m_player);
+    new DBusTrackListAdaptor(this, m_player);
 
     m_instance = QString("PlasmaMiniPlayer.instance%1_%2").arg(getpid()).arg(applet->id());
 
