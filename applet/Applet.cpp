@@ -185,7 +185,7 @@ void Applet::createConfigurationInterface(KConfigDialog *parent)
 {
     Configuration *configuration = new Configuration(this, parent);
 
-    connect(configuration, SIGNAL(accepted()), this, SIGNAL(needsSaving()));
+    connect(configuration, SIGNAL(accepted()), this, SIGNAL(configNeedsSaving()));
     connect(configuration, SIGNAL(accepted()), this, SLOT(configChanged()));
 }
 

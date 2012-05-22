@@ -38,8 +38,12 @@ class Configuration : public QObject
     public:
         explicit Configuration(Applet *applet, KConfigDialog *parent);
 
+    protected:
+        void connectWidgets(QWidget *widget);
+
     protected slots:
         void save();
+        void modify();
 
     private:
         Applet *m_applet;

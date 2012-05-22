@@ -37,6 +37,9 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_generalUi.setupUi(generalWidget);
     m_controlsUi.setupUi(controlsWidget);
 
+    connectWidgets(generalWidget);
+    connectWidgets(controlsWidget);
+
     m_generalUi.startPlaybackCheckBox->setChecked(configuration.readEntry("playOnStartup", false));
     m_generalUi.dbusCheckBox->setChecked(configuration.readEntry("enableDBus", false));
     m_generalUi.inhibitNotificationsCheckBox->setChecked(configuration.readEntry("inhibitNotifications", false));
@@ -55,6 +58,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
+    connect(m_generalUi.showTooltipOnTrackChange, SIGNAL(valueChanged(int)), this, SLOT(modify()));
 }
 
 void Configuration::save()
@@ -103,7 +107,24 @@ void Configuration::save()
     configuration.writeEntry("inhibitNotifications", m_generalUi.inhibitNotificationsCheckBox->isChecked());
     configuration.writeEntry("showToolTipOnTrackChange", m_generalUi.showTooltipOnTrackChange->value());
 
+    static_cast<KConfigDialog*>(parent())->enableButtonApply(false);
+
     emit accepted();
+}
+
+void Configuration::modify()
+{
+    static_cast<KConfigDialog*>(parent())->enableButtonApply(true);
+}
+
+void Configuration::connectWidgets(QWidget *widget)
+{
+    QList<QAbstractButton*> buttons = widget->findChildren<QAbstractButton*>();
+
+    for (int i = 0; i < buttons.count(); ++i)
+    {
+        connect(buttons.at(i), SIGNAL(toggled(bool)), this, SLOT(modify()));
+    }
 }
 
 }
