@@ -45,11 +45,11 @@ DBusPlayerAdaptor::DBusPlayerAdaptor(QObject *parent, Player *player) : QDBusAbs
 
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(playbackModeChanged(PlaybackMode)), this, SLOT(updateProperties()));
-    connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(updateProperties()));
-    connect(m_player, SIGNAL(trackChanged()), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(volumeChanged(int)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(playlistChanged()), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(updateProperties()));
+    connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(emitMetaDataChanged()));
+    connect(m_player, SIGNAL(trackChanged()), this, SLOT(emitMetaDataChanged()));
     connect(m_player, SIGNAL(positionChanged(qint64)), this, SLOT(emitSeeked(qint64)));
 }
 
@@ -161,11 +161,6 @@ void DBusPlayerAdaptor::updateProperties()
         properties["Shuffle"] = Shuffle();
     }
 
-    if (m_properties["Metadata"] != Metadata())
-    {
-        properties["Metadata"] = Metadata();
-    }
-
     if (m_properties["Volume"] != Volume())
     {
         properties["Volume"] = Volume();
@@ -207,6 +202,21 @@ void DBusPlayerAdaptor::updateProperties()
     {
         m_properties[iterator.key()] = iterator.value();
     }
+
+    DBusInterface::updateProperties("org.mpris.MediaPlayer2.Player", properties);
+}
+
+void DBusPlayerAdaptor::emitMetaDataChanged()
+{
+    if (m_properties["Metadata"] == Metadata())
+    {
+        return;
+    }
+
+    m_properties["Metadata"] = Metadata();
+
+    QVariantMap properties;
+    properties["Metadata"] = m_properties["Metadata"];
 
     DBusInterface::updateProperties("org.mpris.MediaPlayer2.Player", properties);
 }

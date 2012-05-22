@@ -88,6 +88,7 @@ class DBusPlayerAdaptor : public QDBusAbstractAdaptor
 
     protected slots:
         void updateProperties();
+        void emitMetaDataChanged();
         void emitSeeked(qint64 position);
 
     private:
