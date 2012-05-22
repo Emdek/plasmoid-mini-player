@@ -597,21 +597,6 @@ void Applet::metaDataChanged()
         return;
     }
 
-    if (!MetaDataManager::isAvailable(m_player->url()), true)
-    {
-        Track track;
-        track.keys[ArtistKey] = m_player->metaData(ArtistKey, false);
-        track.keys[TitleKey] = m_player->metaData(TitleKey, false);
-        track.keys[AlbumKey] = m_player->metaData(AlbumKey, false);
-        track.keys[TrackNumberKey] = m_player->metaData(TrackNumberKey, false);
-        track.keys[GenreKey] = m_player->metaData(GenreKey, false);
-        track.keys[DescriptionKey] = m_player->metaData(DescriptionKey, false);
-        track.keys[DateKey] = m_player->metaData(DateKey, false);
-        track.duration = m_player->duration();
-
-        MetaDataManager::setMetaData(m_player->url(), track);
-    }
-
     if (m_player->position() < 150 && m_hideToolTip == 0)
     {
         updateToolTip();

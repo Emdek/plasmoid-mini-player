@@ -126,7 +126,7 @@ class Player : public QObject
         void changeAngle(QAction *action);
         void trackFinished();
         void updateSliders();
-        void updateTitle();
+        void updateMetaData();
 
     private:
         Phonon::MediaObject *m_mediaObject;
