@@ -236,15 +236,15 @@ QVariantMap DBusPlayerAdaptor::Metadata() const
         return metaData;
     }
 
-    metaData["mpris:trackid"] = QCryptographicHash::hash(m_player->url().pathOrUrl().toLocal8Bit(), QCryptographicHash::Md5);
+    metaData["mpris:trackid"] = QCryptographicHash::hash(url.pathOrUrl().toLocal8Bit(), QCryptographicHash::Md5);
     metaData["mpris:length"] = (m_player->duration() * 1000);
     metaData["xesam:url"] = url.pathOrUrl();
-    metaData["xesam:title"] = MetaDataManager::metaData(url, TitleKey);
-    metaData["xesam:artist"] = QStringList(MetaDataManager::metaData(url, ArtistKey));
-    metaData["xesam:album"] = MetaDataManager::metaData(url, AlbumKey);
-    metaData["xesam:genre"] = QStringList(MetaDataManager::metaData(url, GenreKey));
-    metaData["xesam:comment"] = QStringList(MetaDataManager::metaData(url, DescriptionKey));
-    metaData["xesam:trackNumber"] = MetaDataManager::metaData(url, TrackNumberKey);
+    metaData["xesam:title"] = m_player->metaData(TitleKey);
+    metaData["xesam:artist"] = QStringList(m_player->metaData(ArtistKey));
+    metaData["xesam:album"] = m_player->metaData(AlbumKey);
+    metaData["xesam:genre"] = QStringList(m_player->metaData(GenreKey));
+    metaData["xesam:comment"] = QStringList(m_player->metaData(DescriptionKey));
+    metaData["xesam:trackNumber"] = m_player->metaData(TrackNumberKey);
 
     return metaData;
 }
