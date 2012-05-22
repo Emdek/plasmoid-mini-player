@@ -147,6 +147,7 @@ class Player : public QObject
         QActionGroup *m_subtitlesGroup;
         QActionGroup *m_anglesGroup;
         QMap<PlayerAction, QAction*> m_actions;
+        QMap<MetaDataKey, Phonon::MetaData> m_keys;
         AspectRatio m_aspectRatio;
         int m_stopSleepCookie;
         int m_hideFullScreenControls;

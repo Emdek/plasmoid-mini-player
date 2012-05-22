@@ -224,6 +224,14 @@ Player::Player(QObject *parent) : QObject(parent),
 
     m_videoWidget->installEventFilter(this);
 
+    m_keys[TitleKey] = Phonon::TitleMetaData;
+    m_keys[ArtistKey] = Phonon::ArtistMetaData;
+    m_keys[AlbumKey] = Phonon::AlbumMetaData;
+    m_keys[DateKey] = Phonon::DateMetaData;
+    m_keys[GenreKey] = Phonon::GenreMetaData;
+    m_keys[DescriptionKey] = Phonon::DescriptionMetaData;
+    m_keys[TrackNumberKey] = Phonon::TracknumberMetaData;
+
     volumeChanged();
     mediaChanged();
     updateSliders();
@@ -975,43 +983,14 @@ QString Player::errorString() const
 
 QString Player::metaData(MetaDataKey key, bool substitute) const
 {
-    QStringList values;
+    QStringList values = m_mediaObject->metaData(m_keys[key]);
 
-    switch (key)
+    if (values.isEmpty() || values.first().isEmpty())
     {
-        case TitleKey:
-            values = m_mediaObject->metaData(Phonon::TitleMetaData);
-
-            return (values.isEmpty()?(substitute?MetaDataManager::urlToTitle(url()):QString()):values.first());
-        case ArtistKey:
-            values = m_mediaObject->metaData(Phonon::ArtistMetaData);
-
-            return (values.isEmpty()?(substitute?i18n("Unknown artist"):QString()):values.first());
-        case AlbumKey:
-            values = m_mediaObject->metaData(Phonon::AlbumMetaData);
-
-            return (values.isEmpty()?QString():values.first());
-        case DateKey:
-            values = m_mediaObject->metaData(Phonon::DateMetaData);
-
-            return (values.isEmpty()?QString():values.first());
-        case GenreKey:
-            values = m_mediaObject->metaData(Phonon::GenreMetaData);
-
-            return (values.isEmpty()?QString():values.first());
-        case DescriptionKey:
-            values = m_mediaObject->metaData(Phonon::DescriptionMetaData);
-
-            return (values.isEmpty()?QString():values.first());
-        case TrackNumberKey:
-            values = m_mediaObject->metaData(Phonon::TracknumberMetaData);
-
-            return (values.isEmpty()?QString():values.first());
-        default:
-            return QString();
+        return MetaDataManager::metaData(url(), key, substitute);
     }
 
-    return QString();
+    return values.first();
 }
 
 PlaylistModel* Player::playlist() const

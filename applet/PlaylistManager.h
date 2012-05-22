@@ -107,12 +107,12 @@ class PlaylistManager : public QObject
         Player *m_player;
         Plasma::Dialog *m_dialog;
         VideoWidget *m_videoWidget;
+        QMap<PlaylistColumn, QString> m_columns;
         QMap<QString, QPair<QAction*, QMap<QString, QVariant> > > m_discActions;
+        QSet<KUrl> m_removedTracks;
         QList<PlaylistModel*> m_playlists;
         QStringList m_columnsOrder;
         QStringList m_columnsVisibility;
-        QSet<KUrl> m_removedTracks;
-        QMap<PlaylistColumn, QString> m_columns;
         QSize m_size;
         QByteArray m_splitterState;
         QByteArray m_headerState;
