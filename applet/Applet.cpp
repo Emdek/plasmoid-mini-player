@@ -169,7 +169,6 @@ void Applet::init()
     connect(m_player, SIGNAL(currentTrackChanged()), this, SLOT(showToolTip()));
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(stateChanged(PlayerState)));
     connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(metaDataChanged()));
-    connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(metaDataChanged()));
     connect(m_player, SIGNAL(requestMenu(QPoint)), this, SLOT(showMenu(QPoint)));
     connect(m_player, SIGNAL(fullScreenChanged(bool)), this, SLOT(hideToolTip()));
     connect(m_player->action(OpenFileAction), SIGNAL(triggered()), this, SLOT(openFiles()));
@@ -518,7 +517,7 @@ void Applet::timerEvent(QTimerEvent *event)
 
 void Applet::stateChanged(PlayerState state)
 {
-    if (state == PlayingState)
+    if (state == PlayingState && m_hideToolTip == 0)
     {
         QTimer::singleShot(500, this, SLOT(showToolTip()));
     }
@@ -530,12 +529,7 @@ void Applet::stateChanged(PlayerState state)
 
 void Applet::metaDataChanged()
 {
-    if (m_player->state() == StoppedState)
-    {
-        return;
-    }
-
-    if (m_player->position() < 150 && m_hideToolTip == 0)
+    if (m_player->state() != StoppedState && m_player->position() < 150 && m_hideToolTip == 0)
     {
         updateToolTip();
 
