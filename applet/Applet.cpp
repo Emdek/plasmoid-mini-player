@@ -59,6 +59,7 @@ namespace MiniPlayer
 Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(parent, args),
     m_player(new Player(this)),
     m_playlistManager(new PlaylistManager(m_player)),
+    m_dBusInterface(NULL),
     m_volumeDialog(NULL),
     m_jumpToPositionDialog(NULL),
     m_togglePlaylist(0),
@@ -192,6 +193,7 @@ void Applet::createConfigurationInterface(KConfigDialog *parent)
     m_controlsUi.setupUi(controlsWidget);
 
     m_generalUi.startPlaybackCheckBox->setChecked(configuration.readEntry("playOnStartup", false));
+    m_generalUi.dbusCheckBox->setChecked(configuration.readEntry("enableDBus", false));
     m_generalUi.inhibitNotificationsCheckBox->setChecked(configuration.readEntry("inhibitNotifications", false));
     m_generalUi.showTooltipOnTrackChange->setValue(configuration.readEntry("showToolTipOnTrackChange", 3));
 
@@ -252,6 +254,7 @@ void Applet::configAccepted()
 
     configuration.writeEntry("controls", controls);
     configuration.writeEntry("playOnStartup", m_generalUi.startPlaybackCheckBox->isChecked());
+    configuration.writeEntry("enableDBus", m_generalUi.dbusCheckBox->isChecked());
     configuration.writeEntry("inhibitNotifications", m_generalUi.inhibitNotificationsCheckBox->isChecked());
     configuration.writeEntry("showToolTipOnTrackChange", m_generalUi.showTooltipOnTrackChange->value());
 
@@ -272,6 +275,17 @@ void Applet::configChanged()
     m_player->setContrast(config().readEntry("contrast", 50));
     m_player->setHue(config().readEntry("hue", 50));
     m_player->setSaturation(config().readEntry("saturation", 50));
+
+    if (!configuration.readEntry("enableDBus", false) && m_dBusInterface)
+    {
+        m_dBusInterface->deleteLater();
+
+        m_dBusInterface = NULL;
+    }
+    else if (configuration.readEntry("enableDBus", false) && !m_dBusInterface)
+    {
+        m_dBusInterface = new DBusInterface(this);
+    }
 
     if (!m_initialized)
     {
@@ -325,8 +339,6 @@ void Applet::configChanged()
         {
             m_player->play();
         }
-
-        new DBusInterface(this);
 
         connect(m_player, SIGNAL(needsSaving()), this, SLOT(configSave()));
         connect(m_playlistManager, SIGNAL(needsSaving()), this, SLOT(configSave()));

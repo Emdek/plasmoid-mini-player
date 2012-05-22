@@ -37,6 +37,7 @@ namespace MiniPlayer
 {
 
 class PlaylistManager;
+class DBusInterface;
 
 class Applet : public Plasma::Applet
 {
@@ -87,6 +88,7 @@ class Applet : public Plasma::Applet
     private:
         Player *m_player;
         PlaylistManager *m_playlistManager;
+        DBusInterface *m_dBusInterface;
         Plasma::Dialog *m_volumeDialog;
         QMap<QString, QGraphicsWidget*> m_controls;
         QList<QAction*> m_actions;
