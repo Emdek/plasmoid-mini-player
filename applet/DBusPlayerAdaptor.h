@@ -88,6 +88,7 @@ class DBusPlayerAdaptor : public QDBusAbstractAdaptor
 
     protected slots:
         void updateProperties();
+        void emitSeeked(qint64 position);
 
     private:
         QVariantMap m_properties;

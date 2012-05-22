@@ -43,7 +43,6 @@ DBusPlayerAdaptor::DBusPlayerAdaptor(QObject *parent, Player *player) : QDBusAbs
     m_properties["CanPause"] = CanPause();
     m_properties["CanSeek"] = CanSeek();
 
-    connect(m_player, SIGNAL(positionChanged(qint64)), this, SIGNAL(Seeked(qint64)));
     connect(m_player, SIGNAL(stateChanged(PlayerState)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(playbackModeChanged(PlaybackMode)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(updateProperties()));
@@ -51,6 +50,7 @@ DBusPlayerAdaptor::DBusPlayerAdaptor(QObject *parent, Player *player) : QDBusAbs
     connect(m_player, SIGNAL(volumeChanged(int)), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(playlistChanged()), this, SLOT(updateProperties()));
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(updateProperties()));
+    connect(m_player, SIGNAL(positionChanged(qint64)), this, SLOT(emitSeeked(qint64)));
 }
 
 void DBusPlayerAdaptor::Next() const
@@ -85,14 +85,14 @@ void DBusPlayerAdaptor::Play() const
 
 void DBusPlayerAdaptor::Seek(qint64 offset) const
 {
-    m_player->setPosition(m_player->position() + offset);
+    m_player->setPosition(m_player->position() + (offset / 1000));
 }
 
 void DBusPlayerAdaptor::SetPosition(const QDBusObjectPath &trackId, qint64 position) const
 {
     if (QCryptographicHash::hash(m_player->url().pathOrUrl().toLocal8Bit(), QCryptographicHash::Md5) == trackId.path())
     {
-        m_player->setPosition(position);
+        m_player->setPosition(position / 1000);
     }
 }
 
@@ -211,6 +211,11 @@ void DBusPlayerAdaptor::updateProperties()
     DBusInterface::updateProperties("org.mpris.MediaPlayer2.Player", properties);
 }
 
+void DBusPlayerAdaptor::emitSeeked(qint64 position)
+{
+    emit Seeked(position * 1000);
+}
+
 QVariantMap DBusPlayerAdaptor::Metadata() const
 {
     QVariantMap metaData;
@@ -222,10 +227,10 @@ QVariantMap DBusPlayerAdaptor::Metadata() const
     }
 
     metaData["mpris:trackid"] = QCryptographicHash::hash(m_player->url().pathOrUrl().toLocal8Bit(), QCryptographicHash::Md5);
-    metaData["mpris:length"] = m_player->duration();
+    metaData["mpris:length"] = (m_player->duration() * 1000);
     metaData["xesam:url"] = url.pathOrUrl();
     metaData["xesam:title"] = MetaDataManager::metaData(url, TitleKey);
-    metaData["xesam:artist"] = MetaDataManager::metaData(url, ArtistKey);
+    metaData["xesam:artist"] = QStringList(MetaDataManager::metaData(url, ArtistKey));
     metaData["xesam:album"] = MetaDataManager::metaData(url, AlbumKey);
     metaData["xesam:genre"] = QStringList(MetaDataManager::metaData(url, GenreKey));
     metaData["xesam:comment"] = QStringList(MetaDataManager::metaData(url, DescriptionKey));

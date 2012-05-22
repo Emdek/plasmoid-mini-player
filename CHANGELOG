@@ -1,6 +1,7 @@
 2.4 (25.05.2012):
 - updated DBus interface to MPRIS2 specification;
 - added Current Track Once playback mode;
+- fixed Play Previous and Play Next actions;
 - some other fixes and changes.
 
 2.3 (25.03.2012):
