@@ -600,19 +600,19 @@ void Player::updateMetaData()
         m_fullScreenUi.titleLabel->setText(metaData(TitleKey));
     }
 
-    if (!MetaDataManager::isAvailable(m_player->url()), true)
+    if (!MetaDataManager::isAvailable(url()), true)
     {
         Track track;
-        track.keys[ArtistKey] = m_player->metaData(ArtistKey, false);
-        track.keys[TitleKey] = m_player->metaData(TitleKey, false);
-        track.keys[AlbumKey] = m_player->metaData(AlbumKey, false);
-        track.keys[TrackNumberKey] = m_player->metaData(TrackNumberKey, false);
-        track.keys[GenreKey] = m_player->metaData(GenreKey, false);
-        track.keys[DescriptionKey] = m_player->metaData(DescriptionKey, false);
-        track.keys[DateKey] = m_player->metaData(DateKey, false);
-        track.duration = m_player->duration();
+        track.keys[ArtistKey] = metaData(ArtistKey, false);
+        track.keys[TitleKey] = metaData(TitleKey, false);
+        track.keys[AlbumKey] = metaData(AlbumKey, false);
+        track.keys[TrackNumberKey] = metaData(TrackNumberKey, false);
+        track.keys[GenreKey] = metaData(GenreKey, false);
+        track.keys[DescriptionKey] = metaData(DescriptionKey, false);
+        track.keys[DateKey] = metaData(DateKey, false);
+        track.duration = duration();
 
-        MetaDataManager::setMetaData(m_player->url(), track);
+        MetaDataManager::setMetaData(url(), track);
     }
 }
 
