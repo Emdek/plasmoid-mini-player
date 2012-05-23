@@ -30,11 +30,8 @@ namespace MiniPlayer
 DBusRootAdaptor::DBusRootAdaptor(QObject *parent, Player *player) : QDBusAbstractAdaptor(parent),
     m_player(player)
 {
-    m_properties["Fullscreen"] = false;
-    m_properties["CanSetFullscreen"] = false;
-
-    connect(m_player, SIGNAL(fullScreenChanged(bool)), this, SLOT(updateProperties()));
-    connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(updateProperties()));
+    connect(m_player, SIGNAL(fullScreenChanged(bool)), this, SLOT(emitFullscreenChanged()));
+    connect(m_player, SIGNAL(videoAvailableChanged(bool)), this, SLOT(emitCanSetFullscreenChanged()));
 }
 
 void DBusRootAdaptor::Raise() const
@@ -50,31 +47,18 @@ void DBusRootAdaptor::setFullscreen(bool enable) const
     m_player->setFullScreen(enable);
 }
 
-void DBusRootAdaptor::updateProperties()
+void DBusRootAdaptor::emitFullscreenChanged()
 {
     QVariantMap properties;
+    properties["Fullscreen"] = Fullscreen();
 
-    if (m_properties["Fullscreen"] != Fullscreen())
-    {
-        properties["Fullscreen"] = Fullscreen();
-    }
+    DBusInterface::updateProperties("org.mpris.MediaPlayer2", properties);
+}
 
-    if (m_properties["CanSetFullscreen"] != CanSetFullscreen())
-    {
-        properties["CanSetFullscreen"] = CanSetFullscreen();
-    }
-
-    if (properties.isEmpty())
-    {
-        return;
-    }
-
-    QVariantMap::iterator iterator;
-
-    for (iterator = properties.begin(); iterator != properties.end(); ++iterator)
-    {
-        m_properties[iterator.key()] = iterator.value();
-    }
+void DBusRootAdaptor::emitCanSetFullscreenChanged()
+{
+    QVariantMap properties;
+    properties["CanSetFullscreen"] = CanSetFullscreen();
 
     DBusInterface::updateProperties("org.mpris.MediaPlayer2", properties);
 }

@@ -21,7 +21,6 @@
 #ifndef MINIPLAYERDBUSROOTADAPTOR
 #define MINIPLAYERDBUSROOTADAPTOR
 
-#include <QtCore/QVariantMap>
 #include <QtDBus/QDBusAbstractAdaptor>
 
 namespace MiniPlayer
@@ -64,10 +63,10 @@ class DBusRootAdaptor : public QDBusAbstractAdaptor
         void setFullscreen(bool enable) const;
 
     protected slots:
-        void updateProperties();
+        void emitFullscreenChanged();
+        void emitCanSetFullscreenChanged();
 
     private:
-        QVariantMap m_properties;
         Player *m_player;
 };
 
