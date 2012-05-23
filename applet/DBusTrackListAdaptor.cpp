@@ -129,7 +129,7 @@ QVariantMap DBusTrackListAdaptor::metaData(int track) const
 
     const KUrl url(m_player->playlist()->track(track));
 
-    metaData["mpris:trackid"] = QString("/track_").arg(track);
+    metaData["mpris:trackid"] = QString("/track_%1").arg(track);
     metaData["mpris:length"] = MetaDataManager::duration(url);
     metaData["xesam:url"] = url.pathOrUrl();
     metaData["xesam:title"] = MetaDataManager::metaData(url, TitleKey);
