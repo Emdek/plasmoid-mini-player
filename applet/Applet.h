@@ -88,7 +88,7 @@ class Applet : public Plasma::Applet
         PlaylistManager *m_playlistManager;
         DBusInterface *m_dBusInterface;
         Plasma::Dialog *m_volumeDialog;
-        QMap<QString, QGraphicsWidget*> m_controls;
+        QMap<QString, QGraphicsProxyWidget*> m_controls;
         QList<QAction*> m_actions;
         KDialog *m_jumpToPositionDialog;
         int m_togglePlaylist;

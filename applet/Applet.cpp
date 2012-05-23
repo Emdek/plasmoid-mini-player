@@ -723,13 +723,13 @@ void Applet::updateControls()
     controls << "open" << "playPause" << "stop" << "position" << "volume" << "playlist";
     controls = config().readEntry("controls", controls);
 
-    QMap<QString, QGraphicsWidget*>::iterator iterator;
+    QMap<QString, QGraphicsProxyWidget*>::iterator iterator;
     bool visible = false;
 
     for (iterator = m_controls.begin(); iterator != m_controls.end(); ++iterator)
     {
-        iterator.value()->setMaximumWidth(controls.contains(iterator.key())?-1:0);
         iterator.value()->setVisible(controls.contains(iterator.key()));
+        iterator.value()->setMaximumWidth(controls.contains(iterator.key())?-1:0);
 
         if (controls.contains(iterator.key()))
         {
