@@ -104,6 +104,12 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     Plasma::ToolButton *stopButton = new Plasma::ToolButton(controlsWidget);
     stopButton->setAction(m_player->action(StopAction));
 
+    Plasma::ToolButton *playPreviousButton = new Plasma::ToolButton(controlsWidget);
+    playPreviousButton->setAction(m_player->action(PlayPreviousAction));
+
+    Plasma::ToolButton *playNextButton = new Plasma::ToolButton(controlsWidget);
+    playNextButton->setAction(m_player->action(PlayNextAction));
+
     Plasma::ToolButton *volumeButton = new Plasma::ToolButton(controlsWidget);
     volumeButton->setAction(m_player->action(VolumeToggleAction));
 
@@ -119,6 +125,10 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_controls["playPause"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
     m_controls["stop"] = stopButton;
     m_controls["stop"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
+    m_controls["playPrevious"] = playPreviousButton;
+    m_controls["playPrevious"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
+    m_controls["playNext"] = playNextButton;
+    m_controls["playNext"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
     m_controls["position"] = positionSlider;
     m_controls["position"]->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
     m_controls["volume"] = volumeButton;
@@ -134,6 +144,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     controlsLayout->addItem(m_controls["open"]);
     controlsLayout->addItem(m_controls["playPause"]);
     controlsLayout->addItem(m_controls["stop"]);
+    controlsLayout->addItem(m_controls["playPrevious"]);
+    controlsLayout->addItem(m_controls["playNext"]);
     controlsLayout->addItem(m_controls["position"]);
     controlsLayout->addItem(m_controls["volume"]);
     controlsLayout->addItem(m_controls["playlist"]);

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>259</width>
-    <height>183</height>
+    <height>233</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,6 +32,20 @@
     <widget class="QCheckBox" name="stopCheckBox">
      <property name="text">
       <string>Stop button</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="playPreviousCheckBox">
+     <property name="text">
+      <string>Play previous button</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="playNextCheckBox">
+     <property name="text">
+      <string>Play next button</string>
      </property>
     </widget>
    </item>

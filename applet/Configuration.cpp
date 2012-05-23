@@ -48,6 +48,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_controlsUi.openCheckBox->setChecked(controls.contains("open"));
     m_controlsUi.playPauseCheckBox->setChecked(controls.contains("playPause"));
     m_controlsUi.stopCheckBox->setChecked(controls.contains("stop"));
+    m_controlsUi.playPreviousCheckBox->setChecked(controls.contains("playPrevious"));
+    m_controlsUi.playNextCheckBox->setChecked(controls.contains("playNext"));
     m_controlsUi.positionCheckBox->setChecked(controls.contains("position"));
     m_controlsUi.volumeCheckBox->setChecked(controls.contains("volume"));
     m_controlsUi.playlistCheckBox->setChecked(controls.contains("playlist"));
@@ -79,6 +81,16 @@ void Configuration::save()
     if (m_controlsUi.stopCheckBox->isChecked())
     {
         controls.append("stop");
+    }
+
+    if (m_controlsUi.playPreviousCheckBox->isChecked())
+    {
+        controls.append("playPrevious");
+    }
+
+    if (m_controlsUi.playNextCheckBox->isChecked())
+    {
+        controls.append("playNext");
     }
 
     if (m_controlsUi.positionCheckBox->isChecked())
