@@ -346,6 +346,8 @@ void Player::mediaChanged()
     m_actions[PlayPauseAction]->setIcon(KIcon((state == PlayingState)?"media-playback-pause":"media-playback-start"));
     m_actions[PlayPauseAction]->setText((state == PlayingState)?i18n("Pause"):i18n("Play"));
     m_actions[PlayPauseAction]->setEnabled(playingOrPaused || hasTracks);
+    m_actions[PlayPreviousAction]->setEnabled(hasTracks && m_playlist->trackCount() > 1);
+    m_actions[PlayNextAction]->setEnabled(hasTracks && m_playlist->trackCount() > 1);
     m_actions[StopAction]->setEnabled(playingOrPaused);
     m_actions[NavigationMenuAction]->setEnabled(hasTracks);
 }
