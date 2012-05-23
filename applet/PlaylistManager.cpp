@@ -1002,9 +1002,16 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
         {
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
 
-            if (keyEvent->key() == Qt::Key_Return && m_playlistUi.playlistView->selectionModel()->selectedIndexes().count())
+            if ((keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Delete) && m_playlistUi.playlistView->selectionModel()->selectedIndexes().count())
             {
-                playTrack(m_playlistUi.playlistView->selectionModel()->selectedIndexes().first());
+                if (keyEvent->key() == Qt::Key_Return)
+                {
+                    playTrack();
+                }
+                else
+                {
+                    removeTrack();
+                }
             }
             else
             {
