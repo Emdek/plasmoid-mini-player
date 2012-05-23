@@ -353,6 +353,7 @@ void PlaylistManager::renamePlaylist(int position)
     m_playlistUi.tabBar->setTabText(position, title);
     m_playlists[position]->setTitle(title);
 
+    emit playlistChanged(position);
     emit needsSaving();
 }
 
@@ -387,6 +388,7 @@ void PlaylistManager::removePlaylist(int position)
         m_playlistUi.tabBar->hide();
     }
 
+    emit playlistRemoved(position);
     emit needsSaving();
 }
 
@@ -800,6 +802,7 @@ void PlaylistManager::setCurrentPlaylist(int position)
         }
     }
 
+    emit currentPlaylistChanged(position);
     emit needsSaving();
 }
 
@@ -958,6 +961,7 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
 
     playlist->setCurrentTrack(0);
 
+    emit playlistAdded(position);
     emit needsSaving();
 
     connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(needsSaving()));

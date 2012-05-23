@@ -810,6 +810,11 @@ Player* Applet::player()
     return m_player;
 }
 
+PlaylistManager* Applet::playlistManager()
+{
+    return m_playlistManager;
+}
+
 bool Applet::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress)

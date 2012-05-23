@@ -124,6 +124,10 @@ class PlaylistManager : public QObject
         Ui::track m_trackUi;
 
     signals:
+        void playlistAdded(int position);
+        void playlistRemoved(int position);
+        void currentPlaylistChanged(int position);
+        void playlistChanged(int position);
         void needsSaving();
         void requestMenu(QPoint position);
 };

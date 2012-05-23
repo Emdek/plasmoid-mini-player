@@ -28,7 +28,6 @@ namespace MiniPlayer
 {
 
 class Applet;
-class Player;
 
 class DBusInterface : public QObject
 {
@@ -42,8 +41,6 @@ class DBusInterface : public QObject
 
     private:
         QString m_instance;
-        QVariantMap m_properties;
-        Player *m_player;
 };
 
 }

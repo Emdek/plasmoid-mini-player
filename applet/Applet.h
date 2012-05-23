@@ -47,6 +47,7 @@ class Applet : public Plasma::Applet
         void init();
         QList<QAction*> contextualActions();
         Player* player();
+        PlaylistManager* playlistManager();
         bool eventFilter(QObject *object, QEvent *event);
 
     public slots:

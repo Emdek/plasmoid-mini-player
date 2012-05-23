@@ -20,10 +20,12 @@
 
 #include "DBusInterface.h"
 #include "DBusRootAdaptor.h"
-#include "DBusPlayerAdaptor.h"
 #include "DBusTrackListAdaptor.h"
+#include "DBusPlayerAdaptor.h"
+#include "DBusPlaylistsAdaptor.h"
 #include "Applet.h"
 #include "Player.h"
+#include "PlaylistManager.h"
 
 #include <QtDBus/QDBusMessage>
 #include <QtDBus/QDBusConnection>
@@ -33,12 +35,12 @@
 namespace MiniPlayer
 {
 
-DBusInterface::DBusInterface(Applet* applet) : QObject(applet),
-    m_player(applet->player())
+DBusInterface::DBusInterface(Applet* applet) : QObject(applet)
 {
-    new DBusRootAdaptor(this, m_player);
-    new DBusPlayerAdaptor(this, m_player);
-    new DBusTrackListAdaptor(this, m_player);
+    new DBusRootAdaptor(this, applet->player());
+    new DBusTrackListAdaptor(this, applet->player());
+    new DBusPlayerAdaptor(this, applet->player());
+    new DBusPlaylistsAdaptor(this, applet->playlistManager());
 
     m_instance = QString("PlasmaMiniPlayer.instance%1_%2").arg(getpid()).arg(applet->id());
 

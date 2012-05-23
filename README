@@ -9,7 +9,7 @@ Features:
 - ability to export to PLS and M3U playlist formats;
 - streams support;
 - optical discs support;
-- D-BUS interface to control player;
+- full MPRIS2 D-Bus interface to control player (disabled by default);
 - basic video settings;
 - drag and drop support;
 - possibility to start playback of last used playlist on startup;

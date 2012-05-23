@@ -176,8 +176,6 @@ void PlaylistModel::shuffle()
 
 void PlaylistModel::sort(int column, Qt::SortOrder order)
 {
-    Q_UNUSED(column)
-
     if (m_tracks.count() < 2)
     {
         return;
