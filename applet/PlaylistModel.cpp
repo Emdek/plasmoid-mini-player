@@ -43,7 +43,7 @@ PlaylistModel::PlaylistModel(PlaylistManager *parent, const QString &title, Play
     setSupportedDragActions(Qt::MoveAction);
     setPlaybackMode(m_playbackMode);
 
-    connect(this, SIGNAL(needsSaving()), this, SIGNAL(layoutChanged()));
+    connect(this, SIGNAL(modified()), this, SIGNAL(layoutChanged()));
     connect(MetaDataManager::instance(), SIGNAL(urlChanged(KUrl)), this, SLOT(metaDataChanged(KUrl)));
 }
 
@@ -57,7 +57,7 @@ void PlaylistModel::addTrack(int position, const KUrl &url)
     }
 
     emit trackAdded(position);
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistModel::removeTrack(int position)
@@ -81,7 +81,7 @@ void PlaylistModel::removeTrack(int position)
     }
 
     emit trackRemoved(position);
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistModel::addTracks(const KUrl::List &tracks, int position, PlayerReaction reaction)
@@ -142,7 +142,7 @@ void PlaylistModel::processedTracks(const KUrl::List &tracks, int position, Play
     MetaDataManager::resolveTracks(tracks);
 
     emit tracksChanged();
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistModel::clear()
@@ -157,7 +157,7 @@ void PlaylistModel::clear()
     m_tracks.clear();
 
     emit tracksChanged();
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistModel::shuffle()
@@ -283,7 +283,7 @@ void PlaylistModel::setCurrentTrack(int track, PlayerReaction reaction)
     }
 
     emit currentTrackChanged(m_currentTrack, reaction);
-    emit needsSaving();
+    emit modified();
     emit layoutChanged();
 }
 
@@ -292,7 +292,7 @@ void PlaylistModel::setPlaybackMode(PlaybackMode mode)
     m_playbackMode = mode;
 
     emit playbackModeChanged(mode);
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistModel::setTitle(const QString &title)
@@ -583,7 +583,7 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
 
     MetaDataManager::setMetaData(m_tracks.at(index.row()), translateColumn(index.column()), value.toString());
 
-    emit needsSaving();
+    emit modified();
 
     return true;
 }
@@ -641,7 +641,7 @@ bool PlaylistModel::insertRows(int row, int count, const QModelIndex &index)
         setCurrentTrack(qMin(end, (m_tracks.count() - 1)));
     }
 
-    emit needsSaving();
+    emit modified();
 
     return true;
 }

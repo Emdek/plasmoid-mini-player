@@ -97,7 +97,7 @@ class PlaylistModel : public QAbstractTableModel
         int m_currentTrack;
 
     signals:
-        void needsSaving();
+        void modified();
         void tracksChanged();
         void trackAdded(int track);
         void trackRemoved(int track);

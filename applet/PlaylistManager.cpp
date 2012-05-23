@@ -136,7 +136,7 @@ void PlaylistManager::columnsOrderChanged()
 
     m_columnsOrder = order;
 
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistManager::visiblePlaylistChanged(int position)
@@ -153,7 +153,7 @@ void PlaylistManager::visiblePlaylistChanged(int position)
 
     if (m_playlistUi.playlistView->model())
     {
-        disconnect(m_playlistUi.playlistView->model(), SIGNAL(needsSaving()), this, SLOT(filterPlaylist()));
+        disconnect(m_playlistUi.playlistView->model(), SIGNAL(modified()), this, SLOT(filterPlaylist()));
     }
 
     m_playlistUi.playlistView->setModel(m_playlists[visiblePlaylist()]);
@@ -161,13 +161,13 @@ void PlaylistManager::visiblePlaylistChanged(int position)
     m_playlistUi.playlistView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
     m_playlistUi.playlistView->horizontalHeader()->resizeSection(0, 22);
 
-    connect(m_playlists[visiblePlaylist()], SIGNAL(needsSaving()), this, SLOT(filterPlaylist()));
+    connect(m_playlists[visiblePlaylist()], SIGNAL(modified()), this, SLOT(filterPlaylist()));
 
     filterPlaylist(m_playlistUi.playlistViewFilter->text());
 
     updateActions();
 
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistManager::playbackModeChanged(QAction *action)
@@ -293,7 +293,7 @@ void PlaylistManager::playlistMoved(int from, int to)
 {
     m_playlists.swap(from, to);
 
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistManager::filterPlaylist()
@@ -354,7 +354,7 @@ void PlaylistManager::renamePlaylist(int position)
     m_playlists[position]->setTitle(title);
 
     emit playlistChanged(position);
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistManager::removePlaylist(int position)
@@ -389,7 +389,7 @@ void PlaylistManager::removePlaylist(int position)
     }
 
     emit playlistRemoved(position);
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistManager::exportPlaylist()
@@ -742,8 +742,8 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_dialog->installEventFilter(this);
         m_dialog->installEventFilter(m_player->parent());
 
-        connect(m_dialog, SIGNAL(dialogResized()), this, SIGNAL(needsSaving()));
-        connect(m_playlistUi.splitter, SIGNAL(splitterMoved(int,int)), this, SIGNAL(needsSaving()));
+        connect(m_dialog, SIGNAL(dialogResized()), this, SIGNAL(modified()));
+        connect(m_playlistUi.splitter, SIGNAL(splitterMoved(int,int)), this, SIGNAL(modified()));
         connect(m_playlistUi.tabBar, SIGNAL(newTabRequest()), this, SLOT(newPlaylist()));
         connect(m_playlistUi.tabBar, SIGNAL(tabDoubleClicked(int)), this, SLOT(renamePlaylist(int)));
         connect(m_playlistUi.tabBar, SIGNAL(closeRequest(int)), this, SLOT(removePlaylist(int)));
@@ -803,7 +803,7 @@ void PlaylistManager::setCurrentPlaylist(int position)
     }
 
     emit currentPlaylistChanged(position);
-    emit needsSaving();
+    emit modified();
 }
 
 void PlaylistManager::setDialogSize(const QSize &size)
@@ -822,7 +822,7 @@ void PlaylistManager::setColumnsOrder(const QStringList &order)
 {
     m_columnsOrder = order;
 
-    emit needsSaving();
+    emit modified();
 
     if (!m_dialog)
     {
@@ -839,7 +839,7 @@ void PlaylistManager::setColumnsVisibility(const QStringList &visibility)
 {
     m_columnsVisibility = visibility;
 
-    emit needsSaving();
+    emit modified();
 
     if (!m_dialog)
     {
@@ -856,7 +856,7 @@ void PlaylistManager::setSplitterLocked(bool locked)
 {
     m_splitterLocked = locked;
 
-    emit needsSaving();
+    emit modified();
 
     if (!m_dialog)
     {
@@ -962,9 +962,9 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
     playlist->setCurrentTrack(0);
 
     emit playlistAdded(position);
-    emit needsSaving();
+    emit modified();
 
-    connect(playlist, SIGNAL(needsSaving()), this, SIGNAL(needsSaving()));
+    connect(playlist, SIGNAL(modified()), this, SIGNAL(modified()));
     connect(playlist, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
 
     return position;

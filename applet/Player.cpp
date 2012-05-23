@@ -322,7 +322,7 @@ void Player::volumeChanged(qreal volume)
     m_actions[VolumeToggleAction]->setEnabled(isAudioAvailable());
     m_actions[AudioMenuAction]->setEnabled(isAudioAvailable());
 
-    emit needsSaving();
+    emit modified();
 }
 
 void Player::videoChanged()
@@ -758,7 +758,7 @@ void Player::setPlaylist(PlaylistModel *playlist)
         disconnect(m_playlist, SIGNAL(trackRemoved(int)), this, SIGNAL(trackRemoved(int)));
         disconnect(m_playlist, SIGNAL(trackChanged(int)), this, SIGNAL(trackChanged(int)));
         disconnect(m_playlist, SIGNAL(tracksChanged()), this, SIGNAL(playlistChanged()));
-        disconnect(m_playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
+        disconnect(m_playlist, SIGNAL(modified()), this, SLOT(mediaChanged()));
         disconnect(m_playlist, SIGNAL(currentTrackChanged(int,PlayerReaction)), this, SLOT(currentTrackChanged(int,PlayerReaction)));
     }
 
@@ -779,7 +779,7 @@ void Player::setPlaylist(PlaylistModel *playlist)
     connect(playlist, SIGNAL(trackRemoved(int)), this, SIGNAL(trackRemoved(int)));
     connect(playlist, SIGNAL(trackChanged(int)), this, SIGNAL(trackChanged(int)));
     connect(playlist, SIGNAL(tracksChanged()), this, SIGNAL(playlistChanged()));
-    connect(playlist, SIGNAL(needsSaving()), this, SLOT(mediaChanged()));
+    connect(playlist, SIGNAL(modified()), this, SLOT(mediaChanged()));
     connect(playlist, SIGNAL(currentTrackChanged(int,PlayerReaction)), this, SLOT(currentTrackChanged(int,PlayerReaction)));
 }
 
@@ -839,7 +839,7 @@ void Player::setAspectRatio(AspectRatio ratio)
 
     m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(ratio))->setChecked(true);
 
-    emit needsSaving();
+    emit modified();
 }
 
 void Player::setVideoMode(bool mode)
@@ -959,7 +959,7 @@ void Player::setBrightness(int value)
 
     updateSliders();
 
-    emit needsSaving();
+    emit modified();
 }
 
 void Player::setContrast(int value)
@@ -968,7 +968,7 @@ void Player::setContrast(int value)
 
     updateSliders();
 
-    emit needsSaving();
+    emit modified();
 }
 
 void Player::setHue(int value)
@@ -977,7 +977,7 @@ void Player::setHue(int value)
 
     updateSliders();
 
-    emit needsSaving();
+    emit modified();
 }
 
 void Player::setSaturation(int value)
@@ -986,7 +986,7 @@ void Player::setSaturation(int value)
 
     updateSliders();
 
-    emit needsSaving();
+    emit modified();
 }
 
 QStringList Player::supportedMimeTypes() const

@@ -156,7 +156,7 @@ class Player : public QObject
         Ui::fullScreen m_fullScreenUi;
 
     signals:
-        void needsSaving();
+        void modified();
         void metaDataChanged();
         void playlistChanged();
         void currentTrackChanged();

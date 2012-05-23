@@ -275,8 +275,8 @@ void Applet::configChanged()
             m_player->play();
         }
 
-        connect(m_player, SIGNAL(needsSaving()), this, SLOT(configSave()));
-        connect(m_playlistManager, SIGNAL(needsSaving()), this, SLOT(configSave()));
+        connect(m_player, SIGNAL(modified()), this, SLOT(configSave()));
+        connect(m_playlistManager, SIGNAL(modified()), this, SLOT(configSave()));
     }
 
     updateControls();
