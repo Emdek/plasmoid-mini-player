@@ -1,7 +1,5 @@
 - use TagLib to fetch and set meta data (?);
-- save last played time for tracks etc. (?);
-- add playlist statusbar (total length, current time etc.) (?);
-- dynamic playlist with most often played tracks (?);
 - add audio analyzer (?);
+- dynamic playlists (most often / recently played tracks etc.) (?);
 - visualizations for audio files (?);
 - load videos from YouTube etc. (?).
