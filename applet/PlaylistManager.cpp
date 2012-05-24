@@ -368,6 +368,9 @@ void PlaylistManager::removePlaylist(int position)
     {
         clearPlaylist();
 
+        m_playlists[visiblePlaylist()]->setTitle(i18n("Default"));
+        m_playlistUi.tabBar->setTabText(0, i18n("Default"));
+
         return;
     }
 

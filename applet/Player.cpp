@@ -467,37 +467,42 @@ void Player::availableTitlesChanged()
 
 void Player::currentTrackChanged(int track, PlayerReaction reaction)
 {
-    if (m_playlist && m_playlist->trackCount())
+    if (!m_playlist || m_playlist->trackCount() == 0)
     {
-        if (reaction == PlayReaction || reaction == PauseReaction)
+        if (m_mediaObject->currentSource().type() != Phonon::MediaSource::Disc)
         {
-            m_mediaObject->setCurrentSource(Phonon::MediaSource(m_playlist->track(track)));
+            stop();
         }
 
-        switch (reaction)
-        {
-            case PlayReaction:
-                play();
-
-                break;
-            case PauseReaction:
-                pause();
-
-                break;
-            case StopReaction:
-                stop();
-
-                break;
-            default:
-                break;
-        }
-
-        emit currentTrackChanged();
+        return;
     }
-    else if (m_mediaObject->currentSource().type() != Phonon::MediaSource::Disc)
+
+    if (reaction == PlayReaction || reaction == PauseReaction)
     {
-        stop();
+        m_mediaObject->setCurrentSource(Phonon::MediaSource(m_playlist->track(track)));
+
+        m_playlist->setLastPlayedDate(QDateTime::currentDateTime());
     }
+
+    switch (reaction)
+    {
+        case PlayReaction:
+            play();
+
+            break;
+        case PauseReaction:
+            pause();
+
+            break;
+        case StopReaction:
+            stop();
+
+            break;
+        default:
+            break;
+    }
+
+    emit currentTrackChanged();
 }
 
 void Player::stateChanged(Phonon::State state)

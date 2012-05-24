@@ -22,6 +22,7 @@
 #define MINIPLAYERPLAYLISTMODEL_HEADER
 
 #include <QtCore/QVariant>
+#include <QtCore/QDateTime>
 #include <QtCore/QMimeData>
 #include <QtCore/QAbstractTableModel>
 
@@ -46,8 +47,10 @@ class PlaylistModel : public QAbstractTableModel
         void removeTrack(int position);
         void addTracks(const KUrl::List &tracks, int position = -1, PlayerReaction reaction = NoReaction);
         void sort(int column, Qt::SortOrder order);
-        void setTitle(const QString &title);
         QString title() const;
+        QDateTime creationDate() const;
+        QDateTime modificationDate() const;
+        QDateTime lastPlayedDate() const;
         KIcon icon() const;
         QVariant data(const QModelIndex &index, int role) const;
         QVariant headerData(int section, Qt::Orientation orientation, int role) const;
@@ -76,6 +79,10 @@ class PlaylistModel : public QAbstractTableModel
         void shuffle();
         void next(PlayerReaction reaction = NoReaction);
         void previous(PlayerReaction reaction = NoReaction);
+        void setTitle(const QString &title);
+        void setCreationDate(const QDateTime &date);
+        void setModificationDate(const QDateTime &date);
+        void setLastPlayedDate(const QDateTime &date);
         void setCurrentTrack(int track, PlayerReaction reaction = NoReaction);
         void setPlaybackMode(PlaybackMode mode);
 
@@ -87,11 +94,15 @@ class PlaylistModel : public QAbstractTableModel
     protected slots:
         void metaDataChanged(const KUrl &url);
         void processedTracks(const KUrl::List &tracks, int position, PlayerReaction reaction = NoReaction);
+        void updateModificationDate();
 
     private:
         PlaylistManager *m_manager;
         KUrl::List m_tracks;
         QString m_title;
+        QDateTime m_creationDate;
+        QDateTime m_modificationDate;
+        QDateTime m_lastPlayedDate;
         PlaybackMode m_playbackMode;
         PlaylistSource m_source;
         int m_currentTrack;

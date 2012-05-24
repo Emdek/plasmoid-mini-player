@@ -36,6 +36,8 @@ namespace MiniPlayer
 PlaylistModel::PlaylistModel(PlaylistManager *parent, const QString &title, PlaylistSource source) : QAbstractTableModel(parent),
     m_manager(parent),
     m_title(title),
+    m_creationDate(QDateTime::currentDateTime()),
+    m_modificationDate(QDateTime::currentDateTime()),
     m_playbackMode(SequentialMode),
     m_source(source),
     m_currentTrack(-1)
@@ -44,6 +46,7 @@ PlaylistModel::PlaylistModel(PlaylistManager *parent, const QString &title, Play
     setPlaybackMode(m_playbackMode);
 
     connect(this, SIGNAL(modified()), this, SIGNAL(layoutChanged()));
+    connect(this, SIGNAL(modified()), this, SLOT(updateModificationDate()));
     connect(MetaDataManager::instance(), SIGNAL(urlChanged(KUrl)), this, SLOT(metaDataChanged(KUrl)));
 }
 
@@ -143,6 +146,17 @@ void PlaylistModel::processedTracks(const KUrl::List &tracks, int position, Play
 
     emit tracksChanged();
     emit modified();
+}
+
+void PlaylistModel::updateModificationDate()
+{
+    disconnect(this, SIGNAL(modified()), this, SLOT(updateModificationDate()));
+
+    m_modificationDate = QDateTime::currentDateTime();
+
+    emit modified();
+
+    connect(this, SIGNAL(modified()), this, SLOT(updateModificationDate()));
 }
 
 void PlaylistModel::clear()
@@ -270,6 +284,43 @@ void PlaylistModel::previous(PlayerReaction reaction)
     }
 }
 
+void PlaylistModel::setTitle(const QString &title)
+{
+    m_title = title;
+
+    emit modified();
+}
+
+void PlaylistModel::setCreationDate(const QDateTime &date)
+{
+    if (date.isValid())
+    {
+        m_creationDate = date;
+
+        emit modified();
+    }
+}
+
+void PlaylistModel::setModificationDate(const QDateTime &date)
+{
+    if (date.isValid())
+    {
+        m_modificationDate = date;
+
+        emit modified();
+    }
+}
+
+void PlaylistModel::setLastPlayedDate(const QDateTime &date)
+{
+    if (date.isValid())
+    {
+        m_lastPlayedDate = date;
+
+        emit modified();
+    }
+}
+
 void PlaylistModel::setCurrentTrack(int track, PlayerReaction reaction)
 {
     if (track > (m_tracks.count() - 1))
@@ -298,14 +349,24 @@ void PlaylistModel::setPlaybackMode(PlaybackMode mode)
     emit modified();
 }
 
-void PlaylistModel::setTitle(const QString &title)
-{
-    m_title = title;
-}
-
 QString PlaylistModel::title() const
 {
     return m_title;
+}
+
+QDateTime PlaylistModel::creationDate() const
+{
+    return m_creationDate;
+}
+
+QDateTime PlaylistModel::modificationDate() const
+{
+    return m_modificationDate;
+}
+
+QDateTime PlaylistModel::lastPlayedDate() const
+{
+    return m_lastPlayedDate;
 }
 
 KIcon PlaylistModel::icon() const
