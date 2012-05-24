@@ -326,6 +326,8 @@ void Player::volumeChanged(qreal volume)
 
 void Player::videoChanged()
 {
+    m_actions[FullScreenAction]->setEnabled(isVideoAvailable());
+
     if (!isVideoAvailable() && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
     {
         setFullScreen(false);
