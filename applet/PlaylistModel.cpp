@@ -101,11 +101,11 @@ void PlaylistModel::metaDataChanged(const KUrl &url)
         return;
     }
 
-    int index = 0;
+    int index = -2;
 
     while (index != -1)
     {
-        index = m_tracks.indexOf(url, index);
+        index = m_tracks.indexOf(url, (index + 1));
 
         if (index >= 0)
         {

@@ -104,8 +104,6 @@ class PlaylistModel : public QAbstractTableModel
         void trackChanged(int track);
         void currentTrackChanged(int track, PlayerReaction reaction);
         void playbackModeChanged(PlaybackMode mode);
-
-    friend class Player;
 };
 
 }
