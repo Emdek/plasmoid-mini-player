@@ -66,9 +66,9 @@ void DBusPlaylistsAdaptor::emitActivePlaylistChanged()
     DBusInterface::updateProperties("org.mpris.MediaPlayer2.Playlists", properties);
 }
 
-void DBusPlaylistsAdaptor::emitPlaylistChanged(int playlist)
+void DBusPlaylistsAdaptor::emitPlaylistChanged(int id)
 {
-    PlaylistModel *changedPlaylist = m_playlistManager->playlists().value(playlist);
+    PlaylistModel *changedPlaylist = m_playlistManager->playlist(id);
 
     if (!changedPlaylist)
     {
@@ -76,7 +76,7 @@ void DBusPlaylistsAdaptor::emitPlaylistChanged(int playlist)
     }
 
     QVariantMap playlistData;
-    playlistData["Id"] = qVariantFromValue(QDBusObjectPath(QString("/playlist_%1").arg(playlist)));
+    playlistData["Id"] = qVariantFromValue(QDBusObjectPath(QString("/playlist_%1").arg(id)));
     playlistData["Name"] = changedPlaylist->title();
 
     emit PlaylistChanged(playlistData);
@@ -84,7 +84,7 @@ void DBusPlaylistsAdaptor::emitPlaylistChanged(int playlist)
 
 QVariantMap DBusPlaylistsAdaptor::ActivePlaylist() const
 {
-    PlaylistModel *playlist = m_playlistManager->playlists().value(m_playlistManager->currentPlaylist());
+    PlaylistModel *playlist = m_playlistManager->playlist(m_playlistManager->currentPlaylist());
     QVariantMap activePlaylist;
     activePlaylist["Valid"] = (playlist != NULL);
 
@@ -102,9 +102,9 @@ QVariantMap DBusPlaylistsAdaptor::ActivePlaylist() const
 
 QList<QVariantMap> DBusPlaylistsAdaptor::GetPlaylists(int index, int maxCount, QString order, bool reverseOrder) const
 {
-    QList<PlaylistModel*> playlists = m_playlistManager->playlists();
     QList<QVariantMap> reuestedPlaylists;
     QList<int> sortedPlaylists;
+    const QList<int> playlists = m_playlistManager->playlists();
 
     if (order == "Alphabetical")
     {
@@ -112,7 +112,9 @@ QList<QVariantMap> DBusPlaylistsAdaptor::GetPlaylists(int index, int maxCount, Q
 
         for (int i = 0; i < playlists.count(); ++i)
         {
-            alphabeticalMap.insert((playlists.at(i)?playlists.at(i)->title():QString()), i);
+            PlaylistModel *playlist = m_playlistManager->playlist(playlists.at(i));
+
+            alphabeticalMap.insert((playlist?playlist->title():QString()), i);
         }
 
         sortedPlaylists = alphabeticalMap.values();
@@ -125,21 +127,27 @@ QList<QVariantMap> DBusPlaylistsAdaptor::GetPlaylists(int index, int maxCount, Q
         {
             for (int i = 0; i < playlists.count(); ++i)
             {
-                datesMap.insert((playlists.at(i)?playlists.at(i)->creationDate():QDateTime()), i);
+                PlaylistModel *playlist = m_playlistManager->playlist(playlists.at(i));
+
+                datesMap.insert((playlist?playlist->creationDate():QDateTime()), i);
             }
         }
         else if (order == "ModifiedDate")
         {
             for (int i = 0; i < playlists.count(); ++i)
             {
-                datesMap.insert((playlists.at(i)?playlists.at(i)->modificationDate():QDateTime()), i);
+                PlaylistModel *playlist = m_playlistManager->playlist(playlists.at(i));
+
+                datesMap.insert((playlist?playlist->modificationDate():QDateTime()), i);
             }
         }
         else
         {
             for (int i = 0; i < playlists.count(); ++i)
             {
-                datesMap.insert((playlists.at(i)?playlists.at(i)->lastPlayedDate():QDateTime()), i);
+                PlaylistModel *playlist = m_playlistManager->playlist(playlists.at(i));
+
+                datesMap.insert((playlist?playlist->lastPlayedDate():QDateTime()), i);
             }
         }
 
@@ -177,11 +185,12 @@ QList<QVariantMap> DBusPlaylistsAdaptor::GetPlaylists(int index, int maxCount, Q
 
     for (int i = index; i < maxCount; ++i)
     {
-        QVariantMap playlist;
-        playlist["Id"] = qVariantFromValue(QDBusObjectPath(QString("/playlist_%1").arg(sortedPlaylists.at(i))));
-        playlist["Name"] = (playlists.at(sortedPlaylists.at(i))?playlists.at(sortedPlaylists.at(i))->title():QString());
+        PlaylistModel *playlist = m_playlistManager->playlist(playlists.at(i));
+        QVariantMap playlistData;
+        playlistData["Id"] = qVariantFromValue(QDBusObjectPath(QString("/playlist_%1").arg(sortedPlaylists.at(i))));
+        playlistData["Name"] = (playlist?playlist->title():QString());
 
-        reuestedPlaylists.append(playlist);
+        reuestedPlaylists.append(playlistData);
     }
 
     return reuestedPlaylists;

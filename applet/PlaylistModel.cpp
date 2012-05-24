@@ -33,13 +33,14 @@
 namespace MiniPlayer
 {
 
-PlaylistModel::PlaylistModel(PlaylistManager *parent, const QString &title, PlaylistSource source) : QAbstractTableModel(parent),
+PlaylistModel::PlaylistModel(PlaylistManager *parent, int id, const QString &title, PlaylistSource source) : QAbstractTableModel(parent),
     m_manager(parent),
     m_title(title),
     m_creationDate(QDateTime::currentDateTime()),
     m_modificationDate(QDateTime::currentDateTime()),
     m_playbackMode(SequentialMode),
     m_source(source),
+    m_id(id),
     m_currentTrack(-1)
 {
     setSupportedDragActions(Qt::MoveAction);
@@ -534,6 +535,31 @@ PlaylistSource PlaylistModel::source() const
     return m_source;
 }
 
+MetaDataKey PlaylistModel::translateColumn(int column) const
+{
+    switch (column)
+    {
+        case ArtistColumn:
+            return ArtistKey;
+        case TitleColumn:
+            return TitleKey;
+        case AlbumColumn:
+            return AlbumKey;
+        case TrackNumberColumn:
+            return TrackNumberKey;
+        case GenreColumn:
+            return GenreKey;
+        case DescriptionColumn:
+            return DescriptionKey;
+        case DateColumn:
+            return DateKey;
+        default:
+            return InvalidKey;
+    }
+
+    return InvalidKey;
+}
+
 int PlaylistModel::randomTrack() const
 {
     if (trackCount() < 2)
@@ -565,6 +591,11 @@ int PlaylistModel::findTrack(const KUrl &url) const
     }
 
     return 0;
+}
+
+int PlaylistModel::id() const
+{
+    return m_id;
 }
 
 int PlaylistModel::currentTrack() const
@@ -611,31 +642,6 @@ int PlaylistModel::columnCount(const QModelIndex &index) const
 int PlaylistModel::rowCount(const QModelIndex &index) const
 {
     return (index.isValid()?0:m_tracks.count());
-}
-
-MetaDataKey PlaylistModel::translateColumn(int column) const
-{
-    switch (column)
-    {
-        case ArtistColumn:
-            return ArtistKey;
-        case TitleColumn:
-            return TitleKey;
-        case AlbumColumn:
-            return AlbumKey;
-        case TrackNumberColumn:
-            return TrackNumberKey;
-        case GenreColumn:
-            return GenreKey;
-        case DescriptionColumn:
-            return DescriptionKey;
-        case DateColumn:
-            return DateKey;
-        default:
-            return InvalidKey;
-    }
-
-    return InvalidKey;
 }
 
 bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -752,7 +758,7 @@ bool PlaylistModel::isReadOnly() const
 
 bool PlaylistModel::isCurrent() const
 {
-    return (m_manager->playlists().value(m_manager->currentPlaylist()) == this);
+    return (m_id == m_manager->currentPlaylist());
 }
 
 }

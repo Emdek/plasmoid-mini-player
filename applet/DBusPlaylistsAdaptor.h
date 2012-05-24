@@ -54,7 +54,7 @@ class DBusPlaylistsAdaptor : public QDBusAbstractAdaptor
     protected slots:
         void emitPlaylistCountChanged();
         void emitActivePlaylistChanged();
-        void emitPlaylistChanged(int playlist);
+        void emitPlaylistChanged(int id);
 
     private:
         PlaylistManager *m_playlistManager;

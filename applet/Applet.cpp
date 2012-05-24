@@ -248,11 +248,15 @@ void Applet::configChanged()
             MetaDataManager::setMetaData(KUrl(trackConfiguration.readEntry("url", QString())), track);
         }
 
+        QMap<int, int> playlistsOrder;
+
         for (int i = 0; i < playlists.count(); ++i)
         {
             KConfigGroup playlistConfiguration = playlistsConfiguration.group(playlists.at(i));
-            int playlistId = m_playlistManager->createPlaylist(playlistConfiguration.readEntry("title", i18n("Default")), KUrl::List(playlistConfiguration.readEntry("tracks", QStringList())));
-            PlaylistModel *playlist = m_playlistManager->playlists().at(playlistId);
+            int playlistId = m_playlistManager->createPlaylist(playlistConfiguration.readEntry("title", i18n("Default")), KUrl::List(playlistConfiguration.readEntry("tracks", QStringList())), LocalSource, playlistConfiguration.readEntry("id", i));
+            PlaylistModel *playlist = m_playlistManager->playlist(playlistId);
+
+            playlistsOrder[playlistId] = playlistConfiguration.readEntry("order", i);
 
             playlist->setCreationDate(playlistConfiguration.readEntry("creationDate", QDateTime()));
             playlist->setModificationDate(playlistConfiguration.readEntry("modificationDate", QDateTime()));
@@ -266,7 +270,19 @@ void Applet::configChanged()
             }
         }
 
-        if (!m_playlistManager->playlists().count())
+        if (m_playlistManager->playlists().count())
+        {
+            QMultiMap<int, int> orderedPlaylists;
+            QMap<int, int>::iterator iterator;
+
+            for (iterator = playlistsOrder.begin(); iterator != playlistsOrder.end(); ++iterator)
+            {
+                orderedPlaylists.insert(iterator.value(), iterator.key());
+            }
+
+            m_playlistManager->setPlaylistsOrder(orderedPlaylists.values());
+        }
+        else
         {
             m_playlistManager->createPlaylist(i18n("Default"), KUrl::List());
         }
@@ -311,28 +327,32 @@ void Applet::configSave()
 
     KConfigGroup playlistsConfiguration = configuration.group("Playlists");
     KConfigGroup metaDataConfiguration = configuration.group("MetaData");
-    QList<PlaylistModel*> playlists = m_playlistManager->playlists();
+    QList<int> playlists = m_playlistManager->playlists();
     QSet<KUrl> playlistTracks;
     int index = 0;
 
     for (int i = 0; i < playlists.count(); ++i)
     {
-        if (playlists[i]->isReadOnly())
+        PlaylistModel *playlist = m_playlistManager->playlist(playlists[i]);
+
+        if (!playlist || playlist->isReadOnly())
         {
             continue;
         }
 
-        KConfigGroup playlistConfiguration = playlistsConfiguration.group(QString::number(index));
-        playlistConfiguration.writeEntry("tracks", playlists[i]->tracks().toStringList());
-        playlistConfiguration.writeEntry("title", playlists[i]->title());
-        playlistConfiguration.writeEntry("creationDate", playlists[i]->creationDate());
-        playlistConfiguration.writeEntry("modificationDate", playlists[i]->modificationDate());
-        playlistConfiguration.writeEntry("lastPlayedDate", playlists[i]->lastPlayedDate());
-        playlistConfiguration.writeEntry("playbackMode", static_cast<int>(playlists[i]->playbackMode()));
-        playlistConfiguration.writeEntry("currentTrack", playlists[i]->currentTrack());
-        playlistConfiguration.writeEntry("isCurrent", playlists[i]->isCurrent());
+        KConfigGroup playlistConfiguration = playlistsConfiguration.group(QString::number(playlist->id()));
+        playlistConfiguration.writeEntry("order", i);
+        playlistConfiguration.writeEntry("id", playlist->id());
+        playlistConfiguration.writeEntry("tracks", playlist->tracks().toStringList());
+        playlistConfiguration.writeEntry("title", playlist->title());
+        playlistConfiguration.writeEntry("creationDate", playlist->creationDate());
+        playlistConfiguration.writeEntry("modificationDate", playlist->modificationDate());
+        playlistConfiguration.writeEntry("lastPlayedDate", playlist->lastPlayedDate());
+        playlistConfiguration.writeEntry("playbackMode", static_cast<int>(playlist->playbackMode()));
+        playlistConfiguration.writeEntry("currentTrack", playlist->currentTrack());
+        playlistConfiguration.writeEntry("isCurrent", playlist->isCurrent());
 
-        playlistTracks = playlistTracks.unite(playlists.at(i)->tracks().toSet());
+        playlistTracks = playlistTracks.unite(playlist->tracks().toSet());
 
         ++index;
     }

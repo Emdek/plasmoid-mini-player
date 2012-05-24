@@ -41,7 +41,7 @@ class PlaylistModel : public QAbstractTableModel
     Q_OBJECT
 
     public:
-        explicit PlaylistModel(PlaylistManager *parent, const QString &title, PlaylistSource source = LocalSource);
+        explicit PlaylistModel(PlaylistManager *parent, int id, const QString &title, PlaylistSource source = LocalSource);
 
         void addTrack(int position, const KUrl &url);
         void removeTrack(int position);
@@ -62,6 +62,7 @@ class PlaylistModel : public QAbstractTableModel
         KUrl track(int position) const;
         PlaybackMode playbackMode() const;
         PlaylistSource source() const;
+        int id() const;
         int currentTrack() const;
         int nextTrack() const;
         int trackCount() const;
@@ -87,9 +88,9 @@ class PlaylistModel : public QAbstractTableModel
         void setPlaybackMode(PlaybackMode mode);
 
     protected:
+        MetaDataKey translateColumn(int column) const;
         int randomTrack() const;
         int findTrack(const KUrl &url) const;
-        MetaDataKey translateColumn(int column) const;
 
     protected slots:
         void metaDataChanged(const KUrl &url);
@@ -105,6 +106,7 @@ class PlaylistModel : public QAbstractTableModel
         QDateTime m_lastPlayedDate;
         PlaybackMode m_playbackMode;
         PlaylistSource m_source;
+        int m_id;
         int m_currentTrack;
 
     signals:

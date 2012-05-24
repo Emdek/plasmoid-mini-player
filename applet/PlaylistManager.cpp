@@ -96,15 +96,16 @@ void PlaylistManager::timerEvent(QTimerEvent *event)
         m_removedTracks.clear();
 
         QSet<KUrl> existingTracks;
+        QMap<int, PlaylistModel*>::iterator iterator;
 
-        for (int i = 0; i < m_playlists.count(); ++i)
+        for (iterator = m_playlists.begin(); iterator != m_playlists.end(); ++iterator)
         {
-            if (m_playlists[i]->isReadOnly())
+            if (iterator.value()->isReadOnly())
             {
                 continue;
             }
 
-            existingTracks = existingTracks.unite(m_playlists.at(i)->tracks().toSet());
+            existingTracks = existingTracks.unite(iterator.value()->tracks().toSet());
         }
 
         removedTracks = removedTracks.subtract(existingTracks);
@@ -141,14 +142,14 @@ void PlaylistManager::columnsOrderChanged()
 
 void PlaylistManager::visiblePlaylistChanged(int position)
 {
-    if (!m_dialog || position > (m_playlists.count() - 1))
+    if (!m_dialog || position < 0 || position >= m_playlistsOrder.count())
     {
         return;
     }
 
     if (m_player->state() == StoppedState)
     {
-        setCurrentPlaylist(position);
+        setCurrentPlaylist(m_playlistsOrder[position]);
     }
 
     if (m_playlistUi.playlistView->model())
@@ -156,12 +157,14 @@ void PlaylistManager::visiblePlaylistChanged(int position)
         disconnect(m_playlistUi.playlistView->model(), SIGNAL(modified()), this, SLOT(filterPlaylist()));
     }
 
-    m_playlistUi.playlistView->setModel(m_playlists[visiblePlaylist()]);
+    PlaylistModel *playlist = m_playlists[m_playlistsOrder[position]];
+
+    m_playlistUi.playlistView->setModel(playlist);
     m_playlistUi.playlistView->horizontalHeader()->setMovable(true);
     m_playlistUi.playlistView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
     m_playlistUi.playlistView->horizontalHeader()->resizeSection(0, 22);
 
-    connect(m_playlists[visiblePlaylist()], SIGNAL(modified()), this, SLOT(filterPlaylist()));
+    connect(playlist, SIGNAL(modified()), this, SLOT(filterPlaylist()));
 
     filterPlaylist(m_playlistUi.playlistViewFilter->text());
 
@@ -291,7 +294,7 @@ void PlaylistManager::createDevicePlaylist(const QString &udi, const KUrl::List 
 
 void PlaylistManager::playlistMoved(int from, int to)
 {
-    m_playlists.swap(from, to);
+    m_playlistsOrder.swap(from, to);
 
     emit modified();
 }
@@ -306,7 +309,9 @@ void PlaylistManager::filterPlaylist()
 
 void PlaylistManager::filterPlaylist(const QString &text)
 {
-    for (int i = 0; i < m_playlists[visiblePlaylist()]->trackCount(); ++i)
+    PlaylistModel *playlist = m_playlists[visiblePlaylist()];
+
+    for (int i = 0; i < playlist->trackCount(); ++i)
     {
         bool hide = true;
 
@@ -323,7 +328,7 @@ void PlaylistManager::filterPlaylist(const QString &text)
                     continue;
                 }
 
-                if (m_playlists[visiblePlaylist()]->index(i, j).data(Qt::DisplayRole).toString().contains(text, Qt::CaseInsensitive))
+                if (playlist->index(i, j).data(Qt::DisplayRole).toString().contains(text, Qt::CaseInsensitive))
                 {
                     hide = false;
 
@@ -338,12 +343,18 @@ void PlaylistManager::filterPlaylist(const QString &text)
 
 void PlaylistManager::renamePlaylist(int position)
 {
+    if (position >= m_playlists.count())
+    {
+        return;
+    }
+
     if (position < 0)
     {
         position = m_selectedPlaylist;
     }
 
-    const QString title = KInputDialog::getText(i18n("Rename Playlist"), i18n("Enter name:"), m_playlists[position]->title());
+    PlaylistModel *playlist = m_playlists[m_playlistsOrder[position]];
+    const QString title = KInputDialog::getText(i18n("Rename Playlist"), i18n("Enter name:"), playlist->title());
 
     if (title.isEmpty())
     {
@@ -351,7 +362,8 @@ void PlaylistManager::renamePlaylist(int position)
     }
 
     m_playlistUi.tabBar->setTabText(position, title);
-    m_playlists[position]->setTitle(title);
+
+    playlist->setTitle(title);
 
     emit playlistChanged(position);
     emit modified();
@@ -359,6 +371,11 @@ void PlaylistManager::renamePlaylist(int position)
 
 void PlaylistManager::removePlaylist(int position)
 {
+    if (position >= m_playlists.count())
+    {
+        return;
+    }
+
     if (position < 0)
     {
         position = m_selectedPlaylist;
@@ -369,6 +386,7 @@ void PlaylistManager::removePlaylist(int position)
         clearPlaylist();
 
         m_playlists[visiblePlaylist()]->setTitle(i18n("Default"));
+
         m_playlistUi.tabBar->setTabText(0, i18n("Default"));
 
         return;
@@ -376,8 +394,9 @@ void PlaylistManager::removePlaylist(int position)
 
     m_playlistUi.tabBar->removeTab(position);
 
-    m_playlists[position]->deleteLater();
-    m_playlists.removeAt(position);
+    m_playlists[m_playlistsOrder[position]]->deleteLater();
+
+    m_playlistsOrder.removeAt(position);
 
     if (currentPlaylist() == position)
     {
@@ -397,13 +416,14 @@ void PlaylistManager::removePlaylist(int position)
 
 void PlaylistManager::exportPlaylist()
 {
+    PlaylistModel *playlist = m_playlists[visiblePlaylist()];
     KFileDialog dialog(KUrl("~"), QString(), NULL);
     dialog.setMimeFilter(QStringList() << "audio/x-scpls" << "audio/x-mpegurl");
     dialog.setWindowModality(Qt::NonModal);
     dialog.setMode(KFile::File);
     dialog.setOperationMode(KFileDialog::Saving);
     dialog.setConfirmOverwrite(true);
-    dialog.setSelection(m_playlists[visiblePlaylist()]->title() + ".pls");
+    dialog.setSelection(playlist->title() + ".pls");
     dialog.exec();
 
     if (dialog.selectedUrl().isEmpty())
@@ -413,56 +433,55 @@ void PlaylistManager::exportPlaylist()
 
     QFile data(dialog.selectedUrl().toLocalFile());
 
-    if (data.open(QFile::WriteOnly))
-    {
-        QTextStream out(&data);
-        const PlaylistFormat type = (dialog.selectedUrl().toLocalFile().endsWith(".pls")?PlsFormat:M3uFormat);
-
-        if (type == PlsFormat)
-        {
-            out << "[playlist]\n";
-            out << "NumberOfEntries=" << m_playlists[visiblePlaylist()]->trackCount() << "\n\n";
-        }
-        else
-        {
-            out << "#EXTM3U\n\n";
-        }
-
-        for (int i = 0; i < m_playlists[visiblePlaylist()]->trackCount(); ++i)
-        {
-            KUrl url = m_playlists[visiblePlaylist()]->track(i);
-            QString title = MetaDataManager::metaData(url, TitleKey, false);
-            QString duration = ((MetaDataManager::duration(url) > 0)?QString::number(MetaDataManager::duration(url) / 1000):QString("-1"));
-
-            if (type == PlsFormat)
-            {
-                out << "File" << QString::number(i + 1) << "=";
-            }
-            else
-            {
-                out << "#EXTINF:" << duration << "," << title << "\n";
-            }
-
-            out << url.pathOrUrl() << '\n';
-
-            if (type == PlsFormat)
-            {
-                out << "Title" << QString::number(i + 1) << "=" << title << '\n';
-                out << "Length" << QString::number(i + 1) << "=" << duration << "\n\n";
-            }
-        }
-
-        if (type == PlsFormat)
-        {
-            out << "Version=2";
-        }
-
-        data.close();
-    }
-    else
+    if (!data.open(QFile::WriteOnly))
     {
         KMessageBox::error(NULL, i18n("Cannot open file for writing."));
     }
+
+    QTextStream out(&data);
+    const KUrl::List tracks = playlist->tracks();
+    const PlaylistFormat type = (dialog.selectedUrl().toLocalFile().endsWith(".pls")?PlsFormat:M3uFormat);
+
+    if (type == PlsFormat)
+    {
+        out << "[playlist]\n";
+        out << "NumberOfEntries=" << tracks.count() << "\n\n";
+    }
+    else
+    {
+        out << "#EXTM3U\n\n";
+    }
+
+    for (int i = 0; i < tracks.count(); ++i)
+    {
+        const KUrl url = tracks.at(i);
+        const QString title = MetaDataManager::metaData(url, TitleKey, false);
+        const QString duration = ((MetaDataManager::duration(url) > 0)?QString::number(MetaDataManager::duration(url) / 1000):QString("-1"));
+
+        if (type == PlsFormat)
+        {
+            out << "File" << QString::number(i + 1) << "=";
+        }
+        else
+        {
+            out << "#EXTINF:" << duration << "," << title << "\n";
+        }
+
+        out << url.pathOrUrl() << '\n';
+
+        if (type == PlsFormat)
+        {
+            out << "Title" << QString::number(i + 1) << "=" << title << '\n';
+            out << "Length" << QString::number(i + 1) << "=" << duration << "\n\n";
+        }
+    }
+
+    if (type == PlsFormat)
+    {
+        out << "Version=2";
+    }
+
+    data.close();
 }
 
 void PlaylistManager::newPlaylist()
@@ -492,37 +511,40 @@ void PlaylistManager::trackChanged()
 
 void PlaylistManager::moveUpTrack()
 {
-    KUrl url(m_playlistUi.playlistView->currentIndex().data(Qt::UserRole).toUrl());
-    int row = m_playlistUi.playlistView->currentIndex().row();
+    PlaylistModel *playlist = m_playlists[visiblePlaylist()];
+    const KUrl url(m_playlistUi.playlistView->currentIndex().data(Qt::UserRole).toUrl());
+    const int row = m_playlistUi.playlistView->currentIndex().row();
 
-    m_playlists[visiblePlaylist()]->removeTrack(row);
-    m_playlists[visiblePlaylist()]->addTrack((row - 1), url);
+    playlist->removeTrack(row);
+    playlist->addTrack((row - 1), url);
 
-    m_playlistUi.playlistView->setCurrentIndex(m_playlists[visiblePlaylist()]->index((row - 1), 0));
+    m_playlistUi.playlistView->setCurrentIndex(playlist->index((row - 1), 0));
 
     updateActions();
 }
 
 void PlaylistManager::moveDownTrack()
 {
-    KUrl url(m_playlistUi.playlistView->currentIndex().data(Qt::UserRole).toUrl());
-    int row = m_playlistUi.playlistView->currentIndex().row();
+    PlaylistModel *playlist = m_playlists[visiblePlaylist()];
+    const KUrl url(m_playlistUi.playlistView->currentIndex().data(Qt::UserRole).toUrl());
+    const int row = m_playlistUi.playlistView->currentIndex().row();
 
-    m_playlists[visiblePlaylist()]->removeTrack(row);
-    m_playlists[visiblePlaylist()]->addTrack((row + 1), url);
+    playlist->removeTrack(row);
+    playlist->addTrack((row + 1), url);
 
-    m_playlistUi.playlistView->setCurrentIndex(m_playlists[visiblePlaylist()]->index((row + 1), 0));
+    m_playlistUi.playlistView->setCurrentIndex(playlist->index((row + 1), 0));
 
     updateActions();
 }
 
 void PlaylistManager::removeTrack()
 {
-    int row = m_playlistUi.playlistView->currentIndex().row();
+    PlaylistModel *playlist = m_playlists[visiblePlaylist()];
+    const int row = m_playlistUi.playlistView->currentIndex().row();
 
-    m_playlists[visiblePlaylist()]->removeTrack(row);
+    playlist->removeTrack(row);
 
-    m_playlistUi.playlistView->setCurrentIndex(m_playlists[visiblePlaylist()]->index(row, 0));
+    m_playlistUi.playlistView->setCurrentIndex(playlist->index(row, 0));
 }
 
 void PlaylistManager::playTrack(QModelIndex index)
@@ -537,7 +559,9 @@ void PlaylistManager::playTrack(QModelIndex index)
         setCurrentPlaylist(visiblePlaylist());
     }
 
-    if (m_playlists[visiblePlaylist()] == m_player->playlist() && index.row() == m_playlists[visiblePlaylist()]->currentTrack() && m_player->state() != StoppedState)
+    PlaylistModel *playlist = m_playlists[visiblePlaylist()];
+
+    if (m_player->playlist() == playlist && index.row() == playlist->currentTrack() && m_player->state() != StoppedState)
     {
         m_player->playPause();
     }
@@ -607,20 +631,22 @@ void PlaylistManager::updateActions()
         return;
     }
 
-    m_player->action(PlaybackModeMenuAction)->menu()->actions().at(static_cast<int>(m_playlists[visiblePlaylist()]->playbackMode()))->setChecked(true);
+    PlaylistModel *playlist = m_playlists[visiblePlaylist()];
+
+    m_player->action(PlaybackModeMenuAction)->menu()->actions().at(static_cast<int>(playlist->playbackMode()))->setChecked(true);
 
     QModelIndexList selectedIndexes = m_playlistUi.playlistView->selectionModel()->selectedIndexes();
-    bool hasTracks = m_playlists[visiblePlaylist()]->trackCount();
+    bool hasTracks = playlist->trackCount();
 
-    m_playlistUi.addButton->setEnabled(!m_playlists[visiblePlaylist()]->isReadOnly());
+    m_playlistUi.addButton->setEnabled(!playlist->isReadOnly());
     m_playlistUi.removeButton->setEnabled(!selectedIndexes.isEmpty());
-    m_playlistUi.editButton->setEnabled(!selectedIndexes.isEmpty() && !m_playlists[visiblePlaylist()]->isReadOnly());
-    m_playlistUi.moveUpButton->setEnabled((m_playlists[visiblePlaylist()]->trackCount() > 1) && !selectedIndexes.isEmpty() && selectedIndexes.first().row() != 0);
-    m_playlistUi.moveDownButton->setEnabled((m_playlists[visiblePlaylist()]->trackCount() > 1) && !selectedIndexes.isEmpty() && selectedIndexes.last().row() != (m_playlists[visiblePlaylist()]->trackCount() - 1));
-    m_playlistUi.clearButton->setEnabled(hasTracks && !m_playlists[visiblePlaylist()]->isReadOnly());
+    m_playlistUi.editButton->setEnabled(!selectedIndexes.isEmpty() && !playlist->isReadOnly());
+    m_playlistUi.moveUpButton->setEnabled((playlist->trackCount() > 1) && !selectedIndexes.isEmpty() && selectedIndexes.first().row() != 0);
+    m_playlistUi.moveDownButton->setEnabled((playlist->trackCount() > 1) && !selectedIndexes.isEmpty() && selectedIndexes.last().row() != (playlist->trackCount() - 1));
+    m_playlistUi.clearButton->setEnabled(hasTracks && !playlist->isReadOnly());
     m_playlistUi.playbackModeButton->setEnabled(hasTracks);
-    m_playlistUi.exportButton->setEnabled(hasTracks && !m_playlists[visiblePlaylist()]->isReadOnly());
-    m_playlistUi.shuffleButton->setEnabled((m_playlists[visiblePlaylist()]->trackCount() > 1) && !m_playlists[visiblePlaylist()]->isReadOnly());
+    m_playlistUi.exportButton->setEnabled(hasTracks && !playlist->isReadOnly());
+    m_playlistUi.shuffleButton->setEnabled((playlist->trackCount() > 1) && !playlist->isReadOnly());
     m_playlistUi.playlistViewFilter->setEnabled(hasTracks);
 
     m_isEdited = false;
@@ -720,15 +746,19 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.splitter->setStretchFactor(4, 1);
         m_playlistUi.splitter->setStretchFactor(5, 1);
 
-        for (int i = 0; i < m_playlists.count(); ++i)
+        const int currentTab = m_playlistsOrder.indexOf(currentPlaylist());
+
+        for (int i = 0; i < m_playlistsOrder.count(); ++i)
         {
-            m_playlistUi.tabBar->addTab(((currentPlaylist() == i)?KIcon("media-playback-start"):m_playlists.at(i)->icon()), m_playlists.at(i)->title());
+            PlaylistModel *playlist = m_playlists[m_playlistsOrder[i]];
+
+            m_playlistUi.tabBar->addTab(((currentTab == i)?KIcon("media-playback-start"):playlist->icon()), playlist->title());
         }
 
         m_playlistUi.tabBar->setVisible(m_playlists.count() > 1);
-        m_playlistUi.tabBar->setCurrentIndex(currentPlaylist());
+        m_playlistUi.tabBar->setCurrentIndex(currentTab);
 
-        visiblePlaylistChanged(currentPlaylist());
+        visiblePlaylistChanged(currentTab);
         setColumnsOrder(m_columnsOrder);
         setColumnsVisibility(m_columnsVisibility);
         setSplitterLocked(m_splitterLocked);
@@ -788,24 +818,26 @@ void PlaylistManager::closeDialog()
     }
 }
 
-void PlaylistManager::setCurrentPlaylist(int position)
+void PlaylistManager::setCurrentPlaylist(int id)
 {
-    if (position > m_playlists.count() || position < 0)
+    if (!m_playlists.contains(id))
     {
-        position = 0;
+        id = visiblePlaylist();
     }
 
-    m_player->setPlaylist(m_playlists[position]);
+    m_player->setPlaylist(m_playlists[id]);
 
     if (m_dialog)
     {
+        const int currentTab = m_playlistsOrder.indexOf(currentPlaylist());
+
         for (int i = 0; i < m_playlistUi.tabBar->count(); ++i)
         {
-            m_playlistUi.tabBar->setTabIcon(i, ((currentPlaylist() == i)?KIcon("media-playback-start"):m_playlists.at(i)->icon()));
+            m_playlistUi.tabBar->setTabIcon(i, ((currentTab == i)?KIcon("media-playback-start"):m_playlists[m_playlistsOrder[i]]->icon()));
         }
     }
 
-    emit currentPlaylistChanged(position);
+    emit currentPlaylistChanged(id);
     emit modified();
 }
 
@@ -818,6 +850,14 @@ void PlaylistManager::setDialogSize(const QSize &size)
     else
     {
         m_size = size;
+    }
+}
+
+void PlaylistManager::setPlaylistsOrder(const QList<int> &order)
+{
+    if (!m_dialog)
+    {
+        m_playlistsOrder = order;
     }
 }
 
@@ -906,9 +946,14 @@ void PlaylistManager::setHeaderState(const QByteArray &state)
     }
 }
 
-QList<PlaylistModel*> PlaylistManager::playlists() const
+PlaylistModel* PlaylistManager::playlist(int id) const
 {
-    return m_playlists;
+    return m_playlists.value(id, NULL);
+}
+
+QList<int> PlaylistManager::playlists() const
+{
+    return m_playlistsOrder;
 }
 
 QStringList PlaylistManager::columnsOrder() const
@@ -941,50 +986,66 @@ PlayerState PlaylistManager::state() const
     return m_player->state();
 }
 
-int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks, PlaylistSource source)
+int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &tracks, PlaylistSource source, int id)
 {
-    PlaylistModel *playlist = new PlaylistModel(this, title, source);
-    int position = qMin(m_playlists.count(), (visiblePlaylist() + 1));
+    if (id < 0 || m_playlists.contains(id))
+    {
+        id = 0;
 
-    m_playlists.insert(position, playlist);
+        while (m_playlists.contains(id))
+        {
+            ++id;
+        }
+    }
+
+    m_playlists[id] = new PlaylistModel(this, id, title, source);
+
+    int position = qMin(m_playlists.count(), (m_playlistsOrder.indexOf(visiblePlaylist()) + 1));
+
+    m_playlistsOrder.insert(position, id);
 
     if (!tracks.isEmpty())
     {
-        m_playlists[position]->addTracks(tracks);
+        m_playlists[id]->addTracks(tracks);
+        m_playlists[id]->setCurrentTrack(0);
     }
 
     if (m_dialog)
     {
         m_playlistUi.tabBar->show();
-        m_playlistUi.tabBar->insertTab((position), playlist->icon(), title);
+        m_playlistUi.tabBar->insertTab(position, m_playlists[id]->icon(), title);
         m_playlistUi.tabBar->setCurrentIndex(position);
 
         visiblePlaylistChanged(position);
     }
 
-    playlist->setCurrentTrack(0);
 
     emit playlistAdded(position);
     emit modified();
 
-    connect(playlist, SIGNAL(modified()), this, SIGNAL(modified()));
-    connect(playlist, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
+    connect(m_playlists[id], SIGNAL(modified()), this, SIGNAL(modified()));
+    connect(m_playlists[id], SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
 
-    return position;
+    return id;
 }
 
 int PlaylistManager::currentPlaylist() const
 {
-    int currentPlaylist = m_playlists.indexOf(m_player->playlist());
+    const int id = m_playlists.key(m_player->playlist(), -1);
 
-    return ((currentPlaylist < 0 || currentPlaylist > (m_playlists.count() - 1))?visiblePlaylist():currentPlaylist);
+    return ((id < 0)?visiblePlaylist():id);
 }
 
 int PlaylistManager::visiblePlaylist() const
 {
-    int index = (m_dialog?m_playlistUi.tabBar->currentIndex():m_playlists.indexOf(m_player->playlist()));
+    if (m_dialog && m_playlistUi.tabBar->currentIndex() >= 0 && m_playlistUi.tabBar->currentIndex() < m_playlistsOrder.count())
+    {
+        return m_playlistsOrder[m_playlistUi.tabBar->currentIndex()];
+    }
 
-    return ((index > (m_playlists.count() - 1) || index < 0)?0:index);
+    const int id = m_playlists.key(m_player->playlist(), -1);
+
+    return ((id < 0)?m_playlistsOrder.first():id);
 }
 
 bool PlaylistManager::isDialogVisible() const
@@ -1032,9 +1093,10 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
 
             if (index.isValid())
             {
+                PlaylistModel *playlist = m_playlists[visiblePlaylist()];
                 KMenu menu;
                 QMenu *editMenu = menu.addMenu(KIcon("document-edit"), i18n("Edit"));
-                editMenu->setEnabled(!m_playlists[visiblePlaylist()]->isReadOnly());
+                editMenu->setEnabled(!playlist->isReadOnly());
                 editMenu->addAction(i18n("Edit all properties..."));
                 editMenu->addSeparator();
 
@@ -1055,7 +1117,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
                 menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
                 menu.addSeparator();
 
-                if (m_playlists[visiblePlaylist()] == m_player->playlist() && index.row() == m_playlists[visiblePlaylist()]->currentTrack())
+                if (m_player->playlist() == playlist && index.row() == playlist->currentTrack())
                 {
                     menu.addAction(m_player->action(PlayPauseAction));
                     menu.addAction(m_player->action(StopAction));

@@ -44,14 +44,15 @@ class PlaylistManager : public QObject
 
         void addTracks(const KUrl::List &tracks, int index = -1, PlayerReaction reaction = NoReaction);
         void removeTracks(const KUrl::List &tracks);
-        QList<PlaylistModel*> playlists() const;
+        PlaylistModel* playlist(int id) const;
+        QList<int> playlists() const;
         QStringList columnsOrder() const;
         QStringList columnsVisibility() const;
         QSize dialogSize() const;
         QByteArray splitterState() const;
         QByteArray headerState() const;
         PlayerState state() const;
-        int createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List(), PlaylistSource source = LocalSource);
+        int createPlaylist(const QString &playlist, const KUrl::List &tracks = KUrl::List(), PlaylistSource source = LocalSource, int id = -1);
         int currentPlaylist() const;
         int visiblePlaylist() const;
         bool isDialogVisible() const;
@@ -61,8 +62,9 @@ class PlaylistManager : public QObject
     public slots:
         void showDialog(const QPoint &position);
         void closeDialog();
-        void setCurrentPlaylist(int position);
+        void setCurrentPlaylist(int id);
         void setDialogSize(const QSize &size);
+        void setPlaylistsOrder(const QList<int> &order);
         void setColumnsOrder(const QStringList &order);
         void setColumnsVisibility(const QStringList &visibility);
         void setSplitterLocked(bool locked);
@@ -84,8 +86,8 @@ class PlaylistManager : public QObject
         void playlistMoved(int from, int to);
         void filterPlaylist();
         void filterPlaylist(const QString &text);
-        void renamePlaylist(int position = -1);
-        void removePlaylist(int position = -1);
+        void renamePlaylist(int id = -1);
+        void removePlaylist(int id = -1);
         void exportPlaylist();
         void newPlaylist();
         void clearPlaylist();
@@ -107,10 +109,11 @@ class PlaylistManager : public QObject
         Player *m_player;
         Plasma::Dialog *m_dialog;
         VideoWidget *m_videoWidget;
+        QMap<int, PlaylistModel*> m_playlists;
         QMap<PlaylistColumn, QString> m_columns;
         QMap<QString, QPair<QAction*, QMap<QString, QVariant> > > m_discActions;
         QSet<KUrl> m_removedTracks;
-        QList<PlaylistModel*> m_playlists;
+        QList<int> m_playlistsOrder;
         QStringList m_columnsOrder;
         QStringList m_columnsVisibility;
         QSize m_size;
@@ -124,10 +127,10 @@ class PlaylistManager : public QObject
         Ui::track m_trackUi;
 
     signals:
-        void playlistAdded(int position);
-        void playlistRemoved(int position);
-        void currentPlaylistChanged(int position);
-        void playlistChanged(int position);
+        void playlistAdded(int id);
+        void playlistRemoved(int id);
+        void currentPlaylistChanged(int id);
+        void playlistChanged(int id);
         void modified();
         void requestMenu(QPoint position);
 };
