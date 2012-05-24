@@ -172,6 +172,9 @@ void PlaylistModel::shuffle()
     KRandomSequence().randomize(m_tracks);
 
     setCurrentTrack(findTrack(url));
+
+    emit tracksChanged();
+    emit modified();
 }
 
 void PlaylistModel::sort(int column, Qt::SortOrder order)
