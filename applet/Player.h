@@ -21,6 +21,7 @@
 #ifndef MINIPLAYERPLAYER_HEADER
 #define MINIPLAYERPLAYER_HEADER
 
+#include <QtCore/QPointer>
 #include <QtGui/QAction>
 #include <QtGui/QSlider>
 #include <QtGui/QActionGroup>
@@ -133,7 +134,7 @@ class Player : public QObject
         Phonon::MediaController *m_mediaController;
         Phonon::AudioOutput *m_audioOutput;
         Phonon::VideoWidget *m_videoWidget;
-        PlaylistModel *m_playlist;
+        QPointer<PlaylistModel> m_playlist;
         KNotificationRestrictions *m_notificationRestrictions;
         VideoWidget *m_appletVideoWidget;
         VideoWidget *m_dialogVideoWidget;

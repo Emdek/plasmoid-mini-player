@@ -4,7 +4,7 @@
 - fixed Play Previous and Play Next actions;
 - enable Apply button when configuration values are changed;
 - added Play Previous and Play Next to set of available controls;
-- some other fixes and changes.
+- some other fixes and lots of internal changes.
 
 2.3 (25.03.2012):
 - added track properties dialog;
