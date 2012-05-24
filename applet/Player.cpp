@@ -910,6 +910,8 @@ void Player::setFullScreen(bool enable)
             m_fullScreenUi.setupUi(m_fullScreenWidget);
             m_fullScreenUi.playPauseButton->setDefaultAction(m_actions[PlayPauseAction]);
             m_fullScreenUi.stopButton->setDefaultAction(m_actions[StopAction]);
+            m_fullScreenUi.playPreviousButton->setDefaultAction(m_actions[PlayPreviousAction]);
+            m_fullScreenUi.playNextButton->setDefaultAction(m_actions[PlayNextAction]);
             m_fullScreenUi.seekSlider->setPlayer(this);
             m_fullScreenUi.muteButton->setDefaultAction(m_actions[MuteAction]);
             m_fullScreenUi.volumeSlider->setPlayer(this);

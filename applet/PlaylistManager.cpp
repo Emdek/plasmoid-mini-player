@@ -738,10 +738,12 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.playbackModeButton->setDefaultAction(m_player->action(PlaybackModeMenuAction));
         m_playlistUi.playPauseButton->setDefaultAction(m_player->action(PlayPauseAction));
         m_playlistUi.stopButton->setDefaultAction(m_player->action(StopAction));
-        m_playlistUi.fullScreenButton->setDefaultAction(m_player->action(FullScreenAction));
+        m_playlistUi.playPreviousButton->setDefaultAction(m_player->action(PlayPreviousAction));
+        m_playlistUi.playNextButton->setDefaultAction(m_player->action(PlayNextAction));
         m_playlistUi.seekSlider->setPlayer(m_player);
         m_playlistUi.muteButton->setDefaultAction(m_player->action(MuteAction));
         m_playlistUi.volumeSlider->setPlayer(m_player);
+        m_playlistUi.fullScreenButton->setDefaultAction(m_player->action(FullScreenAction));
         m_playlistUi.titleLabel->setText(m_player->metaData(TitleKey));
         m_playlistUi.splitter->setStretchFactor(0, 1);
         m_playlistUi.splitter->setStretchFactor(1, 10);

@@ -3,7 +3,7 @@
 - added Current Track Once playback mode;
 - fixed Play Previous and Play Next actions;
 - enable Apply button when configuration values are changed;
-- added Play Previous and Play Next to set of available controls;
+- added Play Previous and Play Next to set of available controls and to toolbars of playlist dialog and full screen view;
 - some other fixes and lots of internal changes.
 
 2.3 (25.03.2012):

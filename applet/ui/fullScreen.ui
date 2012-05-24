@@ -193,7 +193,7 @@
        <height>40</height>
       </size>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,3,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,3,0,0,0">
       <item>
        <widget class="QToolButton" name="playPauseButton">
         <property name="autoRaise">
@@ -203,6 +203,20 @@
       </item>
       <item>
        <widget class="QToolButton" name="stopButton">
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="playPreviousButton">
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="playNextButton">
         <property name="autoRaise">
          <bool>true</bool>
         </property>
