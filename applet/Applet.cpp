@@ -327,7 +327,7 @@ void Applet::configSave()
 
     KConfigGroup playlistsConfiguration = configuration.group("Playlists");
     KConfigGroup metaDataConfiguration = configuration.group("MetaData");
-    QList<int> playlists = m_playlistManager->playlists();
+    const QList<int> playlists = m_playlistManager->playlists();
     QSet<KUrl> playlistTracks;
     int index = 0;
 

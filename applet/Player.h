@@ -134,7 +134,6 @@ class Player : public QObject
         Phonon::MediaController *m_mediaController;
         Phonon::AudioOutput *m_audioOutput;
         Phonon::VideoWidget *m_videoWidget;
-        QPointer<PlaylistModel> m_playlist;
         KNotificationRestrictions *m_notificationRestrictions;
         VideoWidget *m_appletVideoWidget;
         VideoWidget *m_dialogVideoWidget;
@@ -147,6 +146,7 @@ class Player : public QObject
         QActionGroup *m_audioChannelGroup;
         QActionGroup *m_subtitlesGroup;
         QActionGroup *m_anglesGroup;
+        QPointer<PlaylistModel> m_playlist;
         QMap<PlayerAction, QAction*> m_actions;
         QMap<MetaDataKey, Phonon::MetaData> m_keys;
         AspectRatio m_aspectRatio;

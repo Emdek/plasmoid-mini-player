@@ -385,29 +385,33 @@ void PlaylistManager::removePlaylist(int position)
     {
         clearPlaylist();
 
-        m_playlists[visiblePlaylist()]->setTitle(i18n("Default"));
+        PlaylistModel *playlist = m_playlists[visiblePlaylist()];
+        playlist->setTitle(i18n("Default"));
+        playlist->setCreationDate(QDateTime::currentDateTime());
+        playlist->setModificationDate(QDateTime::currentDateTime());
+        playlist->setLastPlayedDate(QDateTime());
 
         m_playlistUi.tabBar->setTabText(0, i18n("Default"));
 
         return;
     }
 
-    m_playlistUi.tabBar->removeTab(position);
-
     m_playlists[m_playlistsOrder[position]]->deleteLater();
 
     m_playlistsOrder.removeAt(position);
+
+    m_playlistUi.tabBar->removeTab(position);
+
+    if (m_playlistUi.tabBar->count() == 1)
+    {
+        m_playlistUi.tabBar->hide();
+    }
 
     if (currentPlaylist() == position)
     {
         m_player->stop();
 
-        setCurrentPlaylist(currentPlaylist());
-    }
-
-    if (m_playlistUi.tabBar->count() == 1)
-    {
-        m_playlistUi.tabBar->hide();
+        visiblePlaylistChanged((position == 0)?0:(position - 1));
     }
 
     emit playlistRemoved(position);
