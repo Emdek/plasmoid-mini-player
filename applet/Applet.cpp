@@ -445,10 +445,12 @@ void Applet::keyPressEvent(QKeyEvent *event)
     switch (event->key())
     {
         case Qt::Key_PageDown:
+        case Qt::Key_MediaPrevious:
             m_player->playPrevious();
 
             break;
         case Qt::Key_PageUp:
+        case Qt::Key_MediaNext:
             m_player->playNext();
 
             break;
@@ -469,7 +471,21 @@ void Applet::keyPressEvent(QKeyEvent *event)
 
             break;
         case Qt::Key_Space:
+        case Qt::Key_MediaTogglePlayPause:
             m_player->playPause();
+
+            break;
+        case Qt::Key_MediaPlay:
+            m_player->play();
+
+            break;
+        case Qt::Key_MediaPause:
+            m_player->pause();
+
+            break;
+        case Qt::Key_S:
+        case Qt::Key_MediaStop:
+            m_player->stop();
 
             break;
         case Qt::Key_Escape:
@@ -501,10 +517,6 @@ void Applet::keyPressEvent(QKeyEvent *event)
             break;
         case Qt::Key_P:
             togglePlaylistDialog();
-
-            break;
-        case Qt::Key_S:
-            m_player->stop();
 
             break;
         case Qt::Key_U:
