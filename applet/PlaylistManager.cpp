@@ -310,6 +310,15 @@ void PlaylistManager::filterPlaylist()
 void PlaylistManager::filterPlaylist(const QString &text)
 {
     PlaylistModel *playlist = m_playlists[visiblePlaylist()];
+    QList<int> visibleSections;
+
+    for (int i = 1; i < m_playlistUi.playlistView->horizontalHeader()->count(); ++i)
+    {
+        if (!m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(i))
+        {
+            visibleSections.append(i);
+        }
+    }
 
     for (int i = 0; i < playlist->trackCount(); ++i)
     {
@@ -321,14 +330,9 @@ void PlaylistManager::filterPlaylist(const QString &text)
         }
         else
         {
-            for (int j = 1; j < m_playlistUi.playlistView->horizontalHeader()->count(); ++j)
+            for (int j = 0; j < visibleSections.count(); ++j)
             {
-                if (m_playlistUi.playlistView->horizontalHeader()->isSectionHidden(j))
-                {
-                    continue;
-                }
-
-                if (playlist->index(i, j).data(Qt::DisplayRole).toString().contains(text, Qt::CaseInsensitive))
+                if (playlist->index(i, visibleSections.at(j)).data(Qt::DisplayRole).toString().contains(text, Qt::CaseInsensitive))
                 {
                     hide = false;
 
