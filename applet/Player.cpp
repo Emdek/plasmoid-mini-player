@@ -786,6 +786,11 @@ void Player::setPlaylist(PlaylistModel *playlist)
 
     m_playlist = playlist;
 
+    if (!m_playlist)
+    {
+        return;
+    }
+
     currentTrackChanged(playlist->currentTrack(), NoReaction);
     mediaChanged();
 

@@ -1,6 +1,8 @@
 2.5 (01.07.2012):
 - allow to toggle playback state using single mouse click on video widget;
 - move tracks instead of copying them when dragging inside playlist view;
+- allow to copy tracks between tabs by dragging them;
+- switch tabs when dragging URLs over their handles;
 - allow to copy selected tracks to another playlist;
 - allow to select multiple tracks;
 - some other fixes.

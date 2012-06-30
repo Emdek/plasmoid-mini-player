@@ -1251,24 +1251,85 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             return false;
         }
     }
-    else if (object == m_playlistUi.tabBar && event->type() == QEvent::ContextMenu)
+    else if (object == m_playlistUi.tabBar)
     {
-        m_selectedPlaylist = m_playlistUi.tabBar->tabAt(m_playlistUi.tabBar->mapFromGlobal(static_cast<QContextMenuEvent*>(event)->globalPos()));
-
-        KMenu menu;
-        menu.addAction(KIcon("document-new"), i18n("New playlist..."), this, SLOT(newPlaylist()));
-
-        if (m_selectedPlaylist >= 0)
+        if (event->type() == QEvent::ContextMenu)
         {
-            menu.addSeparator();
-            menu.addAction(KIcon("edit-rename"), i18n("Rename playlist..."), this, SLOT(renamePlaylist()));
-            menu.addSeparator();
-            menu.addAction(KIcon("document-close"), i18n("Close playlist"), this, SLOT(removePlaylist()));
+            m_selectedPlaylist = m_playlistUi.tabBar->tabAt(m_playlistUi.tabBar->mapFromGlobal(static_cast<QContextMenuEvent*>(event)->globalPos()));
+
+            KMenu menu;
+            menu.addAction(KIcon("document-new"), i18n("New playlist..."), this, SLOT(newPlaylist()));
+
+            if (m_selectedPlaylist >= 0)
+            {
+                menu.addSeparator();
+                menu.addAction(KIcon("edit-rename"), i18n("Rename playlist..."), this, SLOT(renamePlaylist()));
+                menu.addSeparator();
+                menu.addAction(KIcon("document-close"), i18n("Close playlist"), this, SLOT(removePlaylist()));
+            }
+
+            menu.exec(QCursor::pos());
+
+            return true;
         }
+        else if (event->type() == QEvent::DragEnter)
+        {
+            QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent*>(event);
 
-        menu.exec(QCursor::pos());
+            if (dragEvent->mimeData()->hasUrls())
+            {
+                dragEvent->accept();
 
-        return true;
+                return true;
+            }
+        }
+        else if (event->type() == QEvent::DragMove)
+        {
+            QDragMoveEvent *dragEvent = static_cast<QDragMoveEvent*>(event);
+
+            if (dragEvent->mimeData()->hasUrls())
+            {
+                const int tab = m_playlistUi.tabBar->tabAt(dragEvent->pos());
+
+                if (tab != visiblePlaylist())
+                {
+                    dragEvent->accept();
+
+                    if (tab >= 0)
+                    {
+                        m_playlistUi.tabBar->setCurrentIndex(tab);
+                    }
+
+                    return true;
+                }
+            }
+        }
+        else if (event->type() == QEvent::Drop)
+        {
+            QDropEvent *dropEvent = static_cast<QDropEvent*>(event);
+
+            if (dropEvent->mimeData()->hasUrls())
+            {
+                int tab = m_playlistUi.tabBar->tabAt(dropEvent->pos());
+
+                if (tab < 0)
+                {
+                    const QString title = KInputDialog::getText(i18n("New playlist"), i18n("Enter name:"));
+
+                    if (!title.isEmpty())
+                    {
+                        tab = createPlaylist(title);
+                    }
+                }
+
+                if (tab >= 0 && m_playlists[m_playlistsOrder[tab]])
+                {
+                    m_playlists[m_playlistsOrder[tab]]->addTracks(KUrl::List(dropEvent->mimeData()->urls()));
+
+                    return true;
+                }
+            }
+        }
     }
     else if (object == m_dialog && event->type() == QEvent::ContextMenu && m_dialog && !m_isEdited)
     {
