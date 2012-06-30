@@ -151,7 +151,8 @@ class Player : public QObject
         QMap<MetaDataKey, Phonon::MetaData> m_keys;
         AspectRatio m_aspectRatio;
         int m_stopSleepCookie;
-        int m_hideFullScreenControls;
+        int m_hideFullScreenControlsTimer;
+        int m_playPauseTimer;
         bool m_inhibitNotifications;
         bool m_videoMode;
         Ui::fullScreen m_fullScreenUi;

@@ -52,7 +52,8 @@ Player::Player(QObject *parent) : QObject(parent),
     m_anglesGroup(new QActionGroup(this)),
     m_aspectRatio(AutomaticRatio),
     m_stopSleepCookie(0),
-    m_hideFullScreenControls(0),
+    m_hideFullScreenControlsTimer(0),
+    m_playPauseTimer(0),
     m_inhibitNotifications(false),
     m_videoMode(false)
 {
@@ -272,11 +273,19 @@ Player::Player(QObject *parent) : QObject(parent),
 
 void Player::timerEvent(QTimerEvent *event)
 {
-    if (m_fullScreenWidget && !m_fullScreenUi.controlsWidget->underMouse())
+    if (event->timerId() == m_hideFullScreenControlsTimer && m_fullScreenWidget && !m_fullScreenUi.controlsWidget->underMouse())
     {
         m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::BlankCursor));
         m_fullScreenUi.titleLabel->hide();
         m_fullScreenUi.controlsWidget->hide();
+
+        m_hideFullScreenControlsTimer = 0;
+    }
+    else if (event->timerId() == m_playPauseTimer)
+    {
+        m_actions[PlayPauseAction]->trigger();
+
+        m_playPauseTimer = 0;
     }
 
     killTimer(event->timerId());
@@ -936,11 +945,11 @@ void Player::setFullScreen(bool enable)
         m_actions[FullScreenAction]->setIcon(KIcon("view-restore"));
         m_actions[FullScreenAction]->setText(i18n("Exit Full Screen Mode"));
 
-        m_hideFullScreenControls = startTimer(2000);
+        m_hideFullScreenControlsTimer = startTimer(2000);
     }
     else
     {
-        killTimer(m_hideFullScreenControls);
+        killTimer(m_hideFullScreenControlsTimer);
 
         emit fullScreenChanged(false);
 
@@ -1147,9 +1156,9 @@ bool Player::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::MouseMove && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
     {
-        killTimer(m_hideFullScreenControls);
+        killTimer(m_hideFullScreenControlsTimer);
 
-        m_hideFullScreenControls = startTimer(2000);
+        m_hideFullScreenControlsTimer = startTimer(2000);
 
         m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
         m_fullScreenUi.titleLabel->show();
@@ -1164,6 +1173,19 @@ bool Player::eventFilter(QObject *object, QEvent *event)
     else if ((event->type() == QEvent::MouseButtonDblClick && static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton) || (event->type() == QEvent::GraphicsSceneMouseDoubleClick && static_cast<QGraphicsSceneMouseEvent*>(event)->button() == Qt::LeftButton))
     {
         m_actions[FullScreenAction]->trigger();
+
+        killTimer(m_playPauseTimer);
+
+        m_playPauseTimer = 0;
+
+        return true;
+    }
+    else if ((event->type() == QEvent::MouseButtonPress && static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton) || (event->type() == QEvent::GraphicsSceneMousePress && static_cast<QGraphicsSceneMouseEvent*>(event)->button() == Qt::LeftButton))
+    {
+        if (m_playPauseTimer == 0)
+        {
+            m_playPauseTimer = startTimer(QApplication::doubleClickInterval() + 10);
+        }
 
         return true;
     }
