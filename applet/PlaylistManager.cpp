@@ -619,6 +619,47 @@ void PlaylistManager::editTrack(QAction *action)
     }
 }
 
+void PlaylistManager::copyTrack(QAction *action)
+{
+    PlaylistModel *sourcePlaylist = m_playlists[currentPlaylist()];
+
+    if (!sourcePlaylist)
+    {
+        return;
+    }
+
+    KUrl::List urls;
+    const QModelIndexList selectedRows = m_playlistUi.playlistView->selectionModel()->selectedRows();
+
+    for (int i = 0; i < selectedRows.count(); ++i)
+    {
+        urls.append(sourcePlaylist->track(selectedRows.at(i).row()));
+    }
+
+    int target = action->data().toInt();
+
+    if (target < 0 || !m_playlists.contains(target))
+    {
+        const QString title = KInputDialog::getText(i18n("New playlist"), i18n("Enter name:"));
+
+        if (title.isEmpty())
+        {
+            return;
+        }
+
+        target = createPlaylist(title);
+    }
+
+    PlaylistModel *targetPlaylist = m_playlists[target];
+
+    if (!targetPlaylist)
+    {
+        return;
+    }
+
+    targetPlaylist->addTracks(urls);
+}
+
 void PlaylistManager::saveTrack()
 {
     const KUrl url(m_trackUi.pathLineEdit->text());
@@ -1112,6 +1153,19 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             {
                 PlaylistModel *playlist = m_playlists[visiblePlaylist()];
                 KMenu menu;
+
+                if (m_player->playlist() == playlist && index.row() == playlist->currentTrack() && m_player->state() == PlayingState)
+                {
+                    menu.addAction(m_player->action(PlayPauseAction));
+                    menu.addAction(m_player->action(StopAction));
+                }
+                else
+                {
+                    menu.addAction(KIcon("media-playback-start"), i18n("Play"), this, SLOT(playTrack()));
+                }
+
+                menu.addSeparator();
+
                 QMenu *editMenu = menu.addMenu(KIcon("document-edit"), i18n("Edit"));
                 editMenu->setEnabled(!playlist->isReadOnly());
                 editMenu->addAction(i18n("Edit all properties..."));
@@ -1132,19 +1186,32 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
                 connect(editMenu, SIGNAL(triggered(QAction*)), this, SLOT(editTrack(QAction*)));
 
                 menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
+
+                QMenu *addMenu = menu.addMenu(KIcon("list-add"), i18n("Add to playlist"));
+
+                if (m_playlists.count() > 1)
+                {
+                    for (int i = 0; i < m_playlistsOrder.count(); ++i)
+                    {
+                        PlaylistModel *targetPlaylist = m_playlists[m_playlistsOrder.at(i)];
+
+                        if (targetPlaylist && !targetPlaylist->isReadOnly() && targetPlaylist != playlist)
+                        {
+                            QAction *action = addMenu->addAction(targetPlaylist->icon(), targetPlaylist->title());
+                            action->setData(targetPlaylist->id());
+                        }
+                    }
+
+                    addMenu->addSeparator();
+                }
+
+                QAction *action = addMenu->addAction(KIcon("document-new"), i18n("New playlist..."));
+                action->setData(-1);
+
+                connect(addMenu, SIGNAL(triggered(QAction*)), this, SLOT(copyTrack(QAction*)));
+
                 menu.addSeparator();
 
-                if (m_player->playlist() == playlist && index.row() == playlist->currentTrack() && m_player->state() == PlayingState)
-                {
-                    menu.addAction(m_player->action(PlayPauseAction));
-                    menu.addAction(m_player->action(StopAction));
-                }
-                else
-                {
-                    menu.addAction(KIcon("media-playback-start"), i18n("Play"), this, SLOT(playTrack()));
-                }
-
-                menu.addSeparator();
                 menu.addAction(KIcon("list-remove"), i18n("Remove"), this, SLOT(removeTrack()));
                 menu.exec(QCursor::pos());
 
