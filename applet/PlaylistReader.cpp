@@ -87,7 +87,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
                 continue;
             }
 
-            QString mimeTypeName = mimeType.data()->name();
+            const QString mimeTypeName = mimeType.data()->name();
 
             if (mimeTypeName.indexOf("video/") == -1 && mimeTypeName.indexOf("audio/") == -1 && mimeTypeName != "application/ogg")
             {
@@ -156,15 +156,11 @@ void PlaylistReader::importPlaylist(const KUrl &url, PlaylistFormat type)
 
     if (type == XspfFormat)
     {
-        QByteArray byteArray = data.readAll();
-
-        readXspf(byteArray);
+        readXspf(data.readAll());
     }
     else if (type == AsxFormat)
     {
-        QByteArray byteArray = data.readAll();
-
-        readAsx(byteArray);
+        readAsx(data.readAll());
     }
     else
     {
@@ -241,7 +237,7 @@ void PlaylistReader::readM3u(QTextStream &stream)
 
         if (line.contains(m3uInformation))
         {
-            QStringList information = line.remove(m3uInformation).split(',');
+            const QStringList information = line.remove(m3uInformation).split(',');
 
             track.keys[TitleKey] = information.value(1);
             track.duration = information.value(0).toLongLong();
@@ -446,9 +442,7 @@ void PlaylistReader::readAsx(const QByteArray &data)
 
         if (reader.name().toString() == "ref")
         {
-            QXmlStreamAttributes attributes = reader.attributes();
-
-            url = KUrl(attributes.value("href").toString());
+            url = KUrl(reader.attributes().value("href").toString());
 
             if (!url.isValid())
             {
@@ -488,7 +482,7 @@ void PlaylistReader::readDirectory(const KUrl &url, int level)
         return;
     }
 
-    QStringList entries = QDir(url.toLocalFile()).entryList(QDir::Readable | QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    const QStringList entries = QDir(url.toLocalFile()).entryList(QDir::Readable | QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
     KUrl::List urls;
 
     for (int i = 0; i < entries.count(); ++i)
