@@ -736,9 +736,12 @@ void Applet::showToolTip()
     {
         killTimer(m_hideToolTip);
 
-        Plasma::ToolTipManager::self()->show(this);
+        if (!m_player->isFullScreen())
+        {
+            Plasma::ToolTipManager::self()->show(this);
 
-        m_hideToolTip = startTimer(time);
+            m_hideToolTip = startTimer(time);
+        }
     }
 }
 
