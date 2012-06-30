@@ -732,6 +732,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.graphicsView->scene()->addItem(m_videoWidget);
         m_playlistUi.graphicsView->installEventFilter(this);
         m_playlistUi.playlistView->installEventFilter(this);
+        m_playlistUi.playlistView->viewport()->installEventFilter(this);
         m_playlistUi.playlistView->horizontalHeader()->installEventFilter(this);
         m_playlistUi.closeButton->setIcon(KIcon("window-close"));
         m_playlistUi.addButton->setIcon(KIcon("list-add"));
@@ -1149,6 +1150,10 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
                 return true;
             }
         }
+    }
+    else if (object == m_playlistUi.playlistView->viewport() && event->type() == QEvent::Drop)
+    {
+        m_playlistUi.playlistView->clearSelection();
     }
     else if (object == m_playlistUi.playlistView->horizontalHeader() && event->type() == QEvent::ContextMenu)
     {

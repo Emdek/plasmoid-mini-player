@@ -30,6 +30,9 @@
 #include <KMimeType>
 #include <KRandomSequence>
 
+
+#include <QDebug>
+
 namespace MiniPlayer
 {
 
@@ -469,16 +472,23 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 QMimeData* PlaylistModel::mimeData(const QModelIndexList &indexes) const
 {
     KUrl::List urls;
+    QStringList rows;
+    const int column = (indexes.isEmpty()?-1:indexes.first().column());
 
     foreach (const QModelIndex &index, indexes)
     {
-        if (index.isValid() && (index.column() == 0))
+        if (index.isValid() && index.column() == column)
         {
             urls.append(KUrl(m_tracks.at(index.row())));
+
+            rows.append(QString::number(index.row()));
         }
     }
 
     QMimeData *mimeData = new QMimeData();
+    mimeData->setData("text/x-plasma-miniplayer-tracklist", rows.join(QChar(',')).toAscii());
+    mimeData->setData("text/x-plasma-miniplayer-playlist", QString::number(m_id).toAscii());
+
     urls.populateMimeData(mimeData);
 
     return mimeData;
@@ -683,7 +693,30 @@ bool PlaylistModel::dropMimeData(const QMimeData *mimeData, Qt::DropAction actio
         position = row;
     }
 
-    addTracks(KUrl::List::fromMimeData(mimeData), position, NoReaction);
+    const KUrl::List urls = KUrl::List::fromMimeData(mimeData);
+
+    addTracks(urls, position, NoReaction);
+
+    if (action == Qt::MoveAction && mimeData->hasFormat("text/x-plasma-miniplayer-tracklist") && mimeData->data("text/x-plasma-miniplayer-playlist") == QString::number(m_id))
+    {
+        QList<int> rows;
+        const QStringList data = QString(mimeData->data("text/x-plasma-miniplayer-tracklist")).split(',');
+qDebug() << position << column << mimeData->data("text/x-plasma-miniplayer-tracklist");
+
+        for (int i = 0; i < data.count(); ++i)
+        {
+            rows.append(data.at(i).toInt());
+        }
+
+        qSort(rows);
+
+        for (int i = (rows.count() - 1); i >= 0; --i)
+        {
+            const int oldRow = (rows.at(i) + ((rows.at(i) >= position)?urls.count():0));
+qDebug() << rows.at(i) << oldRow;
+            removeTrack(oldRow);
+        }
+    }
 
     return true;
 }
