@@ -1,3 +1,10 @@
+2.5 (01.07.2012):
+- allow to toggle playback state using single mouse click on video widget;
+- move tracks instead of copying them when dragging inside playlist view;
+- allow to copy selected tracks to another playlist;
+- allow to select multiple tracks;
+- some other fixes.
+
 2.4 (25.05.2012):
 - updated DBus interface to MPRIS2 specification;
 - added Current Track Once playback mode;
