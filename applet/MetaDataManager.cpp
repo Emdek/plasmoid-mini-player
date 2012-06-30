@@ -29,7 +29,7 @@ namespace MiniPlayer
 {
 
 QQueue<QPair<KUrl, int> > MetaDataManager::m_queue;
-QMap<KUrl, Track> MetaDataManager::m_tracks;
+QHash<KUrl, Track> MetaDataManager::m_tracks;
 MetaDataManager* MetaDataManager::m_instance = NULL;
 
 MetaDataManager::MetaDataManager(QObject *parent) : QObject(parent),

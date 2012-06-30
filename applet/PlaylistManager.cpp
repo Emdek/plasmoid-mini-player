@@ -504,6 +504,11 @@ void PlaylistManager::newPlaylist()
 
 void PlaylistManager::clearPlaylist()
 {
+    if (visiblePlaylist() == currentPlaylist())
+    {
+        m_player->stop();
+    }
+
     m_playlists[visiblePlaylist()]->clear();
 }
 
