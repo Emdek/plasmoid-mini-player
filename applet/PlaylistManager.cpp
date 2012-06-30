@@ -731,6 +731,7 @@ void PlaylistManager::showDialog(const QPoint &position)
         m_playlistUi.graphicsView->setScene(new QGraphicsScene(this));
         m_playlistUi.graphicsView->scene()->addItem(m_videoWidget);
         m_playlistUi.graphicsView->installEventFilter(this);
+        m_playlistUi.tabBar->installEventFilter(this);
         m_playlistUi.playlistView->installEventFilter(this);
         m_playlistUi.playlistView->viewport()->installEventFilter(this);
         m_playlistUi.playlistView->horizontalHeader()->installEventFilter(this);
@@ -1133,7 +1134,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
                 menu.addAction(KIcon("edit-copy"), i18n("Copy URL"), this, SLOT(copyTrackUrl()));
                 menu.addSeparator();
 
-                if (m_player->playlist() == playlist && index.row() == playlist->currentTrack())
+                if (m_player->playlist() == playlist && index.row() == playlist->currentTrack() && m_player->state() == PlayingState)
                 {
                     menu.addAction(m_player->action(PlayPauseAction));
                     menu.addAction(m_player->action(StopAction));
@@ -1183,30 +1184,28 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
             return false;
         }
     }
-    else if (event->type() == QEvent::ContextMenu && m_dialog && !m_isEdited)
+    else if (object == m_playlistUi.tabBar && event->type() == QEvent::ContextMenu)
     {
-        QPoint point = static_cast<QContextMenuEvent*>(event)->pos();
+        m_selectedPlaylist = m_playlistUi.tabBar->tabAt(m_playlistUi.tabBar->mapFromGlobal(static_cast<QContextMenuEvent*>(event)->globalPos()));
 
-        if (m_dialog->childAt(point) == m_playlistUi.tabBar)
+        KMenu menu;
+        menu.addAction(KIcon("document-new"), i18n("New playlist..."), this, SLOT(newPlaylist()));
+
+        if (m_selectedPlaylist >= 0)
         {
-            m_selectedPlaylist = m_playlistUi.tabBar->tabAt(m_playlistUi.tabBar->mapFromGlobal(static_cast<QContextMenuEvent*>(event)->globalPos()));
-
-            KMenu menu;
-            menu.addAction(KIcon("document-new"), i18n("New playlist..."), this, SLOT(newPlaylist()));
-
-            if (m_selectedPlaylist >= 0)
-            {
-                menu.addSeparator();
-                menu.addAction(KIcon("edit-rename"), i18n("Rename playlist..."), this, SLOT(renamePlaylist()));
-                menu.addSeparator();
-                menu.addAction(KIcon("document-close"), i18n("Close playlist"), this, SLOT(removePlaylist()));
-            }
-
-            menu.exec(QCursor::pos());
-
-            return true;
+            menu.addSeparator();
+            menu.addAction(KIcon("edit-rename"), i18n("Rename playlist..."), this, SLOT(renamePlaylist()));
+            menu.addSeparator();
+            menu.addAction(KIcon("document-close"), i18n("Close playlist"), this, SLOT(removePlaylist()));
         }
-        else if (m_dialog->childAt(point) != m_playlistUi.playlistViewFilter)
+
+        menu.exec(QCursor::pos());
+
+        return true;
+    }
+    else if (object == m_dialog && event->type() == QEvent::ContextMenu && m_dialog && !m_isEdited)
+    {
+        if (m_dialog->childAt(static_cast<QContextMenuEvent*>(event)->pos()) != m_playlistUi.playlistViewFilter)
         {
             emit requestMenu(QCursor::pos());
 

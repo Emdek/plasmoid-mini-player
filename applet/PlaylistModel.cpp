@@ -30,9 +30,6 @@
 #include <KMimeType>
 #include <KRandomSequence>
 
-
-#include <QDebug>
-
 namespace MiniPlayer
 {
 
@@ -701,7 +698,6 @@ bool PlaylistModel::dropMimeData(const QMimeData *mimeData, Qt::DropAction actio
     {
         QList<int> rows;
         const QStringList data = QString(mimeData->data("text/x-plasma-miniplayer-tracklist")).split(',');
-qDebug() << position << column << mimeData->data("text/x-plasma-miniplayer-tracklist");
 
         for (int i = 0; i < data.count(); ++i)
         {
@@ -712,9 +708,7 @@ qDebug() << position << column << mimeData->data("text/x-plasma-miniplayer-track
 
         for (int i = (rows.count() - 1); i >= 0; --i)
         {
-            const int oldRow = (rows.at(i) + ((rows.at(i) >= position)?urls.count():0));
-qDebug() << rows.at(i) << oldRow;
-            removeTrack(oldRow);
+            removeTrack(rows.at(i) + ((rows.at(i) >= position)?urls.count():0));
         }
     }
 
