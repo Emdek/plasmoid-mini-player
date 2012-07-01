@@ -38,7 +38,7 @@ class VideoWidget : public QGraphicsProxyWidget
     public:
         explicit VideoWidget(QGraphicsWidget *parent);
 
-    protected slots:
+    protected Q_SLOTS:
         void setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode);
 
     protected:

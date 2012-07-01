@@ -50,7 +50,7 @@ class Applet : public Plasma::Applet
         PlaylistManager* playlistManager();
         bool eventFilter(QObject *object, QEvent *event);
 
-    public slots:
+    public Q_SLOTS:
         void configChanged();
         void configSave();
         void toolTipAboutToShow();
@@ -68,7 +68,7 @@ class Applet : public Plasma::Applet
         void keyPressEvent(QKeyEvent *event);
         void timerEvent(QTimerEvent *event);
 
-    protected slots:
+    protected Q_SLOTS:
         void stateChanged(PlayerState state);
         void metaDataChanged();
         void openFiles();

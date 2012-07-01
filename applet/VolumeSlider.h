@@ -37,7 +37,7 @@ class VolumeSlider : public QSlider
 
         void setPlayer(Player *player);
 
-    public slots:
+    public Q_SLOTS:
         void volumeChanged(int volume);
 
     protected:

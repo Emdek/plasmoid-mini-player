@@ -73,7 +73,7 @@ PlaylistManager::PlaylistManager(Player *parent) : QObject(parent),
 
     m_player->registerDialogVideoWidget(m_videoWidget);
 
-    foreach (Solid::Device device, Solid::Device::listFromType(Solid::DeviceInterface::OpticalDisc, QString()))
+    Q_FOREACH (Solid::Device device, Solid::Device::listFromType(Solid::DeviceInterface::OpticalDisc, QString()))
     {
         deviceAdded(device.udi());
     }
@@ -137,7 +137,7 @@ void PlaylistManager::columnsOrderChanged()
 
     m_columnsOrder = order;
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 void PlaylistManager::visiblePlaylistChanged(int position)
@@ -170,7 +170,7 @@ void PlaylistManager::visiblePlaylistChanged(int position)
 
     updateActions();
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 void PlaylistManager::playbackModeChanged(QAction *action)
@@ -296,7 +296,7 @@ void PlaylistManager::playlistMoved(int from, int to)
 {
     m_playlistsOrder.swap(from, to);
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 void PlaylistManager::filterPlaylist()
@@ -369,8 +369,8 @@ void PlaylistManager::renamePlaylist(int position)
 
     playlist->setTitle(title);
 
-    emit playlistChanged(position);
-    emit modified();
+    Q_EMIT playlistChanged(position);
+    Q_EMIT modified();
 }
 
 void PlaylistManager::removePlaylist(int position)
@@ -418,8 +418,8 @@ void PlaylistManager::removePlaylist(int position)
         visiblePlaylistChanged((position == 0)?0:(position - 1));
     }
 
-    emit playlistRemoved(position);
-    emit modified();
+    Q_EMIT playlistRemoved(position);
+    Q_EMIT modified();
 }
 
 void PlaylistManager::exportPlaylist()
@@ -895,8 +895,8 @@ void PlaylistManager::setCurrentPlaylist(int id)
         }
     }
 
-    emit currentPlaylistChanged(id);
-    emit modified();
+    Q_EMIT currentPlaylistChanged(id);
+    Q_EMIT modified();
 }
 
 void PlaylistManager::setDialogSize(const QSize &size)
@@ -923,7 +923,7 @@ void PlaylistManager::setColumnsOrder(const QStringList &order)
 {
     m_columnsOrder = order;
 
-    emit modified();
+    Q_EMIT modified();
 
     if (!m_dialog)
     {
@@ -940,7 +940,7 @@ void PlaylistManager::setColumnsVisibility(const QStringList &visibility)
 {
     m_columnsVisibility = visibility;
 
-    emit modified();
+    Q_EMIT modified();
 
     if (!m_dialog)
     {
@@ -957,7 +957,7 @@ void PlaylistManager::setSplitterLocked(bool locked)
 {
     m_splitterLocked = locked;
 
-    emit modified();
+    Q_EMIT modified();
 
     if (!m_dialog)
     {
@@ -1078,8 +1078,8 @@ int PlaylistManager::createPlaylist(const QString &title, const KUrl::List &trac
     }
 
 
-    emit playlistAdded(position);
-    emit modified();
+    Q_EMIT playlistAdded(position);
+    Q_EMIT modified();
 
     connect(m_playlists[id], SIGNAL(modified()), this, SIGNAL(modified()));
     connect(m_playlists[id], SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(trackChanged()));
@@ -1335,7 +1335,7 @@ bool PlaylistManager::eventFilter(QObject *object, QEvent *event)
     {
         if (m_dialog->childAt(static_cast<QContextMenuEvent*>(event)->pos()) != m_playlistUi.playlistViewFilter)
         {
-            emit requestMenu(QCursor::pos());
+            Q_EMIT requestMenu(QCursor::pos());
 
             return true;
         }

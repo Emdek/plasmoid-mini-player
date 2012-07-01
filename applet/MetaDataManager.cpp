@@ -211,7 +211,7 @@ void MetaDataManager::setMetaData(const KUrl &url, const Track &track, bool noti
 
     if (notify)
     {
-        emit urlChanged(url);
+        Q_EMIT urlChanged(url);
     }
 }
 

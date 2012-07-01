@@ -380,7 +380,7 @@ void Applet::configSave()
         trackConfiguration.writeEntry("duration", MetaDataManager::duration(tracks.at(i)));
     }
 
-    emit configNeedsSaving();
+    Q_EMIT configNeedsSaving();
 }
 
 void Applet::constraintsEvent(Plasma::Constraints constraints)
@@ -617,7 +617,7 @@ void Applet::openFiles()
 
     m_playlistManager->addTracks(urls, -1, (m_playlistManager->isDialogVisible()?NoReaction:PlayReaction));
 
-    emit configNeedsSaving();
+    Q_EMIT configNeedsSaving();
 }
 
 void Applet::jumpToPosition()

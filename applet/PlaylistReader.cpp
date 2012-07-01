@@ -49,7 +49,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 {
     ++m_imports;
 
-    foreach (const KUrl &url, items)
+    Q_FOREACH (const KUrl &url, items)
     {
         PlaylistFormat type = None;
 
@@ -135,7 +135,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 
     if (!m_imports)
     {
-        emit processedTracks(m_tracks, m_index, m_reaction);
+        Q_EMIT processedTracks(m_tracks, m_index, m_reaction);
 
         deleteLater();
     }

@@ -225,7 +225,7 @@ void DBusPlayerAdaptor::emitMetaDataChanged()
 
 void DBusPlayerAdaptor::emitSeeked(qint64 position)
 {
-    emit Seeked(position * 1000);
+    Q_EMIT Seeked(position * 1000);
 }
 
 QVariantMap DBusPlayerAdaptor::Metadata() const

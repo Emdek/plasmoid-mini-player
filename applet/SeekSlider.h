@@ -37,7 +37,7 @@ class SeekSlider : public QSlider
 
         void setPlayer(Player *player);
 
-    public slots:
+    public Q_SLOTS:
         void positionChanged(int position);
         void mediaChanged();
 

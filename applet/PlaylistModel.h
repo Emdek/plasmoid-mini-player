@@ -75,7 +75,7 @@ class PlaylistModel : public QAbstractTableModel
         bool isCurrent() const;
         bool isReadOnly() const;
 
-    public slots:
+    public Q_SLOTS:
         void clear();
         void shuffle();
         void next(PlayerReaction reaction = NoReaction);
@@ -92,7 +92,7 @@ class PlaylistModel : public QAbstractTableModel
         int randomTrack() const;
         int findTrack(const KUrl &url) const;
 
-    protected slots:
+    protected Q_SLOTS:
         void metaDataChanged(const KUrl &url);
         void processedTracks(const KUrl::List &tracks, int position, PlayerReaction reaction = NoReaction);
         void updateModificationDate();
@@ -109,7 +109,7 @@ class PlaylistModel : public QAbstractTableModel
         int m_id;
         int m_currentTrack;
 
-    signals:
+    Q_SIGNALS:
         void modified();
         void tracksChanged();
         void trackAdded(int track);

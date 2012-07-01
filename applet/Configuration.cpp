@@ -121,7 +121,7 @@ void Configuration::save()
 
     static_cast<KConfigDialog*>(parent())->enableButtonApply(false);
 
-    emit accepted();
+    Q_EMIT accepted();
 }
 
 void Configuration::modify()

@@ -79,7 +79,7 @@ void DBusPlaylistsAdaptor::emitPlaylistChanged(int id)
     playlistData["Id"] = qVariantFromValue(QDBusObjectPath(QString("/playlist_%1").arg(id)));
     playlistData["Name"] = changedPlaylist->title();
 
-    emit PlaylistChanged(playlistData);
+    Q_EMIT PlaylistChanged(playlistData);
 }
 
 QVariantMap DBusPlaylistsAdaptor::ActivePlaylist() const

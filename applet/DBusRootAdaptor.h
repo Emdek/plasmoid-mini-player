@@ -57,12 +57,12 @@ class DBusRootAdaptor : public QDBusAbstractAdaptor
         bool CanRaise() const;
         bool HasTrackList() const;
 
-    public slots:
+    public Q_SLOTS:
         void Raise() const;
         void Quit() const;
         void setFullscreen(bool enable) const;
 
-    protected slots:
+    protected Q_SLOTS:
         void emitFullscreenChanged();
         void emitCanSetFullscreenChanged();
 

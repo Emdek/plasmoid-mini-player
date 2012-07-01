@@ -48,10 +48,10 @@ class DBusPlaylistsAdaptor : public QDBusAbstractAdaptor
         QStringList Orderings() const;
         int PlaylistCount() const;
 
-    public slots:
+    public Q_SLOTS:
         void ActivatePlaylist(const QDBusObjectPath &playlistId) const;
 
-    protected slots:
+    protected Q_SLOTS:
         void emitPlaylistCountChanged();
         void emitActivePlaylistChanged();
         void emitPlaylistChanged(int id);
@@ -59,7 +59,7 @@ class DBusPlaylistsAdaptor : public QDBusAbstractAdaptor
     private:
         PlaylistManager *m_playlistManager;
 
-    signals:
+    Q_SIGNALS:
         void PlaylistChanged(QVariantMap playlist);
 };
 

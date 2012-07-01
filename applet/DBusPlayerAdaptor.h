@@ -75,7 +75,7 @@ class DBusPlayerAdaptor : public QDBusAbstractAdaptor
         bool CanSeek() const;
         bool CanControl() const;
 
-    public slots:
+    public Q_SLOTS:
         void Next() const;
         void Previous() const;
         void Pause() const;
@@ -86,7 +86,7 @@ class DBusPlayerAdaptor : public QDBusAbstractAdaptor
         void SetPosition(const QDBusObjectPath &trackId, qint64 position) const;
         void OpenUri(QString uri) const;
 
-    protected slots:
+    protected Q_SLOTS:
         void updateProperties();
         void emitMetaDataChanged();
         void emitSeeked(qint64 position);
@@ -95,7 +95,7 @@ class DBusPlayerAdaptor : public QDBusAbstractAdaptor
         QVariantMap m_properties;
         Player *m_player;
 
-    signals:
+    Q_SIGNALS:
         void Seeked(qint64 position) const;
 };
 

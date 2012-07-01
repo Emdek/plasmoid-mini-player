@@ -59,7 +59,7 @@ class PlaylistManager : public QObject
         bool isSplitterLocked() const;
         bool eventFilter(QObject *object, QEvent *event);
 
-    public slots:
+    public Q_SLOTS:
         void showDialog(const QPoint &position);
         void closeDialog();
         void setCurrentPlaylist(int id);
@@ -74,7 +74,7 @@ class PlaylistManager : public QObject
     protected:
         void timerEvent(QTimerEvent *event);
 
-    protected slots:
+    protected Q_SLOTS:
         void columnsOrderChanged();
         void visiblePlaylistChanged(int position);
         void playbackModeChanged(QAction *action);
@@ -127,7 +127,7 @@ class PlaylistManager : public QObject
         Ui::playlist m_playlistUi;
         Ui::track m_trackUi;
 
-    signals:
+    Q_SIGNALS:
         void playlistAdded(int id);
         void playlistRemoved(int id);
         void currentPlaylistChanged(int id);

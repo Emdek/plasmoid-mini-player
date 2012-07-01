@@ -45,7 +45,7 @@ class DBusTrackListAdaptor : public QDBusAbstractAdaptor
         QList<QDBusObjectPath> Tracks() const;
         bool CanEditTracks() const;
 
-    public slots:
+    public Q_SLOTS:
         void AddTrack(const QString &uri, const QDBusObjectPath &afterTrack, bool setAsCurrent) const;
         void RemoveTrack(const QDBusObjectPath &trackId) const;
         void GoTo(const QDBusObjectPath &trackId) const;
@@ -54,7 +54,7 @@ class DBusTrackListAdaptor : public QDBusAbstractAdaptor
         QVariantMap metaData(int track) const;
         static int trackNumber(const QString &trackId);
 
-    protected slots:
+    protected Q_SLOTS:
         void emitTrackListReplaced();
         void emitTrackAdded(int track);
         void emitTrackRemoved(int track);
@@ -63,7 +63,7 @@ class DBusTrackListAdaptor : public QDBusAbstractAdaptor
     private:
         Player *m_player;
 
-    signals:
+    Q_SIGNALS:
         void TrackListReplaced(QList<QDBusObjectPath> trackIds, QDBusObjectPath currentTrack);
         void TrackAdded(QVariantMap metaData, QDBusObjectPath afterTrack);
         void TrackRemoved(QDBusObjectPath trackId);

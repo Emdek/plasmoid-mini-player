@@ -297,7 +297,7 @@ void Player::volumeChanged(qreal volume)
 
     if (volume >= 0)
     {
-        emit volumeChanged((int) (volume * 100));
+        Q_EMIT volumeChanged((int) (volume * 100));
     }
 
     if (isAudioMuted())
@@ -330,7 +330,7 @@ void Player::volumeChanged(qreal volume)
     m_actions[VolumeToggleAction]->setEnabled(isAudioAvailable());
     m_actions[AudioMenuAction]->setEnabled(isAudioAvailable());
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 void Player::videoChanged()
@@ -472,7 +472,7 @@ void Player::availableTitlesChanged()
         MetaDataManager::setMetaData(url, TitleKey, i18n("Track %1", i));
     }
 
-    emit requestDevicePlaylist(udi, tracks);
+    Q_EMIT requestDevicePlaylist(udi, tracks);
 }
 
 void Player::currentTrackChanged(int track, PlayerReaction reaction)
@@ -512,7 +512,7 @@ void Player::currentTrackChanged(int track, PlayerReaction reaction)
             break;
     }
 
-    emit currentTrackChanged();
+    Q_EMIT currentTrackChanged();
 }
 
 void Player::stateChanged(Phonon::State state)
@@ -543,7 +543,7 @@ void Player::stateChanged(Phonon::State state)
     {
         KMessageBox::error(NULL, m_mediaObject->currentSource().url().toString().replace("%20", " ") + "\n\n" + m_mediaObject->errorString());
 
-        emit errorOccured(m_mediaObject->errorString());
+        Q_EMIT errorOccured(m_mediaObject->errorString());
     }
 
     if (translatedState == StoppedState && isFullScreen())
@@ -551,8 +551,8 @@ void Player::stateChanged(Phonon::State state)
         m_fullScreenUi.titleLabel->clear();
     }
 
-    emit stateChanged(translatedState);
-    emit audioAvailableChanged(translatedState != StoppedState);
+    Q_EMIT stateChanged(translatedState);
+    Q_EMIT audioAvailableChanged(translatedState != StoppedState);
 }
 
 void Player::changeAspectRatio(QAction *action)
@@ -692,7 +692,7 @@ void Player::openDisc(const QString &device, PlaylistSource type)
     m_mediaObject->setCurrentSource(Phonon::MediaSource(discType, device));
     m_mediaObject->play();
 
-    emit currentTrackChanged();
+    Q_EMIT currentTrackChanged();
 
     if (m_mediaController->availableTitles())
     {
@@ -710,7 +710,7 @@ void Player::play()
     {
         m_mediaObject->play();
 
-        emit volumeChanged(volume());
+        Q_EMIT volumeChanged(volume());
     }
 }
 
@@ -794,7 +794,7 @@ void Player::setPlaylist(PlaylistModel *playlist)
     currentTrackChanged(playlist->currentTrack(), NoReaction);
     mediaChanged();
 
-    emit playlistChanged();
+    Q_EMIT playlistChanged();
 
     connect(playlist, SIGNAL(playbackModeChanged(PlaybackMode)), this, SIGNAL(playbackModeChanged(PlaybackMode)));
     connect(playlist, SIGNAL(trackAdded(int)), this, SIGNAL(trackAdded(int)));
@@ -811,7 +811,7 @@ void Player::setPosition(qint64 position)
     {
         m_mediaObject->seek(position);
 
-        emit positionChanged(position);
+        Q_EMIT positionChanged(position);
     }
 }
 
@@ -861,7 +861,7 @@ void Player::setAspectRatio(AspectRatio ratio)
 
     m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(ratio))->setChecked(true);
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 void Player::setVideoMode(bool mode)
@@ -938,7 +938,7 @@ void Player::setFullScreen(bool enable)
             connect(this, SIGNAL(destroyed()), m_fullScreenWidget, SLOT(deleteLater()));
         }
 
-        emit fullScreenChanged(true);
+        Q_EMIT fullScreenChanged(true);
 
         m_fullScreenWidget->showFullScreen();
         m_fullScreenWidget->setWindowTitle(metaData(TitleKey));
@@ -956,7 +956,7 @@ void Player::setFullScreen(bool enable)
     {
         killTimer(m_hideFullScreenControlsTimer);
 
-        emit fullScreenChanged(false);
+        Q_EMIT fullScreenChanged(false);
 
         m_fullScreenWidget->showNormal();
         m_fullScreenWidget->hide();
@@ -983,7 +983,7 @@ void Player::setBrightness(int value)
 
     updateSliders();
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 void Player::setContrast(int value)
@@ -992,7 +992,7 @@ void Player::setContrast(int value)
 
     updateSliders();
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 void Player::setHue(int value)
@@ -1001,7 +1001,7 @@ void Player::setHue(int value)
 
     updateSliders();
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 void Player::setSaturation(int value)
@@ -1010,7 +1010,7 @@ void Player::setSaturation(int value)
 
     updateSliders();
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 QStringList Player::supportedMimeTypes() const
@@ -1171,7 +1171,7 @@ bool Player::eventFilter(QObject *object, QEvent *event)
     }
     else if (event->type() == QEvent::ContextMenu || event->type() == QEvent::GraphicsSceneContextMenu)
     {
-        emit requestMenu(QCursor::pos());
+        Q_EMIT requestMenu(QCursor::pos());
 
         return true;
     }

@@ -63,22 +63,22 @@ void DBusTrackListAdaptor::emitTrackListReplaced()
 {
     const int track = (m_player->playlist()?m_player->playlist()->currentTrack():0);
 
-    emit TrackListReplaced(Tracks(), QDBusObjectPath(((track >= 0)?QString("/track_%1").arg(track):"/org/mpris/MediaPlayer2/TrackList/NoTrack")));
+    Q_EMIT TrackListReplaced(Tracks(), QDBusObjectPath(((track >= 0)?QString("/track_%1").arg(track):"/org/mpris/MediaPlayer2/TrackList/NoTrack")));
 }
 
 void DBusTrackListAdaptor::emitTrackAdded(int track)
 {
-    emit TrackAdded(metaData(track), QDBusObjectPath(((track > 0)?QString("/track_%1").arg(track - 1):"/org/mpris/MediaPlayer2/TrackList/NoTrack")));
+    Q_EMIT TrackAdded(metaData(track), QDBusObjectPath(((track > 0)?QString("/track_%1").arg(track - 1):"/org/mpris/MediaPlayer2/TrackList/NoTrack")));
 }
 
 void DBusTrackListAdaptor::emitTrackRemoved(int track)
 {
-    emit TrackRemoved(QDBusObjectPath(QString("/track_%1").arg(track)));
+    Q_EMIT TrackRemoved(QDBusObjectPath(QString("/track_%1").arg(track)));
 }
 
 void DBusTrackListAdaptor::emitTrackMetadataChanged(int track)
 {
-    emit TrackMetadataChanged(QDBusObjectPath(QString("/track_%1").arg(track)), metaData(track));
+    Q_EMIT TrackMetadataChanged(QDBusObjectPath(QString("/track_%1").arg(track)), metaData(track));
 }
 
 QList<QVariantMap> DBusTrackListAdaptor::GetTracksMetadata(const QList<QDBusObjectPath> &trackIds) const

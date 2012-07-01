@@ -40,7 +40,7 @@ class PlaylistReader : public QObject
     public:
         explicit PlaylistReader(QObject *parent, const KUrl::List &urls, int index, PlayerReaction reaction);
 
-    public slots:
+    public Q_SLOTS:
         void importData(KIO::Job *job, const QByteArray &data);
         void importResult(KJob *job);
 
@@ -60,7 +60,7 @@ class PlaylistReader : public QObject
         int m_imports;
         int m_index;
 
-    signals:
+    Q_SIGNALS:
         void processedTracks(KUrl::List tracks, int index, PlayerReaction reaction);
 };
 

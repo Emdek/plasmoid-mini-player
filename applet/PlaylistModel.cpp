@@ -60,8 +60,8 @@ void PlaylistModel::addTrack(int position, const KUrl &url)
         setCurrentTrack(qMin((position + 1), (m_tracks.count() - 1)));
     }
 
-    emit trackAdded(position);
-    emit modified();
+    Q_EMIT trackAdded(position);
+    Q_EMIT modified();
 }
 
 void PlaylistModel::removeTrack(int position)
@@ -84,8 +84,8 @@ void PlaylistModel::removeTrack(int position)
         setCurrentTrack(m_currentTrack);
     }
 
-    emit trackRemoved(position);
-    emit modified();
+    Q_EMIT trackRemoved(position);
+    Q_EMIT modified();
 }
 
 void PlaylistModel::addTracks(const KUrl::List &tracks, int position, PlayerReaction reaction)
@@ -113,11 +113,11 @@ void PlaylistModel::metaDataChanged(const KUrl &url)
 
         if (index >= 0)
         {
-            emit trackChanged(index);
+            Q_EMIT trackChanged(index);
         }
     }
 
-    emit layoutChanged();
+    Q_EMIT layoutChanged();
 }
 
 void PlaylistModel::processedTracks(const KUrl::List &tracks, int position, PlayerReaction reaction)
@@ -145,8 +145,8 @@ void PlaylistModel::processedTracks(const KUrl::List &tracks, int position, Play
 
     MetaDataManager::resolveTracks(tracks);
 
-    emit tracksChanged();
-    emit modified();
+    Q_EMIT tracksChanged();
+    Q_EMIT modified();
 }
 
 void PlaylistModel::updateModificationDate()
@@ -155,7 +155,7 @@ void PlaylistModel::updateModificationDate()
 
     m_modificationDate = QDateTime::currentDateTime();
 
-    emit modified();
+    Q_EMIT modified();
 
     connect(this, SIGNAL(modified()), this, SLOT(updateModificationDate()));
 }
@@ -171,8 +171,8 @@ void PlaylistModel::clear()
 
     m_tracks.clear();
 
-    emit tracksChanged();
-    emit modified();
+    Q_EMIT tracksChanged();
+    Q_EMIT modified();
 }
 
 void PlaylistModel::shuffle()
@@ -188,8 +188,8 @@ void PlaylistModel::shuffle()
 
     setCurrentTrack(findTrack(url));
 
-    emit tracksChanged();
-    emit modified();
+    Q_EMIT tracksChanged();
+    Q_EMIT modified();
 }
 
 void PlaylistModel::sort(int column, Qt::SortOrder order)
@@ -250,7 +250,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
 
     setCurrentTrack(findTrack(url));
 
-    emit tracksChanged();
+    Q_EMIT tracksChanged();
 }
 
 void PlaylistModel::next(PlayerReaction reaction)
@@ -289,7 +289,7 @@ void PlaylistModel::setTitle(const QString &title)
 {
     m_title = title;
 
-    emit modified();
+    Q_EMIT modified();
 }
 
 void PlaylistModel::setCreationDate(const QDateTime &date)
@@ -298,7 +298,7 @@ void PlaylistModel::setCreationDate(const QDateTime &date)
     {
         m_creationDate = date;
 
-        emit modified();
+        Q_EMIT modified();
     }
 }
 
@@ -308,7 +308,7 @@ void PlaylistModel::setModificationDate(const QDateTime &date)
     {
         m_modificationDate = date;
 
-        emit modified();
+        Q_EMIT modified();
     }
 }
 
@@ -318,7 +318,7 @@ void PlaylistModel::setLastPlayedDate(const QDateTime &date)
     {
         m_lastPlayedDate = date;
 
-        emit modified();
+        Q_EMIT modified();
     }
 }
 
@@ -337,17 +337,17 @@ void PlaylistModel::setCurrentTrack(int track, PlayerReaction reaction)
         m_currentTrack = 0;
     }
 
-    emit currentTrackChanged(m_currentTrack, reaction);
-    emit modified();
-    emit layoutChanged();
+    Q_EMIT currentTrackChanged(m_currentTrack, reaction);
+    Q_EMIT modified();
+    Q_EMIT layoutChanged();
 }
 
 void PlaylistModel::setPlaybackMode(PlaybackMode mode)
 {
     m_playbackMode = mode;
 
-    emit playbackModeChanged(mode);
-    emit modified();
+    Q_EMIT playbackModeChanged(mode);
+    Q_EMIT modified();
 }
 
 QString PlaylistModel::title() const
@@ -472,7 +472,7 @@ QMimeData* PlaylistModel::mimeData(const QModelIndexList &indexes) const
     QStringList rows;
     const int column = (indexes.isEmpty()?-1:indexes.first().column());
 
-    foreach (const QModelIndex &index, indexes)
+    Q_FOREACH (const QModelIndex &index, indexes)
     {
         if (index.isValid() && index.column() == column)
         {
@@ -660,7 +660,7 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
 
     MetaDataManager::setMetaData(m_tracks.at(index.row()), translateColumn(index.column()), value.toString());
 
-    emit modified();
+    Q_EMIT modified();
 
     return true;
 }
@@ -738,7 +738,7 @@ bool PlaylistModel::insertRows(int row, int count, const QModelIndex &index)
         setCurrentTrack(qMin(end, (m_tracks.count() - 1)));
     }
 
-    emit modified();
+    Q_EMIT modified();
 
     return true;
 }

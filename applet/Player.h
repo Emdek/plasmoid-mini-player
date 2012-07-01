@@ -78,7 +78,7 @@ class Player : public QObject
         bool isFullScreen() const;
         bool eventFilter(QObject *object, QEvent *event);
 
-    public slots:
+    public Q_SLOTS:
         void seekBackward();
         void seekForward();
         void increaseVolume();
@@ -109,7 +109,7 @@ class Player : public QObject
         void timerEvent(QTimerEvent *event);
         PlayerState translateState(Phonon::State state) const;
 
-    protected slots:
+    protected Q_SLOTS:
         void volumeChanged(qreal volume = -1);
         void videoChanged();
         void mediaChanged();
@@ -157,7 +157,7 @@ class Player : public QObject
         bool m_videoMode;
         Ui::fullScreen m_fullScreenUi;
 
-    signals:
+    Q_SIGNALS:
         void modified();
         void metaDataChanged();
         void playlistChanged();

@@ -67,7 +67,7 @@ QStringList DBusRootAdaptor::SupportedUriSchemes() const
 {
     QStringList protocols;
 
-    foreach (const QString &protocol, KProtocolInfo::protocols())
+    Q_FOREACH (const QString &protocol, KProtocolInfo::protocols())
     {
         if (!KProtocolInfo::isHelperProtocol(protocol))
         {

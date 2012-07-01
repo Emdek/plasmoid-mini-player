@@ -41,7 +41,7 @@ class Configuration : public QObject
     protected:
         void connectWidgets(QWidget *widget);
 
-    protected slots:
+    protected Q_SLOTS:
         void save();
         void modify();
 
@@ -50,7 +50,7 @@ class Configuration : public QObject
         Ui::general m_generalUi;
         Ui::controls m_controlsUi;
 
-    signals:
+    Q_SIGNALS:
         void accepted();
 };
 

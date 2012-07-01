@@ -79,7 +79,7 @@ class MetaDataManager : public QObject
         static QMap<KUrl, Track> m_tracks;
         static MetaDataManager *m_instance;
 
-    signals:
+    Q_SIGNALS:
         void urlChanged(KUrl url);
 };
 
