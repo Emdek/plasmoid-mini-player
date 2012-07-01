@@ -41,7 +41,9 @@
 #include <KMenu>
 #include <KLocale>
 #include <KFileDialog>
+#include <KWindowInfo>
 #include <KInputDialog>
+#include <KWindowSystem>
 #include <KConfigDialog>
 
 #include <Plasma/Corona>
@@ -736,7 +738,7 @@ void Applet::showToolTip()
     {
         killTimer(m_hideToolTip);
 
-        if (!m_player->isFullScreen())
+        if (!m_player->isFullScreen() && !(KWindowSystem::windowInfo(KWindowSystem::activeWindow(), NET::WMState).state() & NET::FullScreen))
         {
             Plasma::ToolTipManager::self()->show(this);
 

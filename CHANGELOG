@@ -1,9 +1,11 @@
 2.5 (01.07.2012):
 - allow to toggle playback state using single mouse click on video widget;
 - move tracks instead of copying them when dragging inside playlist view;
+- try to avoid showing tooltip when there is full screen window;
 - allow to copy tracks between tabs by dragging them;
 - switch tabs when dragging URLs over their handles;
 - allow to copy selected tracks to another playlist;
+- added support for media buttons;
 - allow to select multiple tracks;
 - some other fixes.
 
@@ -68,7 +70,7 @@
 - added D-Bus interface;
 - added initial support for playing CD Audio, DVD and (S)VCD;
 - added optional controls to playlist dialog;
-- added possibility to show tool tip on track change;
+- added possibility to show tooltip on track change;
 - added possibility to repeat track only;
 - added support for sorting tracks in ascending or descending order or by drag and drop;
 - added filter bar to playlist;
@@ -118,7 +120,7 @@
 0.7 (20.04.2009):
 - added possibility to change size of playlist dialog;
 - added keyboard shortcut for toggling controls visibility (C);
-- show tool tip with track information not only when hovering video area;
+- show tooltip with track information not only when hovering video area;
 - fixed problems with position slider.
 
 0.6 (14.04.2009):
@@ -141,7 +143,7 @@
 - possibility to automatically hide video area when there is only audio;
 - possibility to remember last used playlist and start playback on applet creation;
 - added Jump to position dialog;
-- added tool tip with current track information;
+- added tooltip with current track information;
 - added translations support;
 - added Polish translation by me;
 - added install.sh script.
