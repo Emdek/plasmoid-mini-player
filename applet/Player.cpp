@@ -614,7 +614,17 @@ void Player::updateMetaData()
 {
     if (isFullScreen())
     {
-        m_fullScreenUi.titleLabel->setText(metaData(TitleKey));
+        const QString artist = metaData(ArtistKey, false);
+        const QString title = metaData(TitleKey, false);
+
+        if (artist.isEmpty() || title.isEmpty())
+        {
+            m_fullScreenUi.titleLabel->setText(artist.isEmpty()?title:artist);
+        }
+        else
+        {
+            m_fullScreenUi.titleLabel->setText(QString("%1 - %2").arg(artist).arg(title));
+        }
     }
 
     if (!MetaDataManager::isAvailable(url()), true)

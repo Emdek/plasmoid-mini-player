@@ -170,6 +170,8 @@ void PlaylistManager::visiblePlaylistChanged(int position)
 
     updateActions();
 
+    m_playlistUi.playlistView->scrollTo(playlist->index(playlist->currentTrack(), 0), QAbstractItemView::PositionAtCenter);
+
     Q_EMIT modified();
 }
 
@@ -722,11 +724,23 @@ void PlaylistManager::updateTheme()
     m_dialog->setPalette(palette);
 }
 
-void PlaylistManager::updateTitle()
+void PlaylistManager::updateLabel()
 {
-    if (m_dialog)
+    if (!m_dialog)
     {
-        m_playlistUi.titleLabel->setText(m_player->metaData(TitleKey));
+        return;
+    }
+
+    const QString artist = m_player->metaData(ArtistKey, false);
+    const QString title = m_player->metaData(TitleKey, false);
+
+    if (artist.isEmpty() || title.isEmpty())
+    {
+        m_playlistUi.titleLabel->setText(artist.isEmpty()?title:artist);
+    }
+    else
+    {
+        m_playlistUi.titleLabel->setText(QString("%1 - %2").arg(artist).arg(title));
     }
 }
 
@@ -854,8 +868,8 @@ void PlaylistManager::showDialog(const QPoint &position)
         connect(m_playlistUi.playlistView, SIGNAL(activated(QModelIndex)), this, SLOT(playTrack(QModelIndex)));
         connect(m_playlistUi.playlistView->horizontalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(columnsOrderChanged()));
         connect(m_playlistUi.playlistViewFilter, SIGNAL(textChanged(QString)), this, SLOT(filterPlaylist(QString)));
-        connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(updateTitle()));
-        connect(m_player, SIGNAL(currentTrackChanged()), this, SLOT(updateTitle()));
+        connect(m_player, SIGNAL(metaDataChanged()), this, SLOT(updateLabel()));
+        connect(m_player, SIGNAL(currentTrackChanged()), this, SLOT(updateLabel()));
         connect(m_player->action(FullScreenAction), SIGNAL(triggered()), this, SLOT(updateVideoView()));
         connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
         connect(this, SIGNAL(destroyed()), m_dialog, SLOT(deleteLater()));
