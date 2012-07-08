@@ -103,7 +103,7 @@ class PlaylistManager : public QObject
         void copyTrackUrl();
         void updateActions();
         void updateTheme();
-        void updateTitle();
+        void updateLabel();
         void updateVideoView();
 
     private:
