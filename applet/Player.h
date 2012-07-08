@@ -29,11 +29,8 @@
 #include <KUrl>
 #include <KNotificationRestrictions>
 
-#include <Phonon/AudioOutput>
-#include <Phonon/MediaObject>
-#include <Phonon/MediaSource>
-#include <Phonon/VideoWidget>
-#include <Phonon/MediaController>
+#include <QGst/Message>
+#include <QGst/Pipeline>
 
 #include "Constants.h"
 
@@ -51,11 +48,11 @@ class Player : public QObject
 
     public:
         explicit Player(QObject *parent);
+        ~Player();
 
         void registerAppletVideoWidget(VideoWidget *videoWidget);
         void registerDialogVideoWidget(VideoWidget *videoWidget);
         QStringList supportedMimeTypes() const;
-        QString errorString() const;
         QString metaData(MetaDataKey key, bool substitute = true) const;
         PlaylistModel* playlist() const;
         QAction* action(PlayerAction action) const;
@@ -107,7 +104,9 @@ class Player : public QObject
 
     protected:
         void timerEvent(QTimerEvent *event);
-        PlayerState translateState(Phonon::State state) const;
+        void busMessage(const QGst::MessagePtr &message);
+        void stateChanged(QGst::State state);
+        PlayerState translateState(QGst::State state) const;
 
     protected Q_SLOTS:
         void volumeChanged(qreal volume = -1);
@@ -119,7 +118,6 @@ class Player : public QObject
         void availableAnglesChanged();
         void availableTitlesChanged();
         void currentTrackChanged(int track, PlayerReaction reaction = NoReaction);
-        void stateChanged(Phonon::State state);
         void changeAspectRatio(QAction *action);
         void changeChapter(QAction *action);
         void changeAudioChannel(QAction *action);
@@ -128,12 +126,10 @@ class Player : public QObject
         void trackFinished();
         void updateSliders();
         void updateMetaData();
+        void setUrl(const KUrl &url);
 
     private:
-        Phonon::MediaObject *m_mediaObject;
-        Phonon::MediaController *m_mediaController;
-        Phonon::AudioOutput *m_audioOutput;
-        Phonon::VideoWidget *m_videoWidget;
+        QGst::PipelinePtr m_pipeline;
         KNotificationRestrictions *m_notificationRestrictions;
         VideoWidget *m_appletVideoWidget;
         VideoWidget *m_dialogVideoWidget;
@@ -148,7 +144,7 @@ class Player : public QObject
         QActionGroup *m_anglesGroup;
         QPointer<PlaylistModel> m_playlist;
         QMap<PlayerAction, QAction*> m_actions;
-        QMap<MetaDataKey, Phonon::MetaData> m_keys;
+        KUrl m_url;
         AspectRatio m_aspectRatio;
         int m_stopSleepCookie;
         int m_hideFullScreenControlsTimer;

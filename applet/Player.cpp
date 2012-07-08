@@ -27,6 +27,16 @@
 #include <QtGui/QWidgetAction>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
+#include <QGlib/Error>
+#include <QGlib/Connect>
+
+#include <QGst/Bus>
+#include <QGst/Init>
+#include <QGst/Event>
+#include <QGst/Query>
+#include <QGst/ClockTime>
+#include <QGst/ElementFactory>
+
 #include <KIcon>
 #include <KMenu>
 #include <KLocale>
@@ -38,10 +48,6 @@ namespace MiniPlayer
 {
 
 Player::Player(QObject *parent) : QObject(parent),
-    m_mediaObject(new Phonon::MediaObject(this)),
-    m_mediaController(new Phonon::MediaController(m_mediaObject)),
-    m_audioOutput(new Phonon::AudioOutput(this)),
-    m_videoWidget(new Phonon::VideoWidget()),
     m_notificationRestrictions(NULL),
     m_appletVideoWidget(NULL),
     m_dialogVideoWidget(NULL),
@@ -57,12 +63,10 @@ Player::Player(QObject *parent) : QObject(parent),
     m_inhibitNotifications(false),
     m_videoMode(false)
 {
-    m_videoWidget->setScaleMode(Phonon::VideoWidget::FitInView);
-    m_videoWidget->setWindowIcon(KIcon("applications-multimedia"));
-    m_videoWidget->setAcceptDrops(true);
-
-    Phonon::createPath(m_mediaObject, m_audioOutput);
-    Phonon::createPath(m_mediaObject, m_videoWidget);
+    QGst::init();
+//     m_videoWidget->setScaleMode(Phonon::VideoWidget::FitInView);
+//     m_videoWidget->setWindowIcon(KIcon("applications-multimedia"));
+//     m_videoWidget->setAcceptDrops(true);
 
     m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
     m_actions[OpenMenuAction]->setMenu(new KMenu());
@@ -222,15 +226,7 @@ Player::Player(QObject *parent) : QObject(parent),
     playbackModeActionGroup->addAction(repeatPlaylistAction);
     playbackModeActionGroup->addAction(randomTrackAction);
 
-    m_videoWidget->installEventFilter(this);
-
-    m_keys[TitleKey] = Phonon::TitleMetaData;
-    m_keys[ArtistKey] = Phonon::ArtistMetaData;
-    m_keys[AlbumKey] = Phonon::AlbumMetaData;
-    m_keys[DateKey] = Phonon::DateMetaData;
-    m_keys[GenreKey] = Phonon::GenreMetaData;
-    m_keys[DescriptionKey] = Phonon::DescriptionMetaData;
-    m_keys[TrackNumberKey] = Phonon::TracknumberMetaData;
+//     m_videoWidget->installEventFilter(this);
 
     volumeChanged();
     mediaChanged();
@@ -244,31 +240,30 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_actions[PlayPauseAction], SIGNAL(triggered()), this, SLOT(playPause()));
     connect(m_actions[StopAction], SIGNAL(triggered()), this, SLOT(stop()));
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
-    connect(m_mediaObject, SIGNAL(finished()), this, SLOT(trackFinished()));
-    connect(m_mediaObject, SIGNAL(stateChanged(Phonon::State,Phonon::State)), this, SLOT(stateChanged(Phonon::State)));
-    connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
-    connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SLOT(updateMetaData()));
-    connect(m_mediaObject, SIGNAL(totalTimeChanged(qint64)), this, SIGNAL(durationChanged(qint64)));
-    connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), this, SIGNAL(videoAvailableChanged(bool)));
-    connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), this, SLOT(videoChanged()));
-    connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
-    connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
-    connect(m_mediaObject, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
-    connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
-    connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged()));
-    connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SIGNAL(audioMutedChanged(bool)));
-    connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(volumeChanged()));
-    connect(m_mediaController, SIGNAL(availableChaptersChanged(int)), this, SLOT(availableChaptersChanged()));
-    connect(m_mediaController, SIGNAL(availableAudioChannelsChanged()), this, SLOT(availableAudioChannelsChanged()));
-    connect(m_mediaController, SIGNAL(availableSubtitlesChanged()), this, SLOT(availableSubtitlesChanged()));
-    connect(m_mediaController, SIGNAL(availableAnglesChanged(int)), this, SLOT(availableAnglesChanged()));
-    connect(m_mediaController, SIGNAL(availableTitlesChanged(int)), this, SLOT(availableTitlesChanged()));
+//     connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
+//     connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SLOT(updateMetaData()));
+//     connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), this, SLOT(videoChanged()));
+    connect(this, SIGNAL(videoAvailableChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
+//     connect(m_mediaObject, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+//     connect(m_mediaController, SIGNAL(availableChaptersChanged(int)), this, SLOT(availableChaptersChanged()));
+//     connect(m_mediaController, SIGNAL(availableAudioChannelsChanged()), this, SLOT(availableAudioChannelsChanged()));
+//     connect(m_mediaController, SIGNAL(availableSubtitlesChanged()), this, SLOT(availableSubtitlesChanged()));
+//     connect(m_mediaController, SIGNAL(availableAnglesChanged(int)), this, SLOT(availableAnglesChanged()));
+//     connect(m_mediaController, SIGNAL(availableTitlesChanged(int)), this, SLOT(availableTitlesChanged()));
     connect(m_brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
     connect(m_contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
     connect(m_hueSlider, SIGNAL(valueChanged(int)), this, SLOT(setHue(int)));
     connect(m_saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
     connect(this, SIGNAL(audioAvailableChanged(bool)), this, SLOT(volumeChanged()));
-    connect(this, SIGNAL(destroyed()), m_videoWidget, SLOT(deleteLater()));
+}
+
+Player::~Player()
+{
+    if (m_pipeline)
+    {
+        m_pipeline->setState(QGst::StateNull);
+    }
 }
 
 void Player::timerEvent(QTimerEvent *event)
@@ -289,6 +284,77 @@ void Player::timerEvent(QTimerEvent *event)
     }
 
     killTimer(event->timerId());
+}
+
+void Player::busMessage(const QGst::MessagePtr &message)
+{
+    switch (message->type())
+    {
+        case QGst::MessageEos:
+            stop();
+            trackFinished();
+
+            break;
+        case QGst::MessageError:
+            if (m_pipeline)
+            {
+                const QString error = message.staticCast<QGst::ErrorMessage>()->error().message();
+
+                KMessageBox::error(NULL, url().pathOrUrl().replace("%20", " ") + "\n\n" + error);
+
+                Q_EMIT errorOccured(error);
+            }
+
+            stop();
+
+            break;
+        case QGst::MessageStateChanged:
+            if (message->source() == m_pipeline)
+            {
+                stateChanged(message.staticCast<QGst::StateChangedMessage>()->newState());
+            }
+
+            break;
+        case QGst::MessageDuration:
+            Q_EMIT durationChanged(duration());
+
+            break;
+        default:
+            break;
+    }
+}
+
+void Player::stateChanged(QGst::State state)
+{
+    const PlayerState translatedState = translateState(state);
+
+    mediaChanged();
+    videoChanged();
+
+    if (isVideoAvailable() && translatedState == PlayingState && !m_inhibitNotifications)
+    {
+        m_stopSleepCookie = Solid::PowerManagement::beginSuppressingSleep("Plasma MiniPlayerApplet: playing video");
+
+        if (!m_notificationRestrictions)
+        {
+            m_notificationRestrictions = new KNotificationRestrictions(KNotificationRestrictions::NonCriticalServices, this);
+        }
+    }
+    else if (m_notificationRestrictions)
+    {
+        Solid::PowerManagement::stopSuppressingSleep(m_stopSleepCookie);
+
+        m_notificationRestrictions->deleteLater();
+        m_notificationRestrictions = NULL;
+    }
+
+    if (translatedState == StoppedState && isFullScreen())
+    {
+        m_fullScreenUi.titleLabel->clear();
+    }
+
+    Q_EMIT stateChanged(translatedState);
+    Q_EMIT audioAvailableChanged(translatedState != StoppedState);
 }
 
 void Player::volumeChanged(qreal volume)
@@ -351,7 +417,7 @@ void Player::mediaChanged()
 {
     const PlayerState state = this->state();
     const bool playingOrPaused = (state != StoppedState);
-    const bool hasTracks = ((m_playlist && m_playlist->trackCount()) || m_mediaObject->currentSource().type() == Phonon::MediaSource::Disc);
+    const bool hasTracks = ((m_playlist && m_playlist->trackCount())/* || m_mediaObject->currentSource().type() == Phonon::MediaSource::Disc*/);
 
     m_actions[PlayPauseAction]->setIcon(KIcon((state == PlayingState)?"media-playback-pause":"media-playback-start"));
     m_actions[PlayPauseAction]->setText((state == PlayingState)?i18n("Pause"):i18n("Play"));
@@ -364,122 +430,122 @@ void Player::mediaChanged()
 
 void Player::availableChaptersChanged()
 {
-    m_actions[ChapterMenuAction]->menu()->clear();
-    m_actions[ChapterMenuAction]->setEnabled(false);
-
-    m_chaptersGroup->deleteLater();
-    m_chaptersGroup = new QActionGroup(this);
-    m_chaptersGroup->setExclusive(true);
-
-    if (m_mediaController->availableChapters() > 1)
-    {
-        for (int i = 0; i < m_mediaController->availableChapters(); ++i)
-        {
-            QAction *action = m_actions[ChapterMenuAction]->menu()->addAction(i18n("Chapter %1", i));
-            action->setData(i);
-            action->setCheckable(true);
-
-            m_chaptersGroup->addAction(action);
-        }
-
-        m_actions[ChapterMenuAction]->setEnabled(true);
-    }
+//     m_actions[ChapterMenuAction]->menu()->clear();
+//     m_actions[ChapterMenuAction]->setEnabled(false);
+//
+//     m_chaptersGroup->deleteLater();
+//     m_chaptersGroup = new QActionGroup(this);
+//     m_chaptersGroup->setExclusive(true);
+//
+//     if (m_mediaController->availableChapters() > 1)
+//     {
+//         for (int i = 0; i < m_mediaController->availableChapters(); ++i)
+//         {
+//             QAction *action = m_actions[ChapterMenuAction]->menu()->addAction(i18n("Chapter %1", i));
+//             action->setData(i);
+//             action->setCheckable(true);
+//
+//             m_chaptersGroup->addAction(action);
+//         }
+//
+//         m_actions[ChapterMenuAction]->setEnabled(true);
+//     }
 }
 
 void Player::availableAudioChannelsChanged()
 {
-    m_actions[AudioChannelMenuAction]->menu()->clear();
-    m_actions[AudioChannelMenuAction]->setEnabled(false);
-
-    m_audioChannelGroup->deleteLater();
-    m_audioChannelGroup = new QActionGroup(this);
-    m_audioChannelGroup->setExclusive(true);
-
-    if (m_mediaController->availableAudioChannels().count() > 1)
-    {
-        for (int i = 0; i < m_mediaController->availableAudioChannels().count(); ++i)
-        {
-            QAction *action = m_actions[AudioChannelMenuAction]->menu()->addAction(m_mediaController->availableAudioChannels().at(i).name());
-            action->setData(i);
-            action->setCheckable(true);
-
-            m_audioChannelGroup->addAction(action);
-        }
-
-        m_actions[AudioChannelMenuAction]->setEnabled(true);
-    }
+//     m_actions[AudioChannelMenuAction]->menu()->clear();
+//     m_actions[AudioChannelMenuAction]->setEnabled(false);
+//
+//     m_audioChannelGroup->deleteLater();
+//     m_audioChannelGroup = new QActionGroup(this);
+//     m_audioChannelGroup->setExclusive(true);
+//
+//     if (m_mediaController->availableAudioChannels().count() > 1)
+//     {
+//         for (int i = 0; i < m_mediaController->availableAudioChannels().count(); ++i)
+//         {
+//             QAction *action = m_actions[AudioChannelMenuAction]->menu()->addAction(m_mediaController->availableAudioChannels().at(i).name());
+//             action->setData(i);
+//             action->setCheckable(true);
+//
+//             m_audioChannelGroup->addAction(action);
+//         }
+//
+//         m_actions[AudioChannelMenuAction]->setEnabled(true);
+//     }
 }
 
 void Player::availableSubtitlesChanged()
 {
-    m_actions[SubtitleMenuAction]->menu()->clear();
-    m_actions[SubtitleMenuAction]->setEnabled(false);
-
-    m_subtitlesGroup->deleteLater();
-    m_subtitlesGroup = new QActionGroup(this);
-    m_subtitlesGroup->setExclusive(true);
-
-    if (m_mediaController->availableSubtitles().count())
-    {
-        for (int i = 0; i < m_mediaController->availableSubtitles().count(); ++i)
-        {
-            QAction *action = m_actions[SubtitleMenuAction]->menu()->addAction(m_mediaController->availableSubtitles().at(i).name());
-            action->setData(i);
-            action->setCheckable(true);
-
-            m_subtitlesGroup->addAction(action);
-        }
-
-        m_actions[SubtitleMenuAction]->setEnabled(true);
-    }
+//     m_actions[SubtitleMenuAction]->menu()->clear();
+//     m_actions[SubtitleMenuAction]->setEnabled(false);
+//
+//     m_subtitlesGroup->deleteLater();
+//     m_subtitlesGroup = new QActionGroup(this);
+//     m_subtitlesGroup->setExclusive(true);
+//
+//     if (m_mediaController->availableSubtitles().count())
+//     {
+//         for (int i = 0; i < m_mediaController->availableSubtitles().count(); ++i)
+//         {
+//             QAction *action = m_actions[SubtitleMenuAction]->menu()->addAction(m_mediaController->availableSubtitles().at(i).name());
+//             action->setData(i);
+//             action->setCheckable(true);
+//
+//             m_subtitlesGroup->addAction(action);
+//         }
+//
+//         m_actions[SubtitleMenuAction]->setEnabled(true);
+//     }
 }
 
 void Player::availableAnglesChanged()
 {
-    m_actions[AngleMenuAction]->menu()->clear();
-    m_actions[AngleMenuAction]->setEnabled(false);
-
-    m_anglesGroup->deleteLater();
-    m_anglesGroup = new QActionGroup(this);
-    m_anglesGroup->setExclusive(true);
-
-    if (m_mediaController->availableAngles() > 1)
-    {
-        for (int i = 0; i < m_mediaController->availableAngles(); ++i)
-        {
-            QAction *action = m_actions[AngleMenuAction]->menu()->addAction(i18n("Angle %1", i));
-            action->setData(i);
-            action->setCheckable(true);
-
-            m_anglesGroup->addAction(action);
-        }
-
-        m_actions[AngleMenuAction]->setEnabled(true);
-    }
+//     m_actions[AngleMenuAction]->menu()->clear();
+//     m_actions[AngleMenuAction]->setEnabled(false);
+//
+//     m_anglesGroup->deleteLater();
+//     m_anglesGroup = new QActionGroup(this);
+//     m_anglesGroup->setExclusive(true);
+//
+//     if (m_mediaController->availableAngles() > 1)
+//     {
+//         for (int i = 0; i < m_mediaController->availableAngles(); ++i)
+//         {
+//             QAction *action = m_actions[AngleMenuAction]->menu()->addAction(i18n("Angle %1", i));
+//             action->setData(i);
+//             action->setCheckable(true);
+//
+//             m_anglesGroup->addAction(action);
+//         }
+//
+//         m_actions[AngleMenuAction]->setEnabled(true);
+//     }
 }
 
 void Player::availableTitlesChanged()
 {
-    const QString udi = m_mediaObject->currentSource().deviceName();
-    KUrl::List tracks;
-
-    for (int i = 1; i <= m_mediaController->availableTitles(); ++i)
-    {
-        KUrl url = KUrl(QString("disc:/%1/%2").arg(udi).arg(i));
-
-        tracks.append(url);
-
-        MetaDataManager::setMetaData(url, TitleKey, i18n("Track %1", i));
-    }
-
-    Q_EMIT requestDevicePlaylist(udi, tracks);
+//     const QString udi = m_mediaObject->currentSource().deviceName();
+//     KUrl::List tracks;
+//
+//     for (int i = 1; i <= m_mediaController->availableTitles(); ++i)
+//     {
+//         KUrl url = KUrl(QString("disc:/%1/%2").arg(udi).arg(i));
+//
+//         tracks.append(url);
+//
+//         MetaDataManager::setMetaData(url, TitleKey, i18n("Track %1", i));
+//     }
+//
+//     Q_EMIT requestDevicePlaylist(udi, tracks);
 }
 
 void Player::currentTrackChanged(int track, PlayerReaction reaction)
 {
     if (!m_playlist || m_playlist->trackCount() == 0)
     {
-        if (m_mediaObject->currentSource().type() != Phonon::MediaSource::Disc)
+//         if (m_mediaObject->currentSource().type() != Phonon::MediaSource::Disc)
         {
             stop();
         }
@@ -489,7 +555,7 @@ void Player::currentTrackChanged(int track, PlayerReaction reaction)
 
     if (reaction == PlayReaction || reaction == PauseReaction)
     {
-        m_mediaObject->setCurrentSource(Phonon::MediaSource(m_playlist->track(track)));
+        setUrl(m_playlist->track(track));
 
         m_playlist->setLastPlayedDate(QDateTime::currentDateTime());
     }
@@ -515,46 +581,6 @@ void Player::currentTrackChanged(int track, PlayerReaction reaction)
     Q_EMIT currentTrackChanged();
 }
 
-void Player::stateChanged(Phonon::State state)
-{
-    const PlayerState translatedState = translateState(state);
-
-    mediaChanged();
-    videoChanged();
-
-    if (isVideoAvailable() && translatedState == PlayingState && !m_inhibitNotifications)
-    {
-        m_stopSleepCookie = Solid::PowerManagement::beginSuppressingSleep("Plasma MiniPlayerApplet: playing video");
-
-        if (!m_notificationRestrictions)
-        {
-            m_notificationRestrictions = new KNotificationRestrictions(KNotificationRestrictions::NonCriticalServices, this);
-        }
-    }
-    else if (m_notificationRestrictions)
-    {
-        Solid::PowerManagement::stopSuppressingSleep(m_stopSleepCookie);
-
-        m_notificationRestrictions->deleteLater();
-        m_notificationRestrictions = NULL;
-    }
-
-    if (state == Phonon::ErrorState && m_mediaObject->errorType() != Phonon::NoError)
-    {
-        KMessageBox::error(NULL, m_mediaObject->currentSource().url().toString().replace("%20", " ") + "\n\n" + m_mediaObject->errorString());
-
-        Q_EMIT errorOccured(m_mediaObject->errorString());
-    }
-
-    if (translatedState == StoppedState && isFullScreen())
-    {
-        m_fullScreenUi.titleLabel->clear();
-    }
-
-    Q_EMIT stateChanged(translatedState);
-    Q_EMIT audioAvailableChanged(translatedState != StoppedState);
-}
-
 void Player::changeAspectRatio(QAction *action)
 {
     setAspectRatio(static_cast<AspectRatio>(action->data().toInt()));
@@ -562,22 +588,22 @@ void Player::changeAspectRatio(QAction *action)
 
 void Player::changeChapter(QAction *action)
 {
-    m_mediaController->setCurrentChapter(action->data().toInt());
+//     m_mediaController->setCurrentChapter(action->data().toInt());
 }
 
 void Player::changeAudioChannel(QAction *action)
 {
-    m_mediaController->setCurrentAudioChannel(m_mediaController->availableAudioChannels().at(action->data().toInt()));
+//     m_mediaController->setCurrentAudioChannel(m_mediaController->availableAudioChannels().at(action->data().toInt()));
 }
 
 void Player::changeSubtitles(QAction *action)
 {
-    m_mediaController->setCurrentSubtitle(m_mediaController->availableSubtitles().at(action->data().toInt()));
+//     m_mediaController->setCurrentSubtitle(m_mediaController->availableSubtitles().at(action->data().toInt()));
 }
 
 void Player::changeAngle(QAction *action)
 {
-    m_mediaController->setCurrentAngle(action->data().toInt());
+//     m_mediaController->setCurrentAngle(action->data().toInt());
 }
 
 void Player::trackFinished()
@@ -589,7 +615,7 @@ void Player::trackFinished()
         m_playlist->setCurrentTrack(m_playlist->nextTrack(), PlayReaction);
     }
 
-    m_videoWidget->update();
+//     m_videoWidget->update();
 }
 
 void Player::updateSliders()
@@ -677,48 +703,48 @@ void Player::decreaseVolume()
 
 void Player::openDisc(const QString &device, PlaylistSource type)
 {
-    Phonon::DiscType discType;
-
-    switch (type)
-    {
-        case DvdSource:
-            discType = Phonon::Dvd;
-
-            break;
-        case VcdSource:
-            discType = Phonon::Vcd;
-
-            break;
-        case CdSource:
-            discType = Phonon::Cd;
-
-            break;
-        default:
-            discType = Phonon::NoDisc;
-
-            break;
-    }
-
-    m_mediaObject->setCurrentSource(Phonon::MediaSource(discType, device));
-    m_mediaObject->play();
-
-    Q_EMIT currentTrackChanged();
-
-    if (m_mediaController->availableTitles())
-    {
-        availableTitlesChanged();
-    }
+//     Phonon::DiscType discType;
+//
+//     switch (type)
+//     {
+//         case DvdSource:
+//             discType = Phonon::Dvd;
+//
+//             break;
+//         case VcdSource:
+//             discType = Phonon::Vcd;
+//
+//             break;
+//         case CdSource:
+//             discType = Phonon::Cd;
+//
+//             break;
+//         default:
+//             discType = Phonon::NoDisc;
+//
+//             break;
+//     }
+//
+//     m_mediaObject->setCurrentSource(Phonon::MediaSource(discType, device));
+//     m_mediaObject->play();
+//
+//     Q_EMIT currentTrackChanged();
+//
+//     if (m_mediaController->availableTitles())
+//     {
+//         availableTitlesChanged();
+//     }
 }
 
 void Player::play()
 {
-    if ((m_mediaObject->currentSource().type() == Phonon::MediaSource::Invalid || !m_mediaObject->currentSource().url().isValid()) && m_playlist)
+    if (!url().isValid() && m_playlist)
     {
         currentTrackChanged(m_playlist->currentTrack(), PlayReaction);
     }
-    else
+    else if (m_pipeline)
     {
-        m_mediaObject->play();
+        m_pipeline->setState(QGst::StatePlaying);
 
         Q_EMIT volumeChanged(volume());
     }
@@ -746,13 +772,20 @@ void Player::playPause()
 
 void Player::pause()
 {
-    m_mediaObject->pause();
+    if (m_pipeline)
+    {
+        m_pipeline->setState(QGst::StatePaused);
+    }
 }
 
 void Player::stop()
 {
-    m_mediaObject->stop();
-    m_mediaObject->setCurrentSource(Phonon::MediaSource());
+    if (m_pipeline)
+    {
+        m_pipeline->setState(QGst::StateNull);
+    }
+
+    m_url = KUrl();
 }
 
 void Player::playPrevious()
@@ -768,6 +801,31 @@ void Player::playNext()
     if (m_playlist)
     {
         m_playlist->next(PlayReaction);
+    }
+}
+
+void Player::setUrl(const KUrl &url)
+{
+    if (!m_pipeline)
+    {
+        m_pipeline = QGst::ElementFactory::make("playbin2").dynamicCast<QGst::Pipeline>();
+
+        if (m_pipeline)
+        {
+            QGst::BusPtr bus = m_pipeline->bus();
+            bus->addSignalWatch();
+
+            QGlib::connect(bus, "message", this, &Player::busMessage);
+        }
+    }
+
+    if (m_pipeline)
+    {
+        stop();
+
+        m_pipeline->setProperty("uri", url.url());
+
+        m_url = url;
     }
 }
 
@@ -819,7 +877,9 @@ void Player::setPosition(qint64 position)
 {
     if (isSeekable())
     {
-        m_mediaObject->seek(position);
+        QGst::SeekEventPtr event = QGst::SeekEvent::create(1.0, QGst::FormatTime, QGst::SeekFlagFlush, QGst::SeekTypeSet, QGst::ClockTime(position * 1000), QGst::SeekTypeNone, QGst::ClockTime::None);
+
+        m_pipeline->sendEvent(event);
 
         Q_EMIT positionChanged(position);
     }
@@ -827,12 +887,26 @@ void Player::setPosition(qint64 position)
 
 void Player::setVolume(int volume)
 {
-    m_audioOutput->setVolume((qreal) volume / 100);
+    if (m_pipeline && volume != this->volume())
+    {
+        m_pipeline->setProperty("volume", ((double) volume / 10));
+
+        volumeChanged();
+
+        Q_EMIT volumeChanged(volume);
+    }
 }
 
 void Player::setAudioMuted(bool muted)
 {
-    m_audioOutput->setMuted(muted);
+    if (m_pipeline && muted != isAudioMuted())
+    {
+        m_pipeline->setProperty("mute", muted);
+
+        volumeChanged();
+
+        Q_EMIT audioMutedChanged(muted);
+    }
 }
 
 void Player::setPlaybackMode(PlaybackMode mode)
@@ -847,27 +921,27 @@ void Player::setAspectRatio(AspectRatio ratio)
 {
     m_aspectRatio = ratio;
 
-    switch (ratio)
-    {
-        case Ratio4_3:
-            m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio4_3);
-
-            break;
-        case Ratio16_9:
-            m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
-
-            break;
-        case FitToRatio:
-            m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioWidget);
-
-            break;
-        default:
-            m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
-
-            ratio = AutomaticRatio;
-
-            break;
-    }
+//     switch (ratio)
+//     {
+//         case Ratio4_3:
+//             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio4_3);
+//
+//             break;
+//         case Ratio16_9:
+//             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
+//
+//             break;
+//         case FitToRatio:
+//             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioWidget);
+//
+//             break;
+//         default:
+//             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
+//
+//             ratio = AutomaticRatio;
+//
+//             break;
+//     }
 
     m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(ratio))->setChecked(true);
 
@@ -878,44 +952,44 @@ void Player::setVideoMode(bool mode)
 {
     m_videoMode = mode;
 
-    m_videoWidget->setParent(NULL);
-    m_videoWidget->hide();
-
-    if (isFullScreen())
-    {
-        m_appletVideoWidget->setVideoWidget(NULL, false);
-
-        m_dialogVideoWidget->setVideoWidget(NULL, false);
-
-        m_fullScreenUi.videoWidget->layout()->addWidget(m_videoWidget);
-
-        m_videoWidget->show();
-    }
-    else
-    {
-        if (m_fullScreenWidget)
-        {
-            m_fullScreenUi.videoWidget->layout()->removeWidget(m_videoWidget);
-        }
-
-        const bool mode = (state() != StoppedState && isVideoAvailable());
-
-        if (m_videoMode)
-        {
-            m_dialogVideoWidget->setVideoWidget(NULL, false);
-
-            m_appletVideoWidget->setVideoWidget(m_videoWidget, mode);
-        }
-        else
-        {
-            m_appletVideoWidget->setVideoWidget(NULL, false);
-            m_appletVideoWidget->hide();
-
-            m_dialogVideoWidget->setVideoWidget(m_videoWidget, mode);
-        }
-    }
-
-    m_videoWidget->update();
+//     m_videoWidget->setParent(NULL);
+//     m_videoWidget->hide();
+//
+//     if (isFullScreen())
+//     {
+//         m_appletVideoWidget->setVideoWidget(NULL, false);
+//
+//         m_dialogVideoWidget->setVideoWidget(NULL, false);
+//
+//         m_fullScreenUi.videoWidget->layout()->addWidget(m_videoWidget);
+//
+//         m_videoWidget->show();
+//     }
+//     else
+//     {
+//         if (m_fullScreenWidget)
+//         {
+//             m_fullScreenUi.videoWidget->layout()->removeWidget(m_videoWidget);
+//         }
+//
+//         const bool mode = (state() != StoppedState && isVideoAvailable());
+//
+//         if (m_videoMode)
+//         {
+//             m_dialogVideoWidget->setVideoWidget(NULL, false);
+//
+//             m_appletVideoWidget->setVideoWidget(m_videoWidget, mode);
+//         }
+//         else
+//         {
+//             m_appletVideoWidget->setVideoWidget(NULL, false);
+//             m_appletVideoWidget->hide();
+//
+//             m_dialogVideoWidget->setVideoWidget(m_videoWidget, mode);
+//         }
+//     }
+//
+//     m_videoWidget->update();
 }
 
 void Player::setFullScreen(bool enable)
@@ -984,12 +1058,15 @@ void Player::setInhibitNotifications(bool inhibit)
 {
     m_inhibitNotifications = inhibit;
 
-    stateChanged(m_mediaObject->state());
+    if (m_pipeline)
+    {
+        stateChanged(m_pipeline->currentState());
+    }
 }
 
 void Player::setBrightness(int value)
 {
-    m_videoWidget->setBrightness((value > 0)?(((qreal) value / 50) - 1):-1);
+//     m_videoWidget->setBrightness((value > 0)?(((qreal) value / 50) - 1):-1);
 
     updateSliders();
 
@@ -998,7 +1075,7 @@ void Player::setBrightness(int value)
 
 void Player::setContrast(int value)
 {
-    m_videoWidget->setContrast((value > 0)?(((qreal) value / 50) - 1):-1);
+//     m_videoWidget->setContrast((value > 0)?(((qreal) value / 50) - 1):-1);
 
     updateSliders();
 
@@ -1007,7 +1084,7 @@ void Player::setContrast(int value)
 
 void Player::setHue(int value)
 {
-    m_videoWidget->setHue((value > 0)?(((qreal) value / 50) - 1):-1);
+//     m_videoWidget->setHue((value > 0)?(((qreal) value / 50) - 1):-1);
 
     updateSliders();
 
@@ -1016,7 +1093,7 @@ void Player::setHue(int value)
 
 void Player::setSaturation(int value)
 {
-    m_videoWidget->setSaturation((value > 0)?(((qreal) value / 50) - 1):-1);
+//     m_videoWidget->setSaturation((value > 0)?(((qreal) value / 50) - 1):-1);
 
     updateSliders();
 
@@ -1031,21 +1108,16 @@ QStringList Player::supportedMimeTypes() const
     return mimeTypes;
 }
 
-QString Player::errorString() const
-{
-    return m_mediaObject->errorString();
-}
-
 QString Player::metaData(MetaDataKey key, bool substitute) const
 {
-    QStringList values = m_mediaObject->metaData(m_keys[key]);
-
-    if (values.isEmpty() || values.first().isEmpty())
-    {
+//     QStringList values = m_mediaObject->metaData(m_keys[key]);
+//
+//     if (values.isEmpty() || values.first().isEmpty())
+//     {
         return MetaDataManager::metaData(url(), key, substitute);
-    }
+//     }
 
-    return values.first();
+//     return values.first();
 }
 
 PlaylistModel* Player::playlist() const
@@ -1076,26 +1148,44 @@ QVariantMap Player::metaData() const
 
 KUrl Player::url() const
 {
-    return KUrl(m_mediaObject->currentSource().url());
+    return m_url;
 }
 
 qint64 Player::duration() const
 {
-    return m_mediaObject->totalTime();
+    if (m_pipeline)
+    {
+        QGst::DurationQueryPtr query = QGst::DurationQuery::create(QGst::FormatTime);
+
+        m_pipeline->query(query);
+
+        return (query->duration() / 1000);
+    }
+
+    return 0;
 }
 
 qint64 Player::position() const
 {
-    return m_mediaObject->currentTime();
+    if (m_pipeline)
+    {
+        QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
+
+        m_pipeline->query(query);
+
+        return (query->position() / 1000);
+    }
+
+    return 0;
 }
 
-PlayerState Player::translateState(Phonon::State state) const
+PlayerState Player::translateState(QGst::State state) const
 {
     switch (state)
     {
-        case Phonon::PlayingState:
+        case QGst::StatePlaying:
             return PlayingState;
-        case Phonon::PausedState:
+        case QGst::StatePaused:
             return PausedState;
         default:
             return StoppedState;
@@ -1114,37 +1204,41 @@ AspectRatio Player::aspectRatio() const
 
 PlayerState Player::state() const
 {
-    return translateState(m_mediaObject->state());
+    return (m_pipeline?translateState(m_pipeline->currentState()):StoppedState);
 }
 
 int Player::volume() const
 {
-    return (m_audioOutput->volume() * 100);
+    return (m_pipeline?(m_pipeline->property("volume").get<double>() * 10):0);
 }
 
 int Player::brightness() const
 {
-    return ((m_videoWidget->brightness() * 50) + 50);
+    return 0;
+//     return ((m_videoWidget->brightness() * 50) + 50);
 }
 
 int Player::contrast() const
 {
-    return ((m_videoWidget->contrast() * 50) + 50);
+    return 0;
+//     return ((m_videoWidget->contrast() * 50) + 50);
 }
 
 int Player::hue() const
 {
-    return ((m_videoWidget->hue() * 50) + 50);
+    return 0;
+//     return ((m_videoWidget->hue() * 50) + 50);
 }
 
 int Player::saturation() const
 {
-    return ((m_videoWidget->saturation() * 100) + 50);
+    return 0;
+//     return ((m_videoWidget->saturation() * 100) + 50);
 }
 
 bool Player::isAudioMuted() const
 {
-    return m_audioOutput->isMuted();
+    return (m_pipeline?m_pipeline->property("mute").toBool():false);
 }
 
 bool Player::isAudioAvailable() const
@@ -1154,12 +1248,21 @@ bool Player::isAudioAvailable() const
 
 bool Player::isVideoAvailable() const
 {
-    return m_mediaObject->hasVideo();
+    return (m_pipeline && m_pipeline->property("n-video").toInt() > 0);
 }
 
 bool Player::isSeekable() const
 {
-    return m_mediaObject->isSeekable();
+    if (m_pipeline)
+    {
+        QGst::SeekingQueryPtr query = QGst::SeekingQuery::create(QGst::FormatTime);
+
+        m_pipeline->query(query);
+
+        return query->seekable();
+    }
+
+    return false;
 }
 
 bool Player::isFullScreen() const
