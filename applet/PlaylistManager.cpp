@@ -170,6 +170,8 @@ void PlaylistManager::visiblePlaylistChanged(int position)
 
     updateActions();
 
+    m_playlistUi.playlistView->scrollTo(playlist->index(playlist->currentTrack(), 0), QAbstractItemView::PositionAtCenter);
+
     emit modified();
 }
 
