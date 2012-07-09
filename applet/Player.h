@@ -105,12 +105,12 @@ class Player : public QObject
     protected:
         void timerEvent(QTimerEvent *event);
         void busMessage(const QGst::MessagePtr &message);
+        void videoChanged();
         void stateChanged(QGst::State state);
         PlayerState translateState(QGst::State state) const;
 
     protected Q_SLOTS:
         void volumeChanged(qreal volume = -1);
-        void videoChanged();
         void mediaChanged();
         void availableChaptersChanged();
         void availableAudioChannelsChanged();
@@ -126,6 +126,7 @@ class Player : public QObject
         void trackFinished();
         void updateSliders();
         void updateMetaData();
+        void updateVideo();
         void setUrl(const KUrl &url);
 
     private:

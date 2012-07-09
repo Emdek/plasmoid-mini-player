@@ -1,4 +1,3 @@
-- use TagLib to fetch and set meta data (?);
 - add audio analyzer (?);
 - dynamic playlists (most often / recently played tracks etc.) (?);
 - visualizations for audio files (?);

@@ -242,7 +242,6 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
 //     connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
 //     connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SLOT(updateMetaData()));
-//     connect(m_mediaObject, SIGNAL(hasVideoChanged(bool)), this, SLOT(videoChanged()));
     connect(this, SIGNAL(videoAvailableChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
     connect(this, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
 //     connect(m_mediaObject, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
@@ -329,7 +328,7 @@ void Player::stateChanged(QGst::State state)
     const PlayerState translatedState = translateState(state);
 
     mediaChanged();
-    videoChanged();
+    updateVideo();
 
     if (isVideoAvailable() && translatedState == PlayingState && !m_inhibitNotifications)
     {
@@ -355,6 +354,13 @@ void Player::stateChanged(QGst::State state)
 
     Q_EMIT stateChanged(translatedState);
     Q_EMIT audioAvailableChanged(translatedState != StoppedState);
+}
+
+void Player::videoChanged()
+{
+    updateVideo();
+
+    Q_EMIT videoAvailableChanged(isVideoAvailable());
 }
 
 void Player::volumeChanged(qreal volume)
@@ -397,20 +403,6 @@ void Player::volumeChanged(qreal volume)
     m_actions[AudioMenuAction]->setEnabled(isAudioAvailable());
 
     Q_EMIT modified();
-}
-
-void Player::videoChanged()
-{
-    m_actions[FullScreenAction]->setEnabled(isVideoAvailable());
-
-    if (!isVideoAvailable() && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
-    {
-        setFullScreen(false);
-    }
-    else
-    {
-        setVideoMode(m_videoMode);
-    }
 }
 
 void Player::mediaChanged()
@@ -608,7 +600,7 @@ void Player::changeAngle(QAction *action)
 
 void Player::trackFinished()
 {
-    videoChanged();
+    updateVideo();
 
     if (m_playlist)
     {
@@ -666,6 +658,20 @@ void Player::updateMetaData()
         track.duration = duration();
 
         MetaDataManager::setMetaData(url(), track);
+    }
+}
+
+void Player::updateVideo()
+{
+    m_actions[FullScreenAction]->setEnabled(isVideoAvailable());
+
+    if (!isVideoAvailable() && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
+    {
+        setFullScreen(false);
+    }
+    else
+    {
+        setVideoMode(m_videoMode);
     }
 }
 
@@ -783,6 +789,8 @@ void Player::stop()
     if (m_pipeline)
     {
         m_pipeline->setState(QGst::StateNull);
+
+        Q_EMIT videoAvailableChanged(false);
     }
 
     m_url = KUrl();
@@ -816,6 +824,7 @@ void Player::setUrl(const KUrl &url)
             bus->addSignalWatch();
 
             QGlib::connect(bus, "message", this, &Player::busMessage);
+            QGlib::connect(m_pipeline, "video-changed", this, &Player::videoChanged);
         }
     }
 
