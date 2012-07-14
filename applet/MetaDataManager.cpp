@@ -23,6 +23,14 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTimerEvent>
 
+#include <QGlib/Connect>
+
+#include <QGst/Bus>
+#include <QGst/Event>
+#include <QGst/Query>
+#include <QGst/TagList>
+#include <QGst/ElementFactory>
+
 #include <KMimeType>
 
 namespace MiniPlayer
@@ -33,17 +41,9 @@ QMap<KUrl, Track> MetaDataManager::m_tracks;
 MetaDataManager* MetaDataManager::m_instance = NULL;
 
 MetaDataManager::MetaDataManager(QObject *parent) : QObject(parent),
-    m_mediaObject(new Phonon::MediaObject(this)),
-    m_resolveMedia(0),
+    m_scheduleNextTimer(0),
     m_attempts(0)
 {
-    m_keys << qMakePair(ArtistKey, Phonon::ArtistMetaData)
-    << qMakePair(TitleKey, Phonon::TitleMetaData)
-    << qMakePair(AlbumKey, Phonon::AlbumMetaData)
-    << qMakePair(DateKey, Phonon::DateMetaData)
-    << qMakePair(GenreKey, Phonon::GenreMetaData)
-    << qMakePair(DescriptionKey, Phonon::DescriptionMetaData)
-    << qMakePair(TrackNumberKey, Phonon::TracknumberMetaData);
 }
 
 void MetaDataManager::createInstance(QObject *parent)
@@ -57,46 +57,122 @@ void MetaDataManager::timerEvent(QTimerEvent *event)
 
     killTimer(event->timerId());
 
-    resolveMetaData();
+    scheduleNext();
 }
 
-void MetaDataManager::resolveMetaData()
+void MetaDataManager::handleBusMessage(const QGst::MessagePtr &message)
 {
-    QPair<KUrl, int> url;
-
-    killTimer(m_resolveMedia);
-
-    if (m_mediaObject->currentSource().url().isValid())
+    switch (message->type())
     {
-        Track track;
-        track.duration = m_mediaObject->totalTime();
+        case QGst::MessageEos:
+            scheduleNext();
+        case QGst::MessageError:
+            scheduleNext();
 
-        for (int i = 0; i < m_keys.count(); ++i)
-        {
-            const QStringList values = m_mediaObject->metaData(m_keys.at(i).second);
-
-            if (!values.isEmpty() && !values.first().isEmpty())
+            break;
+        case QGst::MessageTag:
+            if (m_pipeline)
             {
-                track.keys[m_keys.at(i).first] = values.first();
+                const QGst::TagList tags = message.staticCast<QGst::TagMessage>()->taglist();
+
+                if (tags.isEmpty())
+                {
+                    break;
+                }
+
+                Track track;
+
+                if (!tags.artist().isEmpty())
+                {
+                    track.keys[ArtistKey] = tags.artist();
+                }
+
+                if (!tags.title().isEmpty())
+                {
+                    track.keys[TitleKey] = tags.title();
+                }
+
+                if (!tags.tagValue("ALBUM").toString().isEmpty())
+                {
+                    track.keys[AlbumKey] = tags.tagValue("ALBUM").toString();
+                }
+
+                if (tags.trackNumber() > 0)
+                {
+                    track.keys[TrackNumberKey] = QString::number(tags.trackNumber());
+                }
+
+                if (!tags.genre().isEmpty())
+                {
+                    track.keys[GenreKey] = tags.genre();
+                }
+
+                if (!tags.description().isEmpty())
+                {
+                    track.keys[DescriptionKey] = tags.description();
+                }
+
+                if (tags.date().isValid())
+                {
+                    track.keys[DateKey] = tags.date().toString();
+                }
+
+                if (!track.keys.isEmpty())
+                {
+                    track.duration = duration(m_url);
+
+                    setMetaData(m_url, track);
+
+                    if (track.duration >= 0)
+                    {
+                        scheduleNext();
+                    }
+                }
             }
-        }
 
-        m_mediaObject->stop();
+            break;
+        case QGst::MessageDuration:
+            if (m_pipeline)
+            {
+                const bool hasMetaData = isAvailable(m_url);
 
-        if (track.keys.contains(TitleKey) && !track.keys[TitleKey].isEmpty())
-        {
-            setMetaData(m_mediaObject->currentSource().url(), track);
-        }
-        else if (m_attempts < 5)
+                QGst::DurationQueryPtr query = QGst::DurationQuery::create(QGst::FormatTime);
+
+                m_pipeline->query(query);
+
+                setDuration(m_url, (query->duration() / 1000000));
+
+                if (hasMetaData)
+                {
+                    scheduleNext();
+                }
+            }
+
+            break;
+        default:
+            break;
+    }
+}
+
+void MetaDataManager::scheduleNext()
+{
+    killTimer(m_scheduleNextTimer);
+
+    if (m_url.isValid() && m_pipeline)
+    {
+        m_pipeline->setState(QGst::StateNull);
+
+        if (m_attempts < 5)
         {
             ++m_attempts;
 
-            m_queue.insert(m_attempts, qMakePair(KUrl(m_mediaObject->currentSource().url()), m_attempts));
+            m_queue.insert(m_attempts, qMakePair(m_url, m_attempts));
         }
         else
         {
-            const QString path = urlToTitle(KUrl(m_mediaObject->currentSource().url()));
+            const QString path = urlToTitle(m_url);
             QRegExp trackExpression("^(?:\\s*(.+)\\s*-)?\\s*(.+)\\s*-\\s*(.+)\\s*$");
+            Track track;
 
             if (trackExpression.exactMatch(path))
             {
@@ -113,33 +189,53 @@ void MetaDataManager::resolveMetaData()
                 track.keys[TitleKey] = path.simplified();
             }
 
-            setMetaData(m_mediaObject->currentSource().url(), track);
+            setMetaData(m_url, track);
+        }
+
+        m_url = KUrl();
+    }
+
+    if (!m_pipeline)
+    {
+        m_pipeline = QGst::ElementFactory::make("playbin2").dynamicCast<QGst::Pipeline>();
+
+        if (m_pipeline)
+        {
+            QGst::BusPtr bus = m_pipeline->bus();
+            bus->addSignalWatch();
+
+            m_pipeline->setProperty("mute", true);
+            m_pipeline->setProperty("audio-sink", QGst::ElementFactory::make("fakesink"));
+            m_pipeline->setProperty("video-sink", QGst::ElementFactory::make("fakesink"));
+
+            QGlib::connect(bus, "message", this, &MetaDataManager::handleBusMessage);
         }
     }
 
-    m_mediaObject->deleteLater();
-    m_mediaObject = new Phonon::MediaObject(this);
+    if (!m_pipeline)
+    {
+        return;
+    }
 
     while (!m_queue.isEmpty())
     {
-        url = m_queue.dequeue();
+        QPair<KUrl, int> pair = m_queue.dequeue();
 
-        if (!url.first.isValid() || !url.first.isLocalFile() || (m_tracks.contains(url.first) && m_tracks[url.first].duration > 0))
+        if (!pair.first.isValid() || !pair.first.isLocalFile() || (m_tracks.contains(pair.first) && m_tracks[pair.first].duration > 0))
         {
             continue;
         }
 
-        m_attempts = url.second;
+        m_url = pair.first;
+        m_attempts = pair.second;
 
-        m_mediaObject->setCurrentSource(Phonon::MediaSource(url.first));
-        m_mediaObject->play();
+        m_pipeline->setProperty("uri", m_url.url());
+        m_pipeline->setState(QGst::StatePlaying);
 
-        m_resolveMedia = startTimer(200 + (m_attempts * 100));
+        m_scheduleNextTimer = startTimer(200 + (m_attempts * 100));
 
         return;
     }
-
-    m_mediaObject->setCurrentSource(Phonon::MediaSource());
 }
 
 void MetaDataManager::resolveTracks(const KUrl::List &urls)
@@ -154,9 +250,9 @@ void MetaDataManager::addTracks(const KUrl::List &urls)
         m_queue.prepend(qMakePair(urls.value(i), 0));
     }
 
-    if (!m_mediaObject->currentSource().url().isValid())
+    if (!m_url.isValid())
     {
-        resolveMetaData();
+        scheduleNext();
     }
 }
 
@@ -351,9 +447,9 @@ qint64 MetaDataManager::duration(const KUrl &url)
     return -1;
 }
 
-bool MetaDataManager::isAvailable(const KUrl &url, bool complete)
+bool MetaDataManager::isAvailable(const KUrl &url)
 {
-    return (m_tracks.contains(url) && !metaData(url, TitleKey, false).isEmpty() && (!complete || (!metaData(url, TitleKey, false).isEmpty() && !m_tracks[url].duration > 0)));
+    return (m_tracks.contains(url) && (m_tracks[url].duration > 0 || !m_tracks[url].keys.isEmpty()));
 }
 
 }

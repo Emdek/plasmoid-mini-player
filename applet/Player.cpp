@@ -35,7 +35,6 @@
 #include <QGst/Event>
 #include <QGst/Query>
 #include <QGst/TagList>
-#include <QGst/ClockTime>
 #include <QGst/ElementFactory>
 
 #include <KIcon>
@@ -357,7 +356,7 @@ void Player::handleBusMessage(const QGst::MessagePtr &message)
                     }
                 }
 
-                if (!MetaDataManager::isAvailable(url()), true)
+                if (!MetaDataManager::isAvailable(url()))
                 {
                     Track track;
                     track.keys = m_metaData;
