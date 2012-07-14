@@ -936,7 +936,7 @@ void Player::setPosition(qint64 position)
 {
     if (isSeekable())
     {
-        QGst::SeekEventPtr event = QGst::SeekEvent::create(1.0, QGst::FormatTime, QGst::SeekFlagFlush, QGst::SeekTypeSet, QGst::ClockTime(position * 1000), QGst::SeekTypeNone, QGst::ClockTime::None);
+        QGst::SeekEventPtr event = QGst::SeekEvent::create(1.0, QGst::FormatTime, QGst::SeekFlagFlush, QGst::SeekTypeSet, QGst::ClockTime(position * 1000000), QGst::SeekTypeNone, QGst::ClockTime::None);
 
         m_pipeline->sendEvent(event);
 
@@ -1218,7 +1218,7 @@ qint64 Player::duration() const
 
         m_pipeline->query(query);
 
-        return (query->duration() / 1000);
+        return (query->duration() / 1000000);
     }
 
     return 0;
@@ -1232,7 +1232,7 @@ qint64 Player::position() const
 
         m_pipeline->query(query);
 
-        return (query->position() / 1000);
+        return (query->position() / 1000000);
     }
 
     return 0;

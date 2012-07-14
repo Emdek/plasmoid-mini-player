@@ -1,4 +1,4 @@
-To install plasmoid check if you have installed needed header files (kdelibs, kdebase-workspace), unpack archive and execute install.sh script.
+To install plasmoid check if you have installed needed header files (libqtgstreamer, kdelibs, kdebase-workspace), unpack archive and execute install.sh script.
 
 Alternatively you can run following commands:
 
