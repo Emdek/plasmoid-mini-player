@@ -24,8 +24,6 @@
 #include <QtGui/QGraphicsPixmapItem>
 #include <QtGui/QGraphicsProxyWidget>
 
-#include <Phonon/VideoWidget>
-
 namespace MiniPlayer
 {
 
@@ -38,8 +36,8 @@ class VideoWidget : public QGraphicsProxyWidget
     public:
         explicit VideoWidget(QGraphicsWidget *parent);
 
-    protected Q_SLOTS:
-        void setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode);
+//     protected Q_SLOTS:
+//         void setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode);
 
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
