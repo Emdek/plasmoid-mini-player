@@ -124,7 +124,6 @@ class Player : public QObject
         void changeAudioChannel(QAction *action);
         void changeSubtitles(QAction *action);
         void changeAngle(QAction *action);
-        void trackFinished();
         void updateSliders();
         void updateVideo();
         void setUrl(const KUrl &url);

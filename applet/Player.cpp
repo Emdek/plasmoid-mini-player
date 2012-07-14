@@ -371,7 +371,11 @@ void Player::handleBusMessage(const QGst::MessagePtr &message)
             break;
         case QGst::MessageEos:
             stop();
-            trackFinished();
+
+            if (m_playlist)
+            {
+                m_playlist->setCurrentTrack(m_playlist->nextTrack(), PlayReaction);
+            }
 
             break;
         case QGst::MessageError:
@@ -678,18 +682,6 @@ void Player::changeAngle(QAction *action)
 //     m_mediaController->setCurrentAngle(action->data().toInt());
 }
 
-void Player::trackFinished()
-{
-    updateVideo();
-
-    if (m_playlist)
-    {
-        m_playlist->setCurrentTrack(m_playlist->nextTrack(), PlayReaction);
-    }
-
-//     m_videoWidget->update();
-}
-
 void Player::updateSliders()
 {
     disconnect(m_brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
@@ -839,6 +831,10 @@ void Player::stop()
 
         Q_EMIT videoAvailableChanged(false);
     }
+
+    updateVideo();
+
+//    m_videoWidget->update();
 
     m_metaData.clear();
 

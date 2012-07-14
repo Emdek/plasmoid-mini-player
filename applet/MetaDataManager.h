@@ -74,8 +74,8 @@ class MetaDataManager : public QObject
     private:
         QGst::PipelinePtr m_pipeline;
         KUrl m_url;
-        int m_scheduleNextTimer;
         int m_attempts;
+        int m_scheduleNextTimer;
 
         static QQueue<QPair<KUrl, int> > m_queue;
         static QMap<KUrl, Track> m_tracks;
