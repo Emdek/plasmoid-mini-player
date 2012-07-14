@@ -422,7 +422,25 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     }
     else if (role == Qt::ToolTipRole)
     {
-        return ((MetaDataManager::duration(url) > 0)?QString("<nobr>%1 - %2 (%3)</nobr>").arg(MetaDataManager::metaData(url, ArtistKey)).arg(MetaDataManager::metaData(url, TitleKey)).arg(MetaDataManager::timeToString(MetaDataManager::duration(url))):QString("<nobr>%1 - %2</nobr>").arg(MetaDataManager::metaData(url, ArtistKey)).arg(MetaDataManager::metaData(url, TitleKey)));
+        const QString artist = MetaDataManager::metaData(url, ArtistKey, false);
+        const QString title = MetaDataManager::metaData(url, TitleKey, false);
+        QString tooltip;
+
+        if (artist.isEmpty() || title.isEmpty())
+        {
+            tooltip = (artist.isEmpty()?title:artist);
+        }
+        else
+        {
+            tooltip = (QString("%1 - %2").arg(artist).arg(title));
+        }
+
+        if (tooltip.isEmpty())
+        {
+            tooltip = MetaDataManager::metaData(url, TitleKey);
+        }
+
+        return ((MetaDataManager::duration(url) > 0)?QString("<nobr>%1 (%2)</nobr>").arg(tooltip).arg(MetaDataManager::timeToString(MetaDataManager::duration(url))):QString("<nobr>%1</nobr>").arg(tooltip));
     }
     else if (role == Qt::UserRole)
     {
