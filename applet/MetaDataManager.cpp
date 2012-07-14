@@ -134,15 +134,13 @@ void MetaDataManager::handleBusMessage(const QGst::MessagePtr &message)
         case QGst::MessageDuration:
             if (m_pipeline)
             {
-                const bool hasMetaData = isAvailable(m_url);
-
                 QGst::DurationQueryPtr query = QGst::DurationQuery::create(QGst::FormatTime);
 
                 m_pipeline->query(query);
 
                 setDuration(m_url, (query->duration() / 1000000));
 
-                if (hasMetaData)
+                if (isAvailable(m_url))
                 {
                     scheduleNext();
                 }
@@ -166,7 +164,7 @@ void MetaDataManager::scheduleNext()
         {
             ++m_attempts;
 
-            m_queue.insert(m_attempts, qMakePair(m_url, m_attempts));
+            m_queue.append(qMakePair(m_url, m_attempts));
         }
         else
         {
@@ -221,7 +219,7 @@ void MetaDataManager::scheduleNext()
     {
         QPair<KUrl, int> pair = m_queue.dequeue();
 
-        if (!pair.first.isValid() || !pair.first.isLocalFile() || (m_tracks.contains(pair.first) && m_tracks[pair.first].duration > 0))
+        if (!pair.first.isValid() || !pair.first.isLocalFile() || isAvailable(pair.first))
         {
             continue;
         }
@@ -449,7 +447,7 @@ qint64 MetaDataManager::duration(const KUrl &url)
 
 bool MetaDataManager::isAvailable(const KUrl &url)
 {
-    return (m_tracks.contains(url) && (m_tracks[url].duration > 0 || !m_tracks[url].keys.isEmpty()));
+    return (m_tracks.contains(url) && !m_tracks[url].keys.isEmpty());
 }
 
 }
