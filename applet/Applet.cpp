@@ -61,6 +61,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_player(new Player(this)),
     m_playlistManager(new PlaylistManager(m_player)),
     m_dBusInterface(NULL),
+    m_videoWidget(NULL),
+    m_controlsWidget(NULL),
     m_volumeDialog(NULL),
     m_jumpToPositionDialog(NULL),
     m_togglePlaylist(0),
@@ -77,48 +79,74 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 
     MetaDataManager::createInstance(this);
 
-    VideoWidget *videoWidget = new VideoWidget(this);
-    QGraphicsWidget *controlsWidget = new QGraphicsWidget(this);
-
-    m_player->registerAppletVideoWidget(videoWidget);
     m_player->setVideoMode(false);
+
+    if (args.count())
+    {
+        KUrl::List tracks;
+
+        for (int i = 0; i < args.count(); ++i)
+        {
+            tracks.append(KUrl(args.value(i).toString()));
+        }
+
+        m_playlistManager->createPlaylist(i18n("Default"), tracks);
+    }
+
+    Plasma::ToolTipManager::self()->registerWidget(this);
+
+    resize(250, 50);
+}
+
+void Applet::init()
+{
+    if (m_videoWidget)
+    {
+        return;
+    }
+
+    m_videoWidget = new VideoWidget(scene()->views().first(), this);
+
+    m_player->registerAppletVideoWidget(m_videoWidget);
+
+    m_controlsWidget = new QGraphicsWidget(this);
 
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical, this);
     mainLayout->setSpacing(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->insertItem(0, videoWidget);
-    mainLayout->insertItem(1, controlsWidget);
+    mainLayout->insertItem(0, m_videoWidget);
+    mainLayout->insertItem(1, m_controlsWidget);
 
     setLayout(mainLayout);
 
     SeekSlider *seekSlider = new SeekSlider;
     seekSlider->setPlayer(m_player);
 
-    Plasma::Slider *positionSlider = new Plasma::Slider(controlsWidget);
+    Plasma::Slider *positionSlider = new Plasma::Slider(m_controlsWidget);
     positionSlider->setWidget(seekSlider);
 
-    Plasma::ToolButton *openButton = new Plasma::ToolButton(controlsWidget);
+    Plasma::ToolButton *openButton = new Plasma::ToolButton(m_controlsWidget);
     openButton->setAction(m_player->action(OpenFileAction));
 
-    Plasma::ToolButton *playPauseButton = new Plasma::ToolButton(controlsWidget);
+    Plasma::ToolButton *playPauseButton = new Plasma::ToolButton(m_controlsWidget);
     playPauseButton->setAction(m_player->action(PlayPauseAction));
 
-    Plasma::ToolButton *stopButton = new Plasma::ToolButton(controlsWidget);
+    Plasma::ToolButton *stopButton = new Plasma::ToolButton(m_controlsWidget);
     stopButton->setAction(m_player->action(StopAction));
 
-    Plasma::ToolButton *playPreviousButton = new Plasma::ToolButton(controlsWidget);
+    Plasma::ToolButton *playPreviousButton = new Plasma::ToolButton(m_controlsWidget);
     playPreviousButton->setAction(m_player->action(PlayPreviousAction));
 
-    Plasma::ToolButton *playNextButton = new Plasma::ToolButton(controlsWidget);
+    Plasma::ToolButton *playNextButton = new Plasma::ToolButton(m_controlsWidget);
     playNextButton->setAction(m_player->action(PlayNextAction));
 
-    Plasma::ToolButton *volumeButton = new Plasma::ToolButton(controlsWidget);
+    Plasma::ToolButton *volumeButton = new Plasma::ToolButton(m_controlsWidget);
     volumeButton->setAction(m_player->action(VolumeToggleAction));
 
-    Plasma::ToolButton *playlistButton = new Plasma::ToolButton(controlsWidget);
+    Plasma::ToolButton *playlistButton = new Plasma::ToolButton(m_controlsWidget);
     playlistButton->setAction(m_player->action(PlaylistToggleAction));
 
-    Plasma::ToolButton *fullScreenButton = new Plasma::ToolButton(controlsWidget);
+    Plasma::ToolButton *fullScreenButton = new Plasma::ToolButton(m_controlsWidget);
     fullScreenButton->setAction(m_player->action(FullScreenAction));
 
     m_controls["open"] = openButton;
@@ -140,7 +168,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_controls["fullScreen"] = fullScreenButton;
     m_controls["fullScreen"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 
-    QGraphicsLinearLayout *controlsLayout = new QGraphicsLinearLayout(Qt::Horizontal, controlsWidget);
+    QGraphicsLinearLayout *controlsLayout = new QGraphicsLinearLayout(Qt::Horizontal, m_controlsWidget);
     controlsLayout->setSpacing(0);
     controlsLayout->setContentsMargins(0, 0, 0, 0);
     controlsLayout->addItem(m_controls["open"]);
@@ -153,28 +181,9 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     controlsLayout->addItem(m_controls["playlist"]);
     controlsLayout->addItem(m_controls["fullScreen"]);
 
-    controlsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
-    controlsWidget->setLayout(controlsLayout);
+    m_controlsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+    m_controlsWidget->setLayout(controlsLayout);
 
-    if (args.count())
-    {
-        KUrl::List tracks;
-
-        for (int i = 0; i < args.count(); ++i)
-        {
-            tracks.append(KUrl(args.value(i).toString()));
-        }
-
-        m_playlistManager->createPlaylist(i18n("Default"), tracks);
-    }
-
-    Plasma::ToolTipManager::self()->registerWidget(this);
-
-    resize(250, 50);
-}
-
-void Applet::init()
-{
     QTimer::singleShot(100, this, SLOT(configChanged()));
 
     connect(this, SIGNAL(activate()), this, SLOT(togglePlaylistDialog()));
@@ -393,11 +402,9 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 
 void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-    QGraphicsWidget *controlsWidget = static_cast<QGraphicsWidget*>(layout()->itemAt(1)->graphicsItem());
-
-    if (controlsWidget)
+    if (m_controlsWidget)
     {
-        m_player->setVideoMode(!controlsWidget->isVisible() || (size().height() - controlsWidget->size().height()) > 50);
+        m_player->setVideoMode(!m_controlsWidget->isVisible() || (size().height() - m_controlsWidget->size().height()) > 50);
     }
 
     Plasma::Applet::resizeEvent(event);
@@ -765,16 +772,23 @@ void Applet::updateToolTip()
     {
         const QString artist = m_player->metaData(ArtistKey, false);
         const QString title = m_player->metaData(TitleKey, false);
+        QString text;
 
         if (artist.isEmpty() || title.isEmpty())
         {
-            data.setMainText(artist.isEmpty()?title:artist);
+            text = (artist.isEmpty()?title:artist);
         }
         else
         {
-            data.setMainText(QString("%1 - %2").arg(artist).arg(title));
+            text = QString("%1 - %2").arg(artist).arg(title);
         }
 
+        if (text.isEmpty())
+        {
+            text = m_player->metaData(TitleKey);
+        }
+
+        data.setMainText(text);
         data.setSubText((m_player->duration() > 0)?i18n("Position: %1 / %2", MetaDataManager::timeToString(m_player->position()), MetaDataManager::timeToString(m_player->duration())):"");
         data.setImage(MetaDataManager::icon(m_player->url()).pixmap(IconSize(KIconLoader::Desktop)));
         data.setAutohide(true);
@@ -803,11 +817,11 @@ void Applet::updateControls()
         }
     }
 
-    QGraphicsWidget *controlsWidget = static_cast<QGraphicsWidget*>(layout()->itemAt(1)->graphicsItem());
-    controlsWidget->setVisible(visible);
-    controlsWidget->setMaximumHeight(visible?-1:0);
+    QGraphicsWidget *m_controlsWidget = static_cast<QGraphicsWidget*>(layout()->itemAt(1)->graphicsItem());
+    m_controlsWidget->setVisible(visible);
+    m_controlsWidget->setMaximumHeight(visible?-1:0);
 
-    m_player->setVideoMode(!visible|| (size().height() - controlsWidget->size().height()) > 50);
+    m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
 }
 
 void Applet::showMenu(const QPoint &position)

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>513</width>
-    <height>542</height>
+    <width>348</width>
+    <height>282</height>
    </rect>
   </property>
   <property name="mouseTracking">
@@ -86,13 +86,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QWidget" name="videoWidget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QGraphicsView" name="graphicsView">
      <property name="palette">
       <palette>
        <active>
@@ -160,17 +154,24 @@
      <property name="mouseTracking">
       <bool>true</bool>
      </property>
-     <property name="acceptDrops">
-      <bool>true</bool>
-     </property>
      <property name="autoFillBackground">
       <bool>true</bool>
      </property>
-     <layout class="QVBoxLayout" name="videoLayout">
-      <property name="margin">
-       <number>0</number>
-      </property>
-     </layout>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="resizeAnchor">
+      <enum>QGraphicsView::AnchorViewCenter</enum>
+     </property>
     </widget>
    </item>
    <item>

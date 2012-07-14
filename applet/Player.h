@@ -26,11 +26,11 @@
 #include <QtGui/QSlider>
 #include <QtGui/QActionGroup>
 
-#include <KUrl>
-#include <KNotificationRestrictions>
-
 #include <QGst/Message>
 #include <QGst/Pipeline>
+
+#include <KUrl>
+#include <KNotificationRestrictions>
 
 #include "Constants.h"
 
@@ -94,7 +94,7 @@ class Player : public QObject
         void setAudioMuted(bool muted);
         void setPlaybackMode(PlaybackMode mode);
         void setAspectRatio(AspectRatio ratio);
-        void setVideoMode(bool mode);
+        void setVideoMode(bool mode, bool force = false);
         void setFullScreen(bool enable);
         void setInhibitNotifications(bool inhibit);
         void setBrightness(int value);
@@ -106,7 +106,6 @@ class Player : public QObject
         void timerEvent(QTimerEvent *event);
         void handleBusMessage(const QGst::MessagePtr &message);
         void handleVideoChange();
-        void handleSourceSetup();
         void stateChanged(QGst::State state);
         PlayerState translateState(QGst::State state) const;
 
@@ -126,6 +125,8 @@ class Player : public QObject
         void changeAngle(QAction *action);
         void updateSliders();
         void updateVideo();
+        void updateVideoView();
+        void updateLabel();
         void setUrl(const KUrl &url);
 
     private:
@@ -133,6 +134,7 @@ class Player : public QObject
         KNotificationRestrictions *m_notificationRestrictions;
         VideoWidget *m_appletVideoWidget;
         VideoWidget *m_dialogVideoWidget;
+        VideoWidget *m_fullScreenVideoWidget;
         QWidget *m_fullScreenWidget;
         QSlider *m_brightnessSlider;
         QSlider *m_contrastSlider;
@@ -147,9 +149,11 @@ class Player : public QObject
         QMap<MetaDataKey, QString> m_metaData;
         KUrl m_url;
         AspectRatio m_aspectRatio;
-        int m_stopSleepCookie;
+        qint64 m_restartPosition;
         int m_hideFullScreenControlsTimer;
+        int m_setupFullScreenTimer;
         int m_playPauseTimer;
+        int m_stopSleepCookie;
         bool m_inhibitNotifications;
         bool m_videoMode;
         Ui::fullScreen m_fullScreenUi;

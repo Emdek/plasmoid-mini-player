@@ -21,34 +21,34 @@
 #ifndef MINIPLAYERVIDEOWIDGET_HEADER
 #define MINIPLAYERVIDEOWIDGET_HEADER
 
+#include <QtGui/QGraphicsView>
+#include <QtGui/QGraphicsWidget>
 #include <QtGui/QGraphicsPixmapItem>
-#include <QtGui/QGraphicsProxyWidget>
+
+#include <QGst/Pipeline>
+#include <QGst/Ui/GraphicsVideoWidget>
+#include <QGst/Ui/GraphicsVideoSurface>
 
 namespace MiniPlayer
 {
 
 class Player;
 
-class VideoWidget : public QGraphicsProxyWidget
+class VideoWidget : public QGraphicsWidget
 {
     Q_OBJECT
 
     public:
-        explicit VideoWidget(QGraphicsWidget *parent);
+        explicit VideoWidget(QGraphicsView *view, QGraphicsWidget *parent);
 
-//     protected Q_SLOTS:
-//         void setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode);
+        void setPipeline(QGst::PipelinePtr pipeline);
 
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
-        void timerEvent(QTimerEvent *event);
 
     private:
-        QGraphicsPixmapItem *m_pixmapItem;
-        QGraphicsWidget *m_backgroundWidget;
-        int m_updateTimer;
-
-    friend class Player;
+        QGst::Ui::GraphicsVideoWidget *m_videoWidget;
+        QGraphicsPixmapItem *m_iconItem;
 };
 
 }

@@ -20,6 +20,7 @@
 
 #include "VideoWidget.h"
 
+#include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QGraphicsSceneResizeEvent>
 
 #include <KIcon>
@@ -28,11 +29,18 @@
 namespace MiniPlayer
 {
 
-VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsProxyWidget(parent),
-   m_pixmapItem(new QGraphicsPixmapItem(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous), this)),
-   m_backgroundWidget(new QGraphicsWidget(this)),
-   m_updateTimer(0)
+VideoWidget::VideoWidget(QGraphicsView *view, QGraphicsWidget *parent) : QGraphicsWidget(parent),
+    m_videoWidget(new QGst::Ui::GraphicsVideoWidget(this)),
+    m_iconItem(new QGraphicsPixmapItem(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous), this))
 {
+    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(this);
+    layout->addItem(m_videoWidget);
+
+    if (view)
+    {
+        m_videoWidget->setSurface(new QGst::Ui::GraphicsVideoSurface(view));
+    }
+
     QPalette palette = this->palette();
     palette.setColor(QPalette::Window, Qt::black);
     palette.setColor(QPalette::Base, Qt::black);
@@ -43,63 +51,33 @@ VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsProxyWidget(parent)
     setAcceptHoverEvents(true);
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    m_pixmapItem->setTransformationMode(Qt::SmoothTransformation);
-    m_pixmapItem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
-    m_pixmapItem->setZValue(100);
-
-    m_backgroundWidget->setPalette(palette);
-    m_backgroundWidget->setAutoFillBackground(true);
-    m_backgroundWidget->setZValue(50);
+    m_iconItem->setTransformationMode(Qt::SmoothTransformation);
+    m_iconItem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
+    m_iconItem->setZValue(100);
 }
 
 void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-    qreal scale = qMin(event->newSize().width(), event->newSize().height()) / m_pixmapItem->pixmap().width();
+    const qreal scale = qMin(event->newSize().width(), event->newSize().height()) / m_iconItem->pixmap().width();
 
-//     if (widget())
-//     {
-//         widget()->resize(event->newSize().toSize());
-//     }
-
-    m_pixmapItem->setScale(scale);
-    m_pixmapItem->setPos(((event->newSize().width() - (m_pixmapItem->boundingRect().width() * scale)) / 2), ((event->newSize().height() - (m_pixmapItem->boundingRect().height() * scale)) / 2));
-
-    m_backgroundWidget->resize(event->newSize());
-    m_backgroundWidget->setPos(0, 0);
+    m_iconItem->setScale(scale);
+    m_iconItem->setPos(((event->newSize().width() - (m_iconItem->boundingRect().width() * scale)) / 2), ((event->newSize().height() - (m_iconItem->boundingRect().height() * scale)) / 2));
 }
 
-void VideoWidget::timerEvent(QTimerEvent *event)
+void VideoWidget::setPipeline(QGst::PipelinePtr pipeline)
 {
-    Q_UNUSED(event)
+    if (pipeline && m_videoWidget->surface())
+    {
+        m_videoWidget->show();
+        m_iconItem->hide();
 
-    update();
+        pipeline->setProperty("video-sink", m_videoWidget->surface()->videoSink());
+    }
+    else
+    {
+        m_iconItem->show();
+        m_videoWidget->hide();
+    }
 }
-
-// void VideoWidget::setVideoWidget(Phonon::VideoWidget *videoWidget, bool mode)
-// {
-//     killTimer(m_updateTimer);
-//
-//     if (videoWidget)
-//     {
-//         const QSize size = this->size().toSize();
-//
-//         setWidget(videoWidget);
-//
-//         videoWidget->show();
-//         videoWidget->resize(size);
-//
-//         m_updateTimer = startTimer(50);
-//     }
-//     else
-//     {
-//         setWidget(NULL);
-//     }
-//
-//     show();
-//
-//     m_pixmapItem->setVisible(!mode);
-//
-//     m_backgroundWidget->setVisible(!mode);
-// }
 
 }

@@ -51,22 +51,23 @@ Player::Player(QObject *parent) : QObject(parent),
     m_notificationRestrictions(NULL),
     m_appletVideoWidget(NULL),
     m_dialogVideoWidget(NULL),
+    m_fullScreenVideoWidget(NULL),
     m_fullScreenWidget(NULL),
     m_chaptersGroup(new QActionGroup(this)),
     m_audioChannelGroup(new QActionGroup(this)),
     m_subtitlesGroup(new QActionGroup(this)),
     m_anglesGroup(new QActionGroup(this)),
     m_aspectRatio(AutomaticRatio),
-    m_stopSleepCookie(0),
     m_hideFullScreenControlsTimer(0),
+    m_setupFullScreenTimer(0),
     m_playPauseTimer(0),
+    m_stopSleepCookie(0),
     m_inhibitNotifications(false),
     m_videoMode(false)
 {
     QGst::init();
+
 //     m_videoWidget->setScaleMode(Phonon::VideoWidget::FitInView);
-//     m_videoWidget->setWindowIcon(KIcon("applications-multimedia"));
-//     m_videoWidget->setAcceptDrops(true);
 
     m_actions[OpenMenuAction] = new QAction(i18n("Open"), this);
     m_actions[OpenMenuAction]->setMenu(new KMenu());
@@ -226,8 +227,6 @@ Player::Player(QObject *parent) : QObject(parent),
     playbackModeActionGroup->addAction(repeatPlaylistAction);
     playbackModeActionGroup->addAction(randomTrackAction);
 
-//     m_videoWidget->installEventFilter(this);
-
     volumeChanged();
     mediaChanged();
     updateSliders();
@@ -265,13 +264,23 @@ Player::~Player()
 
 void Player::timerEvent(QTimerEvent *event)
 {
-    if (event->timerId() == m_hideFullScreenControlsTimer && m_fullScreenWidget && !m_fullScreenUi.controlsWidget->underMouse())
+    if (event->timerId() == m_hideFullScreenControlsTimer)
     {
-        m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::BlankCursor));
-        m_fullScreenUi.titleLabel->hide();
-        m_fullScreenUi.controlsWidget->hide();
+        if (m_fullScreenWidget && !m_fullScreenUi.controlsWidget->underMouse())
+        {
+            m_fullScreenUi.graphicsView->setCursor(QCursor(Qt::BlankCursor));
+            m_fullScreenUi.titleLabel->hide();
+            m_fullScreenUi.controlsWidget->hide();
+        }
 
         m_hideFullScreenControlsTimer = 0;
+    }
+    else if (event->timerId() == m_setupFullScreenTimer)
+    {
+        updateVideoView();
+        updateLabel();
+
+        m_setupFullScreenTimer = 0;
     }
     else if (event->timerId() == m_playPauseTimer)
     {
@@ -343,17 +352,7 @@ void Player::handleBusMessage(const QGst::MessagePtr &message)
 
                 if (isFullScreen())
                 {
-                    const QString artist = m_metaData[ArtistKey];
-                    const QString title = m_metaData[TitleKey];
-
-                    if (artist.isEmpty() || title.isEmpty())
-                    {
-                        m_fullScreenUi.titleLabel->setText(artist.isEmpty()?title:artist);
-                    }
-                    else
-                    {
-                        m_fullScreenUi.titleLabel->setText(QString("%1 - %2").arg(artist).arg(title));
-                    }
+                    updateLabel();
                 }
 
                 if (!MetaDataManager::isAvailable(url()))
@@ -411,8 +410,16 @@ void Player::stateChanged(QGst::State state)
 {
     const PlayerState translatedState = translateState(state);
 
+    if (translatedState == PlayingState && m_restartPosition > 0)
+    {
+        QGst::SeekEventPtr event = QGst::SeekEvent::create(1.0, QGst::FormatTime, QGst::SeekFlagFlush, QGst::SeekTypeSet, QGst::ClockTime(m_restartPosition), QGst::SeekTypeNone, QGst::ClockTime::None);
+
+        m_restartPosition = 0;
+
+        m_pipeline->sendEvent(event);
+    }
+
     mediaChanged();
-    updateVideo();
 
     if (isVideoAvailable() && translatedState == PlayingState && !m_inhibitNotifications)
     {
@@ -682,6 +689,44 @@ void Player::changeAngle(QAction *action)
 //     m_mediaController->setCurrentAngle(action->data().toInt());
 }
 
+void Player::updateVideoView()
+{
+    m_fullScreenVideoWidget->resize(m_fullScreenWidget->size());
+
+    m_fullScreenUi.graphicsView->centerOn(m_fullScreenVideoWidget);
+    m_fullScreenUi.graphicsView->scene()->setSceneRect(m_fullScreenWidget->rect());
+}
+
+void Player::updateLabel()
+{
+    if (!m_fullScreenWidget)
+    {
+        return;
+    }
+
+    const QString artist = m_metaData[ArtistKey];
+    const QString title = m_metaData[TitleKey];
+    QString text;
+
+    if (artist.isEmpty() || title.isEmpty())
+    {
+        text = (artist.isEmpty()?title:artist);
+    }
+    else
+    {
+        text = QString("%1 - %2").arg(artist).arg(title);
+    }
+
+    if (text.isEmpty())
+    {
+        text = metaData(TitleKey);
+    }
+
+    m_fullScreenUi.titleLabel->setText(text);
+
+    m_fullScreenWidget->setWindowTitle(text);
+}
+
 void Player::updateSliders()
 {
     disconnect(m_brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
@@ -718,12 +763,22 @@ void Player::registerAppletVideoWidget(VideoWidget *videoWidget)
 {
     m_appletVideoWidget = videoWidget;
     m_appletVideoWidget->installEventFilter(this);
+
+    if (m_videoMode)
+    {
+        setVideoMode(m_videoMode, true);
+    }
 }
 
 void Player::registerDialogVideoWidget(VideoWidget *videoWidget)
 {
     m_dialogVideoWidget = videoWidget;
     m_dialogVideoWidget->installEventFilter(this);
+
+    if (!m_videoMode)
+    {
+        setVideoMode(m_videoMode, true);
+    }
 }
 
 void Player::seekBackward()
@@ -834,8 +889,6 @@ void Player::stop()
 
     updateVideo();
 
-//    m_videoWidget->update();
-
     m_metaData.clear();
 
     m_url = KUrl();
@@ -865,6 +918,8 @@ void Player::setUrl(const KUrl &url)
 
         if (m_pipeline)
         {
+            m_pipeline->setProperty("video-sink", QGst::ElementFactory::make("fakesink"));
+
             QGst::BusPtr bus = m_pipeline->bus();
             bus->addSignalWatch();
 
@@ -1002,48 +1057,87 @@ void Player::setAspectRatio(AspectRatio ratio)
     Q_EMIT modified();
 }
 
-void Player::setVideoMode(bool mode)
+void Player::setVideoMode(bool mode, bool force)
 {
+    if (!m_pipeline || (m_videoMode == mode && !force))
+    {
+        return;
+    }
+
     m_videoMode = mode;
 
-//     m_videoWidget->setParent(NULL);
-//     m_videoWidget->hide();
-//
-//     if (isFullScreen())
-//     {
-//         m_appletVideoWidget->setVideoWidget(NULL, false);
-//
-//         m_dialogVideoWidget->setVideoWidget(NULL, false);
-//
-//         m_fullScreenUi.videoWidget->layout()->addWidget(m_videoWidget);
-//
-//         m_videoWidget->show();
-//     }
-//     else
-//     {
-//         if (m_fullScreenWidget)
-//         {
-//             m_fullScreenUi.videoWidget->layout()->removeWidget(m_videoWidget);
-//         }
-//
-//         const bool mode = (state() != StoppedState && isVideoAvailable());
-//
-//         if (m_videoMode)
-//         {
-//             m_dialogVideoWidget->setVideoWidget(NULL, false);
-//
-//             m_appletVideoWidget->setVideoWidget(m_videoWidget, mode);
-//         }
-//         else
-//         {
-//             m_appletVideoWidget->setVideoWidget(NULL, false);
-//             m_appletVideoWidget->hide();
-//
-//             m_dialogVideoWidget->setVideoWidget(m_videoWidget, mode);
-//         }
-//     }
-//
-//     m_videoWidget->update();
+    QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
+
+    m_pipeline->query(query);
+
+    m_restartPosition = query->position();
+
+    const bool restart = (state() != StoppedState);
+
+    if (restart)
+    {
+        m_pipeline->setState(QGst::StateNull);
+    }
+
+    if (isFullScreen())
+    {
+        if (m_appletVideoWidget)
+        {
+            m_appletVideoWidget->setPipeline(QGst::PipelinePtr());
+        }
+
+        if (m_dialogVideoWidget)
+        {
+            m_dialogVideoWidget->setPipeline(QGst::PipelinePtr());
+        }
+
+        m_fullScreenVideoWidget->setPipeline(m_pipeline);
+    }
+    else
+    {
+        if (m_fullScreenWidget)
+        {
+            m_fullScreenVideoWidget->setPipeline(QGst::PipelinePtr());
+        }
+
+        if (m_videoMode)
+        {
+            if (m_dialogVideoWidget)
+            {
+                m_dialogVideoWidget->setPipeline(QGst::PipelinePtr());
+            }
+
+            if (m_appletVideoWidget)
+            {
+                m_appletVideoWidget->setPipeline(m_pipeline);
+            }
+            else
+            {
+                m_pipeline->setProperty("video-sink", QGst::ElementFactory::make("fakesink"));
+            }
+        }
+        else
+        {
+            if (m_appletVideoWidget)
+            {
+                m_appletVideoWidget->setPipeline(QGst::PipelinePtr());
+            }
+
+            if (m_dialogVideoWidget)
+            {
+                m_dialogVideoWidget->setPipeline(m_pipeline);
+            }
+            else
+            {
+                m_pipeline->setProperty("video-sink", QGst::ElementFactory::make("fakesink"));
+            }
+        }
+    }
+
+    if (restart)
+    {
+        m_pipeline->setState(QGst::StatePlaying);
+    }
 }
 
 void Player::setFullScreen(bool enable)
@@ -1062,6 +1156,13 @@ void Player::setFullScreen(bool enable)
             m_fullScreenWidget->installEventFilter(parent());
 
             m_fullScreenUi.setupUi(m_fullScreenWidget);
+
+            m_fullScreenVideoWidget = new VideoWidget(m_fullScreenUi.graphicsView, qobject_cast<QGraphicsWidget*>(parent()));
+            m_fullScreenVideoWidget->installEventFilter(this);
+
+            m_fullScreenUi.graphicsView->setScene(new QGraphicsScene(this));
+            m_fullScreenUi.graphicsView->scene()->addItem(m_fullScreenVideoWidget);
+            m_fullScreenUi.graphicsView->installEventFilter(this);
             m_fullScreenUi.playPauseButton->setDefaultAction(m_actions[PlayPauseAction]);
             m_fullScreenUi.stopButton->setDefaultAction(m_actions[StopAction]);
             m_fullScreenUi.playPreviousButton->setDefaultAction(m_actions[PlayPreviousAction]);
@@ -1070,18 +1171,12 @@ void Player::setFullScreen(bool enable)
             m_fullScreenUi.muteButton->setDefaultAction(m_actions[MuteAction]);
             m_fullScreenUi.volumeSlider->setPlayer(this);
             m_fullScreenUi.fullScreenButton->setDefaultAction(m_actions[FullScreenAction]);
-            m_fullScreenUi.titleLabel->setText(metaData(TitleKey));
-            m_fullScreenUi.videoWidget->installEventFilter(this);
 
             connect(this, SIGNAL(destroyed()), m_fullScreenWidget, SLOT(deleteLater()));
         }
 
-        Q_EMIT fullScreenChanged(true);
-
         m_fullScreenWidget->showFullScreen();
-        m_fullScreenWidget->setWindowTitle(metaData(TitleKey));
 
-        m_fullScreenUi.titleLabel->setText(metaData(TitleKey));
         m_fullScreenUi.titleLabel->hide();
         m_fullScreenUi.controlsWidget->hide();
 
@@ -1089,12 +1184,14 @@ void Player::setFullScreen(bool enable)
         m_actions[FullScreenAction]->setText(i18n("Exit Full Screen Mode"));
 
         m_hideFullScreenControlsTimer = startTimer(2000);
+
+        m_setupFullScreenTimer = startTimer(250);
+
+        Q_EMIT fullScreenChanged(true);
     }
     else
     {
         killTimer(m_hideFullScreenControlsTimer);
-
-        Q_EMIT fullScreenChanged(false);
 
         m_fullScreenWidget->showNormal();
         m_fullScreenWidget->hide();
@@ -1102,10 +1199,12 @@ void Player::setFullScreen(bool enable)
         m_actions[FullScreenAction]->setIcon(KIcon("view-fullscreen"));
         m_actions[FullScreenAction]->setText(i18n("Full Screen Mode"));
 
-        m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
+        m_fullScreenUi.graphicsView->setCursor(QCursor(Qt::ArrowCursor));
+
+        Q_EMIT fullScreenChanged(false);
     }
 
-    setVideoMode(m_videoMode);
+    setVideoMode(m_videoMode, true);
 }
 
 void Player::setInhibitNotifications(bool inhibit)
@@ -1326,23 +1425,23 @@ bool Player::isFullScreen() const
 
 bool Player::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::MouseMove && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
+    if (event->type() == QEvent::GraphicsSceneHoverMove && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
     {
         killTimer(m_hideFullScreenControlsTimer);
 
         m_hideFullScreenControlsTimer = startTimer(2000);
 
-        m_fullScreenUi.videoWidget->setCursor(QCursor(Qt::ArrowCursor));
+        m_fullScreenUi.graphicsView->setCursor(QCursor(Qt::ArrowCursor));
         m_fullScreenUi.titleLabel->show();
         m_fullScreenUi.controlsWidget->show();
     }
-    else if (event->type() == QEvent::ContextMenu || event->type() == QEvent::GraphicsSceneContextMenu)
+    else if (event->type() == QEvent::GraphicsSceneContextMenu)
     {
         Q_EMIT requestMenu(QCursor::pos());
 
         return true;
     }
-    else if ((event->type() == QEvent::MouseButtonDblClick && static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton) || (event->type() == QEvent::GraphicsSceneMouseDoubleClick && static_cast<QGraphicsSceneMouseEvent*>(event)->button() == Qt::LeftButton))
+    else if (event->type() == QEvent::GraphicsSceneMouseDoubleClick && static_cast<QGraphicsSceneMouseEvent*>(event)->button() == Qt::LeftButton)
     {
         m_actions[FullScreenAction]->trigger();
 
@@ -1352,7 +1451,7 @@ bool Player::eventFilter(QObject *object, QEvent *event)
 
         return true;
     }
-    else if ((event->type() == QEvent::MouseButtonPress && static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton) || (event->type() == QEvent::GraphicsSceneMousePress && static_cast<QGraphicsSceneMouseEvent*>(event)->button() == Qt::LeftButton))
+    else if (event->type() == QEvent::GraphicsSceneMousePress && static_cast<QGraphicsSceneMouseEvent*>(event)->button() == Qt::LeftButton)
     {
         if (m_playPauseTimer == 0)
         {
@@ -1372,6 +1471,17 @@ bool Player::eventFilter(QObject *object, QEvent *event)
         m_playlist->addTracks(KUrl::List::fromMimeData(static_cast<QDropEvent*>(event)->mimeData()), -1, PlayReaction);
 
         return true;
+    }
+    else if (object == m_fullScreenUi.graphicsView)
+    {
+        if (event->type() == QEvent::Resize)
+        {
+            updateVideoView();
+        }
+        else if (event->type() == QEvent::GraphicsSceneWheel)
+        {
+            return false;
+        }
     }
 
     return QObject::eventFilter(object, event);
