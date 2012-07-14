@@ -241,7 +241,6 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
     connect(this, SIGNAL(videoAvailableChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
     connect(this, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
-//     connect(m_mediaObject, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
 //     connect(m_mediaController, SIGNAL(availableChaptersChanged(int)), this, SLOT(availableChaptersChanged()));
 //     connect(m_mediaController, SIGNAL(availableAudioChannelsChanged()), this, SLOT(availableAudioChannelsChanged()));
 //     connect(m_mediaController, SIGNAL(availableSubtitlesChanged()), this, SLOT(availableSubtitlesChanged()));
@@ -847,6 +846,7 @@ void Player::play()
         m_pipeline->setState(QGst::StatePlaying);
 
         Q_EMIT volumeChanged(volume());
+        Q_EMIT seekableChanged(isSeekable());
     }
 }
 
@@ -885,6 +885,7 @@ void Player::stop()
         m_pipeline->setState(QGst::StateNull);
 
         Q_EMIT videoAvailableChanged(false);
+        Q_EMIT seekableChanged(false);
     }
 
     updateVideo();
