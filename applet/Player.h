@@ -52,10 +52,10 @@ class Player : public QObject
 
         void registerAppletVideoWidget(VideoWidget *videoWidget);
         void registerDialogVideoWidget(VideoWidget *videoWidget);
-        QStringList supportedMimeTypes() const;
-        QString metaData(MetaDataKey key, bool substitute = true) const;
         PlaylistModel* playlist() const;
         QAction* action(PlayerAction action) const;
+        QStringList supportedMimeTypes() const;
+        QString metaData(MetaDataKey key, bool substitute = true) const;
         QVariantMap metaData() const;
         KUrl url() const;
         qint64 duration() const;
@@ -104,8 +104,9 @@ class Player : public QObject
 
     protected:
         void timerEvent(QTimerEvent *event);
-        void busMessage(const QGst::MessagePtr &message);
-        void videoChanged();
+        void handleBusMessage(const QGst::MessagePtr &message);
+        void handleVideoChange();
+        void handleSourceSetup();
         void stateChanged(QGst::State state);
         PlayerState translateState(QGst::State state) const;
 
@@ -125,7 +126,6 @@ class Player : public QObject
         void changeAngle(QAction *action);
         void trackFinished();
         void updateSliders();
-        void updateMetaData();
         void updateVideo();
         void setUrl(const KUrl &url);
 
@@ -145,6 +145,7 @@ class Player : public QObject
         QActionGroup *m_anglesGroup;
         QPointer<PlaylistModel> m_playlist;
         QMap<PlayerAction, QAction*> m_actions;
+        QMap<MetaDataKey, QString> m_metaData;
         KUrl m_url;
         AspectRatio m_aspectRatio;
         int m_stopSleepCookie;

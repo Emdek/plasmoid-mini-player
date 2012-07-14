@@ -34,6 +34,7 @@
 #include <QGst/Init>
 #include <QGst/Event>
 #include <QGst/Query>
+#include <QGst/TagList>
 #include <QGst/ClockTime>
 #include <QGst/ElementFactory>
 
@@ -240,8 +241,6 @@ Player::Player(QObject *parent) : QObject(parent),
     connect(m_actions[PlayPauseAction], SIGNAL(triggered()), this, SLOT(playPause()));
     connect(m_actions[StopAction], SIGNAL(triggered()), this, SLOT(stop()));
     connect(m_actions[MuteAction], SIGNAL(toggled(bool)), this, SLOT(setAudioMuted(bool)));
-//     connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SIGNAL(metaDataChanged()));
-//     connect(m_mediaObject, SIGNAL(metaDataChanged()), this, SLOT(updateMetaData()));
     connect(this, SIGNAL(videoAvailableChanged(bool)), m_actions[VideoMenuAction], SLOT(setEnabled(bool)));
     connect(this, SIGNAL(videoAvailableChanged(bool)), m_actions[FullScreenAction], SLOT(setEnabled(bool)));
 //     connect(m_mediaObject, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
@@ -285,10 +284,92 @@ void Player::timerEvent(QTimerEvent *event)
     killTimer(event->timerId());
 }
 
-void Player::busMessage(const QGst::MessagePtr &message)
+void Player::handleBusMessage(const QGst::MessagePtr &message)
 {
     switch (message->type())
     {
+        case QGst::MessageTag:
+            if (m_pipeline)
+            {
+                const QGst::TagList tags = message.staticCast<QGst::TagMessage>()->taglist();
+
+                if (tags.isEmpty())
+                {
+                    break;
+                }
+
+                QMap<MetaDataKey, QString> metaData;
+
+                if (!tags.artist().isEmpty())
+                {
+                    metaData[ArtistKey] = tags.artist();
+                }
+
+                if (!tags.title().isEmpty())
+                {
+                    metaData[TitleKey] = tags.title();
+                }
+
+                if (!tags.tagValue("ALBUM").toString().isEmpty())
+                {
+                    metaData[AlbumKey] = tags.tagValue("ALBUM").toString();
+                }
+
+                if (tags.trackNumber() > 0)
+                {
+                    metaData[TrackNumberKey] = QString::number(tags.trackNumber());
+                }
+
+                if (!tags.genre().isEmpty())
+                {
+                    metaData[GenreKey] = tags.genre();
+                }
+
+                if (!tags.description().isEmpty())
+                {
+                    m_metaData[DescriptionKey] = tags.description();
+                }
+
+                if (tags.date().isValid())
+                {
+                    metaData[DateKey] = tags.date().toString();
+                }
+
+                if (metaData.isEmpty())
+                {
+                    break;
+                }
+
+                m_metaData = metaData;
+
+                if (isFullScreen())
+                {
+                    const QString artist = m_metaData[ArtistKey];
+                    const QString title = m_metaData[TitleKey];
+
+                    if (artist.isEmpty() || title.isEmpty())
+                    {
+                        m_fullScreenUi.titleLabel->setText(artist.isEmpty()?title:artist);
+                    }
+                    else
+                    {
+                        m_fullScreenUi.titleLabel->setText(QString("%1 - %2").arg(artist).arg(title));
+                    }
+                }
+
+                if (!MetaDataManager::isAvailable(url()), true)
+                {
+                    Track track;
+                    track.keys = m_metaData;
+                    track.duration = duration();
+
+                    MetaDataManager::setMetaData(url(), track);
+                }
+
+                Q_EMIT metaDataChanged();
+            }
+
+            break;
         case QGst::MessageEos:
             stop();
             trackFinished();
@@ -356,7 +437,7 @@ void Player::stateChanged(QGst::State state)
     Q_EMIT audioAvailableChanged(translatedState != StoppedState);
 }
 
-void Player::videoChanged()
+void Player::handleVideoChange()
 {
     updateVideo();
 
@@ -628,39 +709,6 @@ void Player::updateSliders()
     connect(m_saturationSlider, SIGNAL(valueChanged(int)), this, SLOT(setSaturation(int)));
 }
 
-void Player::updateMetaData()
-{
-    if (isFullScreen())
-    {
-        const QString artist = metaData(ArtistKey, false);
-        const QString title = metaData(TitleKey, false);
-
-        if (artist.isEmpty() || title.isEmpty())
-        {
-            m_fullScreenUi.titleLabel->setText(artist.isEmpty()?title:artist);
-        }
-        else
-        {
-            m_fullScreenUi.titleLabel->setText(QString("%1 - %2").arg(artist).arg(title));
-        }
-    }
-
-    if (!MetaDataManager::isAvailable(url()), true)
-    {
-        Track track;
-        track.keys[ArtistKey] = metaData(ArtistKey, false);
-        track.keys[TitleKey] = metaData(TitleKey, false);
-        track.keys[AlbumKey] = metaData(AlbumKey, false);
-        track.keys[TrackNumberKey] = metaData(TrackNumberKey, false);
-        track.keys[GenreKey] = metaData(GenreKey, false);
-        track.keys[DescriptionKey] = metaData(DescriptionKey, false);
-        track.keys[DateKey] = metaData(DateKey, false);
-        track.duration = duration();
-
-        MetaDataManager::setMetaData(url(), track);
-    }
-}
-
 void Player::updateVideo()
 {
     m_actions[FullScreenAction]->setEnabled(isVideoAvailable());
@@ -793,6 +841,8 @@ void Player::stop()
         Q_EMIT videoAvailableChanged(false);
     }
 
+    m_metaData.clear();
+
     m_url = KUrl();
 }
 
@@ -823,8 +873,8 @@ void Player::setUrl(const KUrl &url)
             QGst::BusPtr bus = m_pipeline->bus();
             bus->addSignalWatch();
 
-            QGlib::connect(bus, "message", this, &Player::busMessage);
-            QGlib::connect(m_pipeline, "video-changed", this, &Player::videoChanged);
+            QGlib::connect(bus, "message", this, &Player::handleBusMessage);
+            QGlib::connect(m_pipeline, "video-changed", this, &Player::handleVideoChange);
         }
     }
 
@@ -832,9 +882,9 @@ void Player::setUrl(const KUrl &url)
     {
         stop();
 
-        m_pipeline->setProperty("uri", url.url());
-
         m_url = url;
+
+        m_pipeline->setProperty("uri", url.url());
     }
 }
 
@@ -1109,6 +1159,16 @@ void Player::setSaturation(int value)
     Q_EMIT modified();
 }
 
+PlaylistModel* Player::playlist() const
+{
+    return m_playlist;
+}
+
+QAction* Player::action(PlayerAction action) const
+{
+    return (m_actions.contains(action)?m_actions[action]:NULL);
+}
+
 QStringList Player::supportedMimeTypes() const
 {
     QStringList mimeTypes;
@@ -1119,24 +1179,14 @@ QStringList Player::supportedMimeTypes() const
 
 QString Player::metaData(MetaDataKey key, bool substitute) const
 {
-//     QStringList values = m_mediaObject->metaData(m_keys[key]);
-//
-//     if (values.isEmpty() || values.first().isEmpty())
-//     {
+    const QString value = m_metaData[key];
+
+    if (value.isEmpty())
+    {
         return MetaDataManager::metaData(url(), key, substitute);
-//     }
+    }
 
-//     return values.first();
-}
-
-PlaylistModel* Player::playlist() const
-{
-    return m_playlist;
-}
-
-QAction* Player::action(PlayerAction action) const
-{
-    return (m_actions.contains(action)?m_actions[action]:NULL);
+    return value;
 }
 
 QVariantMap Player::metaData() const
