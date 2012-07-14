@@ -763,7 +763,18 @@ void Applet::updateToolTip()
 
     if (m_player->state() != StoppedState)
     {
-        data.setMainText(QString("%1 - %2").arg(m_player->metaData(ArtistKey)).arg(m_player->metaData(TitleKey)));
+        const QString artist = m_player->metaData(ArtistKey, false);
+        const QString title = m_player->metaData(TitleKey, false);
+
+        if (artist.isEmpty() || title.isEmpty())
+        {
+            data.setMainText(artist.isEmpty()?title:artist);
+        }
+        else
+        {
+            data.setMainText(QString("%1 - %2").arg(artist).arg(title));
+        }
+
         data.setSubText((m_player->duration() > 0)?i18n("Position: %1 / %2", MetaDataManager::timeToString(m_player->position()), MetaDataManager::timeToString(m_player->duration())):"");
         data.setImage(MetaDataManager::icon(m_player->url()).pixmap(IconSize(KIconLoader::Desktop)));
         data.setAutohide(true);
