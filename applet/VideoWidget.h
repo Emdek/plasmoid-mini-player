@@ -27,7 +27,8 @@
 
 #include <QGst/Pipeline>
 #include <QGst/Ui/GraphicsVideoWidget>
-#include <QGst/Ui/GraphicsVideoSurface>
+
+#include "Constants.h"
 
 namespace MiniPlayer
 {
@@ -41,14 +42,18 @@ class VideoWidget : public QGraphicsWidget
     public:
         explicit VideoWidget(QGraphicsWidget *parent);
 
+    public Q_SLOTS:
+        void setAspectRatio(AspectRatio aspectRatio);
         void setPipeline(QGst::PipelinePtr pipeline);
 
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
 
     private:
+        QGst::PipelinePtr m_pipeline;
         QGst::Ui::GraphicsVideoWidget *m_videoWidget;
         QGraphicsPixmapItem *m_iconItem;
+        AspectRatio m_aspectRatio;
 };
 
 }

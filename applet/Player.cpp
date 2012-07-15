@@ -446,6 +446,11 @@ void Player::stateChanged(QGst::State state)
         m_fullScreenUi.titleLabel->clear();
     }
 
+    if (m_currentVideoWidget)
+    {
+        m_currentVideoWidget->setAspectRatio(m_aspectRatio);
+    }
+
     Q_EMIT stateChanged(translatedState);
     Q_EMIT audioAvailableChanged(translatedState != StoppedState);
 }
@@ -765,7 +770,10 @@ void Player::updateVideo()
 void Player::registerAppletVideoWidget(VideoWidget *videoWidget)
 {
     m_appletVideoWidget = videoWidget;
+    m_appletVideoWidget->setAspectRatio(aspectRatio());
     m_appletVideoWidget->installEventFilter(this);
+
+    connect(this, SIGNAL(aspectRatioChanged(AspectRatio)), m_appletVideoWidget, SLOT(setAspectRatio(AspectRatio)));
 
     if (m_videoMode)
     {
@@ -776,7 +784,10 @@ void Player::registerAppletVideoWidget(VideoWidget *videoWidget)
 void Player::registerDialogVideoWidget(VideoWidget *videoWidget)
 {
     m_dialogVideoWidget = videoWidget;
+    m_dialogVideoWidget->setAspectRatio(aspectRatio());
     m_dialogVideoWidget->installEventFilter(this);
+
+    connect(this, SIGNAL(aspectRatioChanged(AspectRatio)), m_dialogVideoWidget, SLOT(setAspectRatio(AspectRatio)));
 
     if (!m_videoMode)
     {
@@ -1033,35 +1044,14 @@ void Player::setPlaybackMode(PlaybackMode mode)
     }
 }
 
-void Player::setAspectRatio(AspectRatio ratio)
+void Player::setAspectRatio(AspectRatio aspectRatio)
 {
-    m_aspectRatio = ratio;
+    m_aspectRatio = aspectRatio;
 
-//     switch (ratio)
-//     {
-//         case Ratio4_3:
-//             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio4_3);
-//
-//             break;
-//         case Ratio16_9:
-//             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatio16_9);
-//
-//             break;
-//         case FitToRatio:
-//             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioWidget);
-//
-//             break;
-//         default:
-//             m_videoWidget->setAspectRatio(Phonon::VideoWidget::AspectRatioAuto);
-//
-//             ratio = AutomaticRatio;
-//
-//             break;
-//     }
-
-    m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(ratio))->setChecked(true);
+    m_actions[AspectRatioMenuAction]->menu()->actions().at(static_cast<int>(aspectRatio))->setChecked(true);
 
     Q_EMIT modified();
+    Q_EMIT aspectRatioChanged(m_aspectRatio);
 }
 
 void Player::setVideoMode(bool mode, bool force)
@@ -1132,6 +1122,7 @@ void Player::setFullScreen(bool enable)
 
             m_fullScreenVideoWidget = new VideoWidget(qobject_cast<QGraphicsWidget*>(parent()));
             m_fullScreenVideoWidget->installEventFilter(this);
+            m_fullScreenVideoWidget->installEventFilter(parent());
 
             m_fullScreenUi.graphicsView->setScene(new QGraphicsScene(this));
             m_fullScreenUi.graphicsView->scene()->addItem(m_fullScreenVideoWidget);
@@ -1145,6 +1136,7 @@ void Player::setFullScreen(bool enable)
             m_fullScreenUi.volumeSlider->setPlayer(this);
             m_fullScreenUi.fullScreenButton->setDefaultAction(m_actions[FullScreenAction]);
 
+            connect(this, SIGNAL(aspectRatioChanged(AspectRatio)), m_fullScreenVideoWidget, SLOT(setAspectRatio(AspectRatio)));
             connect(this, SIGNAL(destroyed()), m_fullScreenWidget, SLOT(deleteLater()));
         }
 

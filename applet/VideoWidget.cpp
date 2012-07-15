@@ -23,6 +23,9 @@
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QGraphicsSceneResizeEvent>
 
+#include <QGst/Buffer>
+#include <QGst/Ui/GraphicsVideoSurface>
+
 #include <KIcon>
 #include <KIconLoader>
 
@@ -55,10 +58,69 @@ void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 
     m_iconItem->setScale(scale);
     m_iconItem->setPos(((event->newSize().width() - (m_iconItem->boundingRect().width() * scale)) / 2), ((event->newSize().height() - (m_iconItem->boundingRect().height() * scale)) / 2));
+
+    setAspectRatio(m_aspectRatio);
+}
+
+void VideoWidget::setAspectRatio(AspectRatio aspectRatio)
+{
+    m_aspectRatio = aspectRatio;
+
+    if (!m_videoWidget || !m_pipeline)
+    {
+        return;
+    }
+
+    QSizeF ratio;
+
+    switch (m_aspectRatio)
+    {
+        case AutomaticRatio:
+            if (m_pipeline)
+            {
+                QGst::BufferPtr buffer = m_pipeline->property("frame").get<QGst::BufferPtr>();
+
+                if (buffer)
+                {
+                    QRegExp expression("width=\\(int\\)(\\d+).+height=\\(int\\)(\\d+)");
+                    expression.indexIn(buffer->caps()->toString());
+
+                    ratio = QSizeF(expression.cap(1).toInt(), expression.cap(2).toInt());
+                }
+            }
+
+            break;
+        case Ratio4_3:
+            ratio = QSizeF(4, 3);
+
+            break;
+        case Ratio16_9:
+            ratio = QSizeF(16, 9);
+
+            break;
+        default:
+            layout()->setContentsMargins(0, 0, 0, 0);
+
+            return;
+    }
+
+    QSizeF size(boundingRect().width(), (boundingRect().width() * (ratio.height() / ratio.width())));
+
+    if (size.height() > boundingRect().height())
+    {
+        size.setHeight(boundingRect().height());
+        size.setWidth(boundingRect().height() * (ratio.width() / ratio.height()));
+    }
+
+    const QSizeF margins = ((this->size() - size) / 2);
+
+    layout()->setContentsMargins(margins.width(), margins.height(), margins.width(), margins.height());
 }
 
 void VideoWidget::setPipeline(QGst::PipelinePtr pipeline)
 {
+    m_pipeline = pipeline;
+
     if (pipeline && !m_videoWidget)
     {
         QGraphicsView *parentView = NULL;
@@ -95,6 +157,9 @@ void VideoWidget::setPipeline(QGst::PipelinePtr pipeline)
             QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(this);
             layout->setContentsMargins(0, 0, 0, 0);
             layout->addItem(m_videoWidget);
+            layout->setAlignment(m_videoWidget, (Qt::AlignHCenter | Qt::AlignVCenter));
+
+            setAspectRatio(m_aspectRatio);
         }
         else
         {

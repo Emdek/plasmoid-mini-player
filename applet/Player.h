@@ -93,7 +93,7 @@ class Player : public QObject
         void setVolume(int volume);
         void setAudioMuted(bool muted);
         void setPlaybackMode(PlaybackMode mode);
-        void setAspectRatio(AspectRatio ratio);
+        void setAspectRatio(AspectRatio aspectRatio);
         void setVideoMode(bool mode, bool force = false);
         void setFullScreen(bool enable);
         void setInhibitNotifications(bool inhibit);
@@ -178,6 +178,7 @@ class Player : public QObject
         void seekableChanged(bool seekable);
         void stateChanged(PlayerState state);
         void playbackModeChanged(PlaybackMode mode);
+        void aspectRatioChanged(AspectRatio ratio);
         void errorOccured(QString error);
         void requestMenu(QPoint position);
         void requestDevicePlaylist(QString udi, KUrl::List tracks);
