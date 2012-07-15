@@ -126,9 +126,6 @@
         </disabled>
        </palette>
       </property>
-      <property name="mouseTracking">
-       <bool>true</bool>
-      </property>
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>

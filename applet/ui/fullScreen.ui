@@ -10,12 +10,6 @@
     <height>282</height>
    </rect>
   </property>
-  <property name="mouseTracking">
-   <bool>true</bool>
-  </property>
-  <property name="acceptDrops">
-   <bool>true</bool>
-  </property>
   <property name="windowTitle">
    <string>Full Screen</string>
   </property>
@@ -150,9 +144,6 @@
         </colorrole>
        </disabled>
       </palette>
-     </property>
-     <property name="mouseTracking">
-      <bool>true</bool>
      </property>
      <property name="autoFillBackground">
       <bool>true</bool>

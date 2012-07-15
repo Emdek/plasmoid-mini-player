@@ -63,6 +63,7 @@ Player::Player(QObject *parent) : QObject(parent),
     m_playPauseTimer(0),
     m_stopSleepCookie(0),
     m_inhibitNotifications(false),
+    m_ignoreMove(false),
     m_videoMode(false)
 {
     QGst::init();
@@ -267,6 +268,8 @@ void Player::timerEvent(QTimerEvent *event)
     {
         if (m_fullScreenWidget && !m_fullScreenUi.controlsWidget->underMouse())
         {
+            m_ignoreMove = true;
+
             m_fullScreenUi.graphicsView->setCursor(QCursor(Qt::BlankCursor));
             m_fullScreenUi.titleLabel->hide();
             m_fullScreenUi.controlsWidget->hide();
@@ -1426,15 +1429,22 @@ bool Player::isFullScreen() const
 
 bool Player::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::GraphicsSceneHoverMove && m_fullScreenWidget && m_fullScreenWidget->isFullScreen())
+    if (event->type() == QEvent::GraphicsSceneHoverMove && isFullScreen())
     {
-        killTimer(m_hideFullScreenControlsTimer);
+        if (m_ignoreMove)
+        {
+            m_ignoreMove = false;
+        }
+        else
+        {
+            killTimer(m_hideFullScreenControlsTimer);
 
-        m_hideFullScreenControlsTimer = startTimer(2000);
+            m_hideFullScreenControlsTimer = startTimer(2000);
 
-        m_fullScreenUi.graphicsView->setCursor(QCursor(Qt::ArrowCursor));
-        m_fullScreenUi.titleLabel->show();
-        m_fullScreenUi.controlsWidget->show();
+            m_fullScreenUi.graphicsView->setCursor(QCursor(Qt::ArrowCursor));
+            m_fullScreenUi.titleLabel->show();
+            m_fullScreenUi.controlsWidget->show();
+        }
     }
     else if (event->type() == QEvent::GraphicsSceneContextMenu)
     {

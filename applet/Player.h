@@ -155,6 +155,7 @@ class Player : public QObject
         int m_playPauseTimer;
         int m_stopSleepCookie;
         bool m_inhibitNotifications;
+        bool m_ignoreMove;
         bool m_videoMode;
         Ui::fullScreen m_fullScreenUi;
 
