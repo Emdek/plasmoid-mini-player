@@ -93,6 +93,7 @@ void VideoWidget::setPipeline(QGst::PipelinePtr pipeline)
             m_videoWidget->setSurface(new QGst::Ui::GraphicsVideoSurface(parentView));
 
             QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(this);
+            layout->setContentsMargins(0, 0, 0, 0);
             layout->addItem(m_videoWidget);
         }
         else

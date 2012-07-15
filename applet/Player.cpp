@@ -1483,16 +1483,15 @@ bool Player::eventFilter(QObject *object, QEvent *event)
 
         return true;
     }
-    else if (object == m_fullScreenUi.graphicsView)
+    else if (event->type() == QEvent::Resize && object == m_fullScreenUi.graphicsView)
     {
-        if (event->type() == QEvent::Resize)
-        {
-            updateVideoView();
-        }
-        else if (event->type() == QEvent::GraphicsSceneWheel)
-        {
-            return false;
-        }
+        updateVideoView();
+    }
+    else if (event->type() == QEvent::GraphicsSceneWheel)
+    {
+        setPosition(position() + (qMin((duration() / 30), (qint64) 5000) * static_cast<QGraphicsSceneWheelEvent*>(event)->delta() / 120));
+
+        return false;
     }
 
     return QObject::eventFilter(object, event);
