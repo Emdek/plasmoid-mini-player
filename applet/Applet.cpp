@@ -103,7 +103,33 @@ void Applet::init()
         return;
     }
 
-    m_videoWidget = new VideoWidget(scene()->views().first(), this);
+    QGraphicsView *parentView = NULL;
+    QGraphicsView *possibleParentView = NULL;
+    const QList<QGraphicsView*> views = (scene()?scene()->views():QList<QGraphicsView*>());
+
+    for (int i = 0; i < views.count(); ++i)
+    {
+        if (views.at(i)->sceneRect().intersects(sceneBoundingRect()) || views.at(i)->sceneRect().contains(scenePos()))
+        {
+            if (views.at(i)->isActiveWindow())
+            {
+                parentView = views.at(i);
+
+                break;
+            }
+            else
+            {
+                possibleParentView = views.at(i);
+            }
+        }
+    }
+
+    if (!parentView)
+    {
+        parentView = possibleParentView;
+    }
+
+    m_videoWidget = new VideoWidget(parentView, this);
 
     m_player->registerAppletVideoWidget(m_videoWidget);
 
