@@ -29,18 +29,10 @@
 namespace MiniPlayer
 {
 
-VideoWidget::VideoWidget(QGraphicsView *view, QGraphicsWidget *parent) : QGraphicsWidget(parent),
-    m_videoWidget(new QGst::Ui::GraphicsVideoWidget(this)),
+VideoWidget::VideoWidget(QGraphicsWidget *parent) : QGraphicsWidget(parent),
+    m_videoWidget(NULL),
     m_iconItem(new QGraphicsPixmapItem(KIcon("applications-multimedia").pixmap(KIconLoader::SizeEnormous), this))
 {
-    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(this);
-    layout->addItem(m_videoWidget);
-
-    if (view)
-    {
-        m_videoWidget->setSurface(new QGst::Ui::GraphicsVideoSurface(view));
-    }
-
     QPalette palette = this->palette();
     palette.setColor(QPalette::Window, Qt::black);
     palette.setColor(QPalette::Base, Qt::black);
@@ -51,6 +43,7 @@ VideoWidget::VideoWidget(QGraphicsView *view, QGraphicsWidget *parent) : QGraphi
     setAcceptHoverEvents(true);
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
+    m_iconItem->show();
     m_iconItem->setTransformationMode(Qt::SmoothTransformation);
     m_iconItem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
     m_iconItem->setZValue(100);
@@ -66,7 +59,49 @@ void VideoWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 
 void VideoWidget::setPipeline(QGst::PipelinePtr pipeline)
 {
-    if (pipeline && m_videoWidget->surface())
+    if (pipeline && !m_videoWidget)
+    {
+        QGraphicsView *parentView = NULL;
+        QGraphicsView *possibleParentView = NULL;
+        const QList<QGraphicsView*> views = (scene()?scene()->views():QList<QGraphicsView*>());
+
+        for (int i = 0; i < views.count(); ++i)
+        {
+            if (views.at(i)->sceneRect().intersects(sceneBoundingRect()) || views.at(i)->sceneRect().contains(scenePos()))
+            {
+                if (views.at(i)->isActiveWindow())
+                {
+                    parentView = views.at(i);
+
+                    break;
+                }
+                else
+                {
+                    possibleParentView = views.at(i);
+                }
+            }
+        }
+
+        if (!parentView)
+        {
+            parentView = possibleParentView;
+        }
+
+        if (parentView)
+        {
+            m_videoWidget = new QGst::Ui::GraphicsVideoWidget(this);
+            m_videoWidget->setSurface(new QGst::Ui::GraphicsVideoSurface(parentView));
+
+            QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(this);
+            layout->addItem(m_videoWidget);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    if (pipeline && m_videoWidget)
     {
         m_videoWidget->show();
         m_iconItem->hide();
@@ -76,7 +111,11 @@ void VideoWidget::setPipeline(QGst::PipelinePtr pipeline)
     else
     {
         m_iconItem->show();
-        m_videoWidget->hide();
+
+        if (m_videoWidget)
+        {
+            m_videoWidget->hide();
+        }
     }
 }
 

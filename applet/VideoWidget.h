@@ -39,7 +39,7 @@ class VideoWidget : public QGraphicsWidget
     Q_OBJECT
 
     public:
-        explicit VideoWidget(QGraphicsView *view, QGraphicsWidget *parent);
+        explicit VideoWidget(QGraphicsWidget *parent);
 
         void setPipeline(QGst::PipelinePtr pipeline);
 

@@ -779,7 +779,7 @@ void PlaylistManager::showDialog(const QPoint &position)
 
         m_playlistUi.setupUi(m_dialog);
 
-        m_videoWidget = new VideoWidget(m_playlistUi.graphicsView, qobject_cast<QGraphicsWidget*>(m_player->parent()));
+        m_videoWidget = new VideoWidget(qobject_cast<QGraphicsWidget*>(m_player->parent()));
 
         m_player->registerDialogVideoWidget(m_videoWidget);
 

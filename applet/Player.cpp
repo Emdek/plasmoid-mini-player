@@ -1161,7 +1161,7 @@ void Player::setFullScreen(bool enable)
 
             m_fullScreenUi.setupUi(m_fullScreenWidget);
 
-            m_fullScreenVideoWidget = new VideoWidget(m_fullScreenUi.graphicsView, qobject_cast<QGraphicsWidget*>(parent()));
+            m_fullScreenVideoWidget = new VideoWidget(qobject_cast<QGraphicsWidget*>(parent()));
             m_fullScreenVideoWidget->installEventFilter(this);
 
             m_fullScreenUi.graphicsView->setScene(new QGraphicsScene(this));
