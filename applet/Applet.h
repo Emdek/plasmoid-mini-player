@@ -83,6 +83,7 @@ class Applet : public Plasma::Applet
         void hideToolTip();
         void updateToolTip();
         void updateControls();
+        void updateVideo();
 
     private:
         Player *m_player;

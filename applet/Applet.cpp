@@ -79,8 +79,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
 
     MetaDataManager::createInstance(this);
 
-    m_player->setVideoMode(false);
-
     if (args.count())
     {
         KUrl::List tracks;
@@ -116,8 +114,6 @@ void Applet::init()
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->insertItem(0, m_videoWidget);
     mainLayout->insertItem(1, m_controlsWidget);
-
-    setLayout(mainLayout);
 
     SeekSlider *seekSlider = new SeekSlider;
     seekSlider->setPlayer(m_player);
@@ -181,8 +177,7 @@ void Applet::init()
     controlsLayout->addItem(m_controls["playlist"]);
     controlsLayout->addItem(m_controls["fullScreen"]);
 
-    m_controlsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
-    m_controlsWidget->setLayout(controlsLayout);
+    updateControls();
 
     QTimer::singleShot(100, this, SLOT(configChanged()));
 
@@ -402,10 +397,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 
 void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-    if (m_controlsWidget)
-    {
-        m_player->setVideoMode(!m_controlsWidget->isVisible() || (size().height() - m_controlsWidget->size().height()) > 50);
-    }
+    updateVideo();
 
     Plasma::Applet::resizeEvent(event);
 }
@@ -799,6 +791,11 @@ void Applet::updateToolTip()
 
 void Applet::updateControls()
 {
+    if (!m_controlsWidget)
+    {
+        return;
+    }
+
     QStringList controls;
     controls << "open" << "playPause" << "stop" << "position" << "volume" << "playlist";
     controls = config().readEntry("controls", controls);
@@ -817,11 +814,40 @@ void Applet::updateControls()
         }
     }
 
-    QGraphicsWidget *m_controlsWidget = static_cast<QGraphicsWidget*>(layout()->itemAt(1)->graphicsItem());
     m_controlsWidget->setVisible(visible);
     m_controlsWidget->setMaximumHeight(visible?-1:0);
 
-    m_player->setVideoMode(!visible|| (size().height() - m_controlsWidget->size().height()) > 50);
+    updateVideo();
+}
+
+void Applet::updateVideo()
+{
+    if (!m_controlsWidget)
+    {
+        return;
+    }
+
+    const bool showVideo = (!m_controlsWidget->isVisible() || size().height() > 70);
+
+    if (m_videoWidget)
+    {
+        QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(layout());
+
+        if (showVideo)
+        {
+            mainLayout->insertItem(0, m_videoWidget);
+
+            m_videoWidget->show();
+        }
+        else
+        {
+            m_videoWidget->hide();
+
+            mainLayout->removeItem(m_videoWidget);
+        }
+    }
+
+    m_player->setVideoMode(showVideo);
 }
 
 void Applet::showMenu(const QPoint &position)
