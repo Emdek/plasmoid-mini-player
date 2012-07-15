@@ -785,12 +785,12 @@ void Player::registerDialogVideoWidget(VideoWidget *videoWidget)
 
 void Player::seekBackward()
 {
-    setPosition(position() - (duration() / 30));
+    setPosition(position() - qMin((duration() / 30), (qint64) 5000));
 }
 
 void Player::seekForward()
 {
-    setPosition(position() + (duration() / 30));
+    setPosition(position() + qMin((duration() / 30), (qint64) 5000));
 }
 
 void Player::increaseVolume()
