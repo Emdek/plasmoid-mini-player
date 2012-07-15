@@ -49,6 +49,7 @@ namespace MiniPlayer
 
 Player::Player(QObject *parent) : QObject(parent),
     m_notificationRestrictions(NULL),
+    m_currentVideoWidget(NULL),
     m_appletVideoWidget(NULL),
     m_dialogVideoWidget(NULL),
     m_fullScreenVideoWidget(NULL),
@@ -929,6 +930,8 @@ void Player::setUrl(const KUrl &url)
 
             QGlib::connect(bus, "message", this, &Player::handleBusMessage);
             QGlib::connect(m_pipeline, "video-changed", this, &Player::handleVideoChange);
+
+            setVideoMode(m_videoMode, true);
         }
     }
 
@@ -1063,12 +1066,19 @@ void Player::setAspectRatio(AspectRatio ratio)
 
 void Player::setVideoMode(bool mode, bool force)
 {
-    if (!m_pipeline || (m_videoMode == mode && !force))
+    if (mode == m_videoMode && !force)
     {
         return;
     }
 
     m_videoMode = mode;
+
+    if (!m_pipeline)
+    {
+        return;
+    }
+
+    const bool restart = (state() != StoppedState);
 
     QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
 
@@ -1076,66 +1086,25 @@ void Player::setVideoMode(bool mode, bool force)
 
     m_restartPosition = query->position();
 
-    const bool restart = (state() != StoppedState);
-
     if (restart)
     {
         m_pipeline->setState(QGst::StateNull);
     }
 
-    if (isFullScreen())
+    if (m_currentVideoWidget)
     {
-        if (m_appletVideoWidget)
-        {
-            m_appletVideoWidget->setPipeline(QGst::PipelinePtr());
-        }
+        m_currentVideoWidget->setPipeline(QGst::PipelinePtr());
+    }
 
-        if (m_dialogVideoWidget)
-        {
-            m_dialogVideoWidget->setPipeline(QGst::PipelinePtr());
-        }
+    m_currentVideoWidget = (isFullScreen()?m_fullScreenVideoWidget:(m_videoMode?m_appletVideoWidget:m_dialogVideoWidget));
 
-        m_fullScreenVideoWidget->setPipeline(m_pipeline);
+    if (m_currentVideoWidget)
+    {
+        m_currentVideoWidget->setPipeline(m_pipeline);
     }
     else
     {
-        if (m_fullScreenWidget)
-        {
-            m_fullScreenVideoWidget->setPipeline(QGst::PipelinePtr());
-        }
-
-        if (m_videoMode)
-        {
-            if (m_dialogVideoWidget)
-            {
-                m_dialogVideoWidget->setPipeline(QGst::PipelinePtr());
-            }
-
-            if (m_appletVideoWidget)
-            {
-                m_appletVideoWidget->setPipeline(m_pipeline);
-            }
-            else
-            {
-                m_pipeline->setProperty("video-sink", QGst::ElementFactory::make("fakesink"));
-            }
-        }
-        else
-        {
-            if (m_appletVideoWidget)
-            {
-                m_appletVideoWidget->setPipeline(QGst::PipelinePtr());
-            }
-
-            if (m_dialogVideoWidget)
-            {
-                m_dialogVideoWidget->setPipeline(m_pipeline);
-            }
-            else
-            {
-                m_pipeline->setProperty("video-sink", QGst::ElementFactory::make("fakesink"));
-            }
-        }
+        m_pipeline->setProperty("video-sink", QGst::ElementFactory::make("fakesink"));
     }
 
     if (restart)

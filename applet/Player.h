@@ -132,6 +132,7 @@ class Player : public QObject
     private:
         QGst::PipelinePtr m_pipeline;
         KNotificationRestrictions *m_notificationRestrictions;
+        VideoWidget *m_currentVideoWidget;
         VideoWidget *m_appletVideoWidget;
         VideoWidget *m_dialogVideoWidget;
         VideoWidget *m_fullScreenVideoWidget;
