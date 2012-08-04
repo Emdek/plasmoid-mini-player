@@ -5,8 +5,7 @@ KDE4 >= 4.4
 
 Features:
 - multiple playlists support;
-- ability to import from PLS, M3U, XSPF and ASX playlist formats;
-- ability to export to PLS and M3U playlist formats;
+- ability to import from and export to PLS, M3U, XSPF and ASX playlist formats;
 - streams support;
 - optical discs support;
 - full MPRIS2 D-Bus interface to control player (disabled by default);
