@@ -115,6 +115,9 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     Plasma::ToolButton *volumeButton = new Plasma::ToolButton(controlsWidget);
     volumeButton->setAction(m_player->action(VolumeToggleAction));
 
+    Plasma::ToolButton *muteButton = new Plasma::ToolButton(controlsWidget);
+    muteButton->setAction(m_player->action(MuteAction));
+
     Plasma::ToolButton *playlistButton = new Plasma::ToolButton(controlsWidget);
     playlistButton->setAction(m_player->action(PlaylistToggleAction));
 
@@ -135,6 +138,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     m_controls["position"]->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
     m_controls["volume"] = volumeButton;
     m_controls["volume"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
+    m_controls["mute"] = muteButton;
+    m_controls["mute"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
     m_controls["playlist"] = playlistButton;
     m_controls["playlist"]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
     m_controls["fullScreen"] = fullScreenButton;
@@ -150,6 +155,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : Plasma::Applet(paren
     controlsLayout->addItem(m_controls["playNext"]);
     controlsLayout->addItem(m_controls["position"]);
     controlsLayout->addItem(m_controls["volume"]);
+    controlsLayout->addItem(m_controls["mute"]);
     controlsLayout->addItem(m_controls["playlist"]);
     controlsLayout->addItem(m_controls["fullScreen"]);
 

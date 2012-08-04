@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>259</width>
-    <height>233</height>
+    <height>258</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -60,6 +60,13 @@
     <widget class="QCheckBox" name="volumeCheckBox">
      <property name="text">
       <string>Toggle volume control button</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="muteCheckBox">
+     <property name="text">
+      <string>Toggle mute button</string>
      </property>
     </widget>
    </item>

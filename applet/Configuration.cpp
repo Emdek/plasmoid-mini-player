@@ -52,6 +52,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_controlsUi.playNextCheckBox->setChecked(controls.contains("playNext"));
     m_controlsUi.positionCheckBox->setChecked(controls.contains("position"));
     m_controlsUi.volumeCheckBox->setChecked(controls.contains("volume"));
+    m_controlsUi.muteCheckBox->setChecked(controls.contains("mute"));
     m_controlsUi.playlistCheckBox->setChecked(controls.contains("playlist"));
     m_controlsUi.fullScreenCheckBox->setChecked(controls.contains("fullScreen"));
 
@@ -101,6 +102,11 @@ void Configuration::save()
     if (m_controlsUi.volumeCheckBox->isChecked())
     {
         controls.append("volume");
+    }
+
+    if (m_controlsUi.muteCheckBox->isChecked())
+    {
+        controls.append("mute");
     }
 
     if (m_controlsUi.playlistCheckBox->isChecked())
