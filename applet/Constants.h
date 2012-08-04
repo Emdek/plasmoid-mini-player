@@ -29,7 +29,7 @@ enum PlayerState { PlayingState, PausedState, StoppedState, ErrorState };
 enum PlayerReaction { NoReaction, PlayReaction, PauseReaction, StopReaction };
 enum PlaybackMode { SequentialMode = 0, LoopTrackMode = 1, LoopPlaylistMode = 2, RandomMode = 3, CurrentTrackOnceMode = 4 };
 enum AspectRatio { AutomaticRatio = 0, Ratio4_3 = 1, Ratio16_9 = 2, FitToRatio = 3 };
-enum PlaylistFormat { None = 0, PlsFormat, M3uFormat, XspfFormat, AsxFormat };
+enum PlaylistFormat { InvalidFormat = 0, PlsFormat, M3uFormat, XspfFormat, AsxFormat };
 enum PlaylistSource { LocalSource = 0, CdSource, VcdSource, DvdSource };
 enum PlaylistColumn { FileTypeColumn = 0, FileNameColumn, ArtistColumn, TitleColumn, AlbumColumn, TrackNumberColumn, GenreColumn, DescriptionColumn, DateColumn, DurationColumn };
 enum MetaDataKey { InvalidKey = 0, TitleKey = 1, ArtistKey = 2, AlbumKey = 4, DateKey = 8, GenreKey = 16, DescriptionKey = 32, TrackNumberKey = 64 };

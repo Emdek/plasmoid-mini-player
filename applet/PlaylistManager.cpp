@@ -20,12 +20,11 @@
 
 #include "PlaylistManager.h"
 #include "PlaylistModel.h"
+#include "PlaylistWriter.h"
 #include "MetaDataManager.h"
 #include "Player.h"
 #include "VideoWidget.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QClipboard>
 #include <QtGui/QHeaderView>
@@ -428,7 +427,7 @@ void PlaylistManager::exportPlaylist()
 {
     PlaylistModel *playlist = m_playlists[visiblePlaylist()];
     KFileDialog dialog(KUrl("~"), QString(), NULL);
-    dialog.setMimeFilter(QStringList() << "audio/x-scpls" << "audio/x-mpegurl");
+    dialog.setMimeFilter(QStringList() << "audio/x-scpls" << "audio/x-mpegurl" << "application/xspf+xml" << "video/x-ms-asf");
     dialog.setWindowModality(Qt::NonModal);
     dialog.setMode(KFile::File);
     dialog.setOperationMode(KFileDialog::Saving);
@@ -441,57 +440,12 @@ void PlaylistManager::exportPlaylist()
         return;
     }
 
-    QFile data(dialog.selectedUrl().toLocalFile());
+    PlaylistWriter writer(this, dialog.selectedUrl().toLocalFile(), playlist);
 
-    if (!data.open(QFile::WriteOnly))
+    if (!writer.status())
     {
-        KMessageBox::error(NULL, i18n("Cannot open file for writing."));
+        KMessageBox::error(NULL, i18n("Cannot save playlist."));
     }
-
-    QTextStream out(&data);
-    const KUrl::List tracks = playlist->tracks();
-    const PlaylistFormat type = (dialog.selectedUrl().toLocalFile().endsWith(".pls")?PlsFormat:M3uFormat);
-
-    if (type == PlsFormat)
-    {
-        out << "[playlist]\n";
-        out << "NumberOfEntries=" << tracks.count() << "\n\n";
-    }
-    else
-    {
-        out << "#EXTM3U\n\n";
-    }
-
-    for (int i = 0; i < tracks.count(); ++i)
-    {
-        const KUrl url = tracks.at(i);
-        const QString title = MetaDataManager::metaData(url, TitleKey, false);
-        const QString duration = ((MetaDataManager::duration(url) > 0)?QString::number(MetaDataManager::duration(url) / 1000):QString("-1"));
-
-        if (type == PlsFormat)
-        {
-            out << "File" << QString::number(i + 1) << "=";
-        }
-        else
-        {
-            out << "#EXTINF:" << duration << "," << title << "\n";
-        }
-
-        out << url.pathOrUrl() << '\n';
-
-        if (type == PlsFormat)
-        {
-            out << "Title" << QString::number(i + 1) << "=" << title << '\n';
-            out << "Length" << QString::number(i + 1) << "=" << duration << "\n\n";
-        }
-    }
-
-    if (type == PlsFormat)
-    {
-        out << "Version=2";
-    }
-
-    data.close();
 }
 
 void PlaylistManager::newPlaylist()

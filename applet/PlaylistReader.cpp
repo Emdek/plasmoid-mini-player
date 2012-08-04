@@ -51,7 +51,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 
     foreach (const KUrl &url, items)
     {
-        PlaylistFormat type = None;
+        PlaylistFormat format = InvalidFormat;
 
         if (url.isLocalFile())
         {
@@ -65,24 +65,24 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
             }
             else if (mimeType->is("audio/x-scpls"))
             {
-                type = PlsFormat;
+                format = PlsFormat;
             }
             else if (mimeType->is("audio/x-mpegurl"))
             {
-                type = M3uFormat;
+                format = M3uFormat;
             }
             else if (mimeType->is("application/xspf+xml"))
             {
-                type = XspfFormat;
+                format = XspfFormat;
             }
             else if (mimeType->is("audio/x-ms-asx"))
             {
-                type = AsxFormat;
+                format = AsxFormat;
             }
 
-            if (type != None)
+            if (format != InvalidFormat)
             {
-                importPlaylist(url, type);
+                importPlaylist(url, format);
 
                 continue;
             }
@@ -98,22 +98,22 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
         {
             if (url.pathOrUrl().endsWith(QString(".pls"), Qt::CaseInsensitive))
             {
-                type = PlsFormat;
+                format = PlsFormat;
             }
             else if (url.pathOrUrl().endsWith(QString(".m3u"), Qt::CaseInsensitive))
             {
-                type = M3uFormat;
+                format = M3uFormat;
             }
             else if (url.pathOrUrl().endsWith(QString(".xpsf"), Qt::CaseInsensitive))
             {
-                type = XspfFormat;
+                format = XspfFormat;
             }
             else if (url.pathOrUrl().endsWith(QString(".asx"), Qt::CaseInsensitive))
             {
-                type = AsxFormat;
+                format = AsxFormat;
             }
 
-            if (type != None)
+            if (format != InvalidFormat)
             {
                 KIO::Job *job = KIO::get(url, KIO::NoReload, KIO::HideProgressInfo);
 
@@ -122,7 +122,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
 
                 job->start();
 
-                m_remotePlaylists[job] = qMakePair(type, QByteArray());
+                m_remotePlaylists[job] = qMakePair(format, QByteArray());
 
                 continue;
             }
@@ -141,7 +141,7 @@ void PlaylistReader::addUrls(const KUrl::List &items, int level)
     }
 }
 
-void PlaylistReader::importPlaylist(const KUrl &url, PlaylistFormat type)
+void PlaylistReader::importPlaylist(const KUrl &url, PlaylistFormat format)
 {
     QFileInfo currentLocation(url.pathOrUrl());
 
@@ -154,11 +154,11 @@ void PlaylistReader::importPlaylist(const KUrl &url, PlaylistFormat type)
         KMessageBox::error(NULL, i18n("Cannot open file for reading."));
     }
 
-    if (type == XspfFormat)
+    if (format == XspfFormat)
     {
         readXspf(data.readAll());
     }
-    else if (type == AsxFormat)
+    else if (format == AsxFormat)
     {
         readAsx(data.readAll());
     }
@@ -166,7 +166,7 @@ void PlaylistReader::importPlaylist(const KUrl &url, PlaylistFormat type)
     {
         QTextStream stream(&data);
 
-        if (type == PlsFormat)
+        if (format == PlsFormat)
         {
             readPls(stream);
         }
@@ -209,73 +209,6 @@ void PlaylistReader::importResult(KJob *job)
     }
 
     m_remotePlaylists.remove(job);
-}
-
-void PlaylistReader::readM3u(QTextStream &stream)
-{
-    QRegExp m3uInformation("^#EXTINF:");
-    QString line;
-    KUrl::List urls;
-    Track track;
-    bool addUrl;
-
-    do
-    {
-        line = stream.readLine();
-
-        if (line.isEmpty())
-        {
-            continue;
-        }
-
-        addUrl = false;
-
-        if (!line.startsWith('#'))
-        {
-            addUrl = true;
-        }
-
-        if (line.contains(m3uInformation))
-        {
-            const QStringList information = line.remove(m3uInformation).split(',');
-
-            track.keys[TitleKey] = information.value(1);
-            track.duration = information.value(0).toLongLong();
-        }
-
-        if (addUrl)
-        {
-            KUrl url(line);
-
-            if (!url.isValid())
-            {
-                continue;
-            }
-
-            MetaDataManager::setMetaData(url, track);
-
-            track.keys.clear();
-            track.duration = -1;
-
-            if (!url.isLocalFile())
-            {
-                urls.append(url);
-
-                continue;
-            }
-
-            QFileInfo location(line);
-            location.makeAbsolute();
-
-            if (location.exists())
-            {
-                urls.append(KUrl(location.filePath()));
-            }
-        }
-    }
-    while (!line.isNull());
-
-    addUrls(urls);
 }
 
 void PlaylistReader::readPls(QTextStream &stream)
@@ -331,6 +264,73 @@ void PlaylistReader::readPls(QTextStream &stream)
             {
                 continue;
             }
+
+            if (!url.isLocalFile())
+            {
+                urls.append(url);
+
+                continue;
+            }
+
+            QFileInfo location(line);
+            location.makeAbsolute();
+
+            if (location.exists())
+            {
+                urls.append(KUrl(location.filePath()));
+            }
+        }
+    }
+    while (!line.isNull());
+
+    addUrls(urls);
+}
+
+void PlaylistReader::readM3u(QTextStream &stream)
+{
+    QRegExp m3uInformation("^#EXTINF:");
+    QString line;
+    KUrl::List urls;
+    Track track;
+    bool addUrl;
+
+    do
+    {
+        line = stream.readLine();
+
+        if (line.isEmpty())
+        {
+            continue;
+        }
+
+        addUrl = false;
+
+        if (!line.startsWith('#'))
+        {
+            addUrl = true;
+        }
+
+        if (line.contains(m3uInformation))
+        {
+            const QStringList information = line.remove(m3uInformation).split(',');
+
+            track.keys[TitleKey] = information.value(1);
+            track.duration = information.value(0).toLongLong();
+        }
+
+        if (addUrl)
+        {
+            KUrl url(line);
+
+            if (!url.isValid())
+            {
+                continue;
+            }
+
+            MetaDataManager::setMetaData(url, track);
+
+            track.keys.clear();
+            track.duration = -1;
 
             if (!url.isLocalFile())
             {

@@ -47,8 +47,8 @@ class PlaylistReader : public QObject
     protected:
         void addUrls(const KUrl::List &items, int level = 0);
         void importPlaylist(const KUrl &url, PlaylistFormat type);
-        void readM3u(QTextStream &stream);
         void readPls(QTextStream &stream);
+        void readM3u(QTextStream &stream);
         void readXspf(const QByteArray &data);
         void readAsx(const QByteArray &data);
         void readDirectory(const KUrl &url, int level = 0);
