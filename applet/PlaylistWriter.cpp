@@ -42,7 +42,7 @@ PlaylistWriter::PlaylistWriter(QObject *parent, const QString &path, PlaylistMod
         {
             format = M3uFormat;
         }
-        else if (path.endsWith(QString(".xpsf"), Qt::CaseInsensitive))
+        else if (path.endsWith(QString(".xspf"), Qt::CaseInsensitive))
         {
             format = XspfFormat;
         }
@@ -136,7 +136,66 @@ bool PlaylistWriter::writeM3u(const QString &path, const KUrl::List &tracks)
 
 bool PlaylistWriter::writeXspf(const QString &path, const PlaylistModel *playlist)
 {
-    return false;
+    QFile data(path);
+
+    if (!data.open(QFile::WriteOnly) || !playlist)
+    {
+        return false;
+    }
+
+    QHash<MetaDataKey, QString> keys;
+    keys[TitleKey] = "title";
+    keys[ArtistKey] = "creator";
+    keys[DescriptionKey] = "annotation";
+    keys[AlbumKey] = "album";
+    keys[TrackNumberKey] = "trackNum";
+
+    QXmlStreamWriter stream(&data);
+    stream.setAutoFormatting(true);
+    stream.writeStartDocument();
+    stream.writeStartElement("playlist");
+    stream.writeAttribute("xmlns", "http://xspf.org/ns/0/");
+    stream.writeAttribute("version", "1");
+    stream.writeTextElement("title", playlist->title());
+    stream.writeStartElement("trackList");
+
+    const KUrl::List tracks = playlist->tracks();
+
+    for (int i = 0; i < tracks.count(); ++i)
+    {
+        const KUrl url = tracks.at(i);
+        const qint64 duration = MetaDataManager::duration(url);
+
+        stream.writeStartElement("track");
+        stream.writeTextElement("location", url.pathOrUrl());
+
+        QHash<MetaDataKey, QString>::iterator iterator;
+
+        for (iterator = keys.begin(); iterator != keys.end(); ++iterator)
+        {
+            const QString value = MetaDataManager::metaData(url, iterator.key(), false);
+
+            if (!value.isEmpty())
+            {
+                stream.writeTextElement(iterator.value(), value);
+            }
+        }
+
+        if (duration >= 0)
+        {
+            stream.writeTextElement("duration", QString::number(duration));
+        }
+
+        stream.writeEndElement();
+    }
+
+    stream.writeEndElement();
+    stream.writeEndElement();
+    stream.writeEndDocument();
+
+    data.close();
+
+    return true;
 }
 
 bool PlaylistWriter::writeAsx(const QString &path, const PlaylistModel *playlist)
