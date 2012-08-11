@@ -379,6 +379,21 @@ void PlaylistReader::readXspf(const QByteArray &data)
             track.keys[ArtistKey] = reader.text().toString();
         }
 
+        if (reader.name().toString() == "annotation")
+        {
+            track.keys[DescriptionKey] = reader.text().toString();
+        }
+
+        if (reader.name().toString() == "album")
+        {
+            track.keys[AlbumKey] = reader.text().toString();
+        }
+
+        if (reader.name().toString() == "trackNum")
+        {
+            track.keys[TrackNumberKey] = reader.text().toString();
+        }
+
         if (reader.name().toString() == "location")
         {
             url = KUrl(reader.text().toString());
