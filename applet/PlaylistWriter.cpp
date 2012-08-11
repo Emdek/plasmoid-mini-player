@@ -186,6 +186,27 @@ bool PlaylistWriter::writeXspf(const QString &path, const PlaylistModel *playlis
             stream.writeTextElement("duration", QString::number(duration));
         }
 
+        const QString genre = MetaDataManager::metaData(url, GenreKey, false);
+        const QString date = MetaDataManager::metaData(url, DateKey, false);
+
+        if (!genre.isEmpty() || !date.isEmpty())
+        {
+            stream.writeStartElement("extension");
+            stream.writeAttribute("application", "plasma-mini-player");
+
+            if (!genre.isEmpty())
+            {
+                stream.writeTextElement("genre", genre);
+            }
+
+            if (!date.isEmpty())
+            {
+                stream.writeTextElement("date", date);
+            }
+
+            stream.writeEndElement();
+        }
+
         stream.writeEndElement();
     }
 
