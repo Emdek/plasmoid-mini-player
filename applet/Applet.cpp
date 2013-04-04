@@ -744,7 +744,7 @@ void Applet::showToolTip()
     {
         killTimer(m_hideToolTip);
 
-        if (!m_player->isFullScreen() && !(KWindowSystem::windowInfo(KWindowSystem::activeWindow(), NET::WMState).state() & NET::FullScreen))
+        if (!m_player->isFullScreen() && !(KWindowSystem::windowInfo(KWindowSystem::activeWindow(), NET::WMState).hasState(NET::FullScreen)))
         {
             Plasma::ToolTipManager::self()->show(this);
 
