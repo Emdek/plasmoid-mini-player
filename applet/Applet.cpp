@@ -236,8 +236,8 @@ void Applet::configChanged()
 
         KConfigGroup playlistsConfiguration = config().group("Playlists");
         KConfigGroup metaDataConfiguration = config().group("MetaData");
-        QStringList playlists = playlistsConfiguration.groupList();
-        QStringList tracks = metaDataConfiguration.groupList();
+        const QStringList playlists = playlistsConfiguration.groupList();
+        const QStringList tracks = metaDataConfiguration.groupList();
         int currentPlaylist = 0;
 
         for (int i = 0; i < tracks.count(); ++i)
@@ -612,7 +612,7 @@ void Applet::openFiles()
     dialog.setOperationMode(KFileDialog::Opening);
     dialog.exec();
 
-    KUrl::List urls = dialog.selectedUrls();
+    const KUrl::List urls = dialog.selectedUrls();
 
     if (urls.isEmpty())
     {
