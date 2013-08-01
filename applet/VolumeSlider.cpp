@@ -50,8 +50,8 @@ void VolumeSlider::mousePressEvent(QMouseEvent *event)
 
         initStyleOption(&option);
 
-        QRect groove = style()->subControlRect(QStyle::CC_Slider, &option, QStyle::SC_SliderGroove, this);
-        QRect handle = style()->subControlRect(QStyle::CC_Slider, &option, QStyle::SC_SliderHandle, this);
+        const QRect groove = style()->subControlRect(QStyle::CC_Slider, &option, QStyle::SC_SliderGroove, this);
+        const QRect handle = style()->subControlRect(QStyle::CC_Slider, &option, QStyle::SC_SliderHandle, this);
         int position;
 
         if (orientation() == Qt::Horizontal)
