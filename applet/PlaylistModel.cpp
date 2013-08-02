@@ -182,7 +182,7 @@ void PlaylistModel::shuffle()
         return;
     }
 
-    KUrl url = m_tracks.value(m_currentTrack);
+    const KUrl url = m_tracks.value(m_currentTrack);
 
     KRandomSequence().randomize(m_tracks);
 
@@ -202,7 +202,7 @@ void PlaylistModel::sort(int column, Qt::SortOrder order)
     QMultiMap<QString, KUrl> keyMap;
     QMultiMap<qint64, KUrl> durationMap;
     KUrl::List tracks;
-    KUrl url = m_tracks.value(m_currentTrack);
+    const KUrl url = m_tracks.value(m_currentTrack);
 
     if (column == DurationColumn)
     {
@@ -394,7 +394,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    KUrl url(m_tracks.at(index.row()));
+    const KUrl url(m_tracks.at(index.row()));
 
     if (role == Qt::DecorationRole && index.column() == FileTypeColumn && url.isValid())
     {
@@ -493,7 +493,7 @@ QMimeData* PlaylistModel::mimeData(const QModelIndexList &indexes) const
 
 Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+    const Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
 
     if (index.isValid())
     {
