@@ -53,20 +53,18 @@ DBusInterface::DBusInterface(Applet* applet) : QObject(applet)
 DBusInterface::~DBusInterface()
 {
     QDBusConnection connection = QDBusConnection::sessionBus();
-
     connection.unregisterService("org.mpris." + m_instance);
     connection.unregisterService("org.mpris.MediaPlayer2." + m_instance);
 }
 
 void DBusInterface::updateProperties(const QString &interface, const QVariantMap &properties)
 {
-    QDBusMessage message = QDBusMessage::createSignal("/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "PropertiesChanged");
-
     QVariantList arguments;
     arguments << interface;
     arguments << properties;
     arguments << QStringList();
 
+    QDBusMessage message = QDBusMessage::createSignal("/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "PropertiesChanged");
     message.setArguments(arguments);
 
     QDBusConnection::sessionBus().send(message);
