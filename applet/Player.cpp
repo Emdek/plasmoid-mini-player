@@ -1216,6 +1216,18 @@ bool Player::eventFilter(QObject *object, QEvent *event)
 
         return true;
     }
+    else if (event->type() == QEvent::Wheel)
+    {
+        setPosition(position() + (qMin((duration() / 30), (qint64) 5000) * static_cast<QWheelEvent*>(event)->delta() / 120));
+
+        return false;
+    }
+    else if (event->type() == QEvent::GraphicsSceneWheel)
+    {
+        setPosition(position() + (qMin((duration() / 30), (qint64) 5000) * static_cast<QGraphicsSceneWheelEvent*>(event)->delta() / 120));
+
+        return false;
+    }
 
     return QObject::eventFilter(object, event);
 }
