@@ -210,7 +210,7 @@ void PlaylistManager::openDisc(QAction *action)
 
 void PlaylistManager::deviceAdded(const QString &udi)
 {
-    Solid::Device device = Solid::Device(udi);
+    const Solid::Device device = Solid::Device(udi);
 
     if (!device.isDeviceInterface(Solid::DeviceInterface::OpticalDisc))
     {
